@@ -1,0 +1,56 @@
+$eptWidth: 150px;
+$eptHeight: 50px;
+
+svg {
+	background-color: #EEE;
+	text {
+		font-family: arial, tahoma, verdana;
+		font-size: 14px;
+	}
+}
+
+.ept {
+	stroke-width: 0;
+
+	.container {
+		width: $eptWidth;
+		height: $eptHeight;
+		fill: #FFF;
+		stroke: #444;
+		stroke-width: 1;
+	}
+	text {
+		&.title {
+			transform: translate(10px, 28px);
+			width: 100px;
+		}
+
+		&.in, &.out {
+			font-size: 12px;
+		}
+
+		&.in {
+			transform: translate($eptWidth / 2 + 10px, -10px);
+		}
+
+		&.out {
+			transform: translate($eptWidth / 2 + 10px, $eptHeight + 15);
+		}
+	}
+	circle {
+		r: 5px;
+		cx: $eptWidth / 2;
+		stroke-width: 1;
+		stroke: #000;
+
+		&.in {
+			cy: 0;
+			fill: green;
+		}
+
+		&.out {
+			cy: $eptHeight;
+			fill: red;
+		}
+	}
+}

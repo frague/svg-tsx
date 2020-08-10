@@ -1,0 +1,47 @@
+svg {
+  background-color: #EEE;
+}
+svg text {
+  font-family: arial, tahoma, verdana;
+  font-size: 14px;
+}
+
+.ept {
+  stroke-width: 0;
+}
+.ept .container {
+  width: 150px;
+  height: 50px;
+  fill: #FFF;
+  stroke: #444;
+  stroke-width: 1;
+}
+.ept text.title {
+  transform: translate(10px, 28px);
+  width: 100px;
+}
+.ept text.in, .ept text.out {
+  font-size: 12px;
+}
+.ept text.in {
+  transform: translate(85px, -10px);
+}
+.ept text.out {
+  transform: translate(85px, 65px);
+}
+.ept circle {
+  r: 5px;
+  cx: 75px;
+  stroke-width: 1;
+  stroke: #000;
+}
+.ept circle.in {
+  cy: 0;
+  fill: green;
+}
+.ept circle.out {
+  cy: 50px;
+  fill: red;
+}
+
+/*# sourceMappingURL=/styles.164d45a1.css.map */
