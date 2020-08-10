@@ -9,6 +9,12 @@ svg text {
 .ept {
   stroke-width: 0;
 }
+.ept:hover {
+  cursor: pointer;
+}
+.ept.drag g {
+  transform: rotate(3deg);
+}
 .ept .container {
   width: 150px;
   height: 50px;

@@ -1,6 +1,9 @@
 $eptWidth: 150px;
 $eptHeight: 50px;
 
+$green: green;
+$red: red;
+
 svg {
 	background-color: #EEE;
 	text {
@@ -11,6 +14,14 @@ svg {
 
 .ept {
 	stroke-width: 0;
+
+	&:hover {
+		cursor: pointer;
+ 	}
+
+ 	&.drag g {
+ 		transform: rotate(3deg);
+ 	}
 
 	.container {
 		width: $eptWidth;
@@ -45,12 +56,12 @@ svg {
 
 		&.in {
 			cy: 0;
-			fill: green;
+			fill: $green;
 		}
 
 		&.out {
 			cy: $eptHeight;
-			fill: red;
+			fill: $red;
 		}
 	}
 }

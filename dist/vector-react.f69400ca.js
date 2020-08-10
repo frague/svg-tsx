@@ -28317,17 +28317,61 @@ exports.default = Canvas;
 },{"react":"node_modules/react/index.js"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
 "use strict";
 
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  Object.defineProperty(o, k2, {
+    enumerable: true,
+    get: function get() {
+      return m[k];
+    }
+  });
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  }
+
+  __setModuleDefault(result, mod);
+
+  return result;
 };
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var react_1 = __importDefault(require("react"));
+var react_1 = __importStar(require("react"));
+
+function startDragging(event, setDragging, setStartedAt) {
+  setDragging(true);
+  setStartedAt([event.clientX, event.clientY]);
+}
+
+function drag(event, startedAt, setOffset) {
+  event.preventDefault();
+  var result = [event.clientX - startedAt[0], event.clientY - startedAt[1]];
+  setOffset(result);
+}
+
+function drop(position, offset, setDragging) {
+  console.log("Update position to (" + (position.x + offset[0]) + ", " + (position.y + offset[1]) + ")");
+  setDragging(false);
+}
 
 var Ept = function Ept(_a) {
   var title = _a.title,
@@ -28336,10 +28380,35 @@ var Ept = function Ept(_a) {
       inputTypes = _a.inputTypes,
       _b = _a.outputType,
       outputType = _b === void 0 ? null : _b;
+
+  var _c = react_1.useState(false),
+      isDragging = _c[0],
+      setDragging = _c[1];
+
+  var _d = react_1.useState([0, 0]),
+      offset = _d[0],
+      setOffset = _d[1];
+
+  var _e = react_1.useState([0, 0]),
+      startedAt = _e[0],
+      setStartedAt = _e[1];
+
   return react_1.default.createElement("g", {
-    className: "ept",
-    transform: "translate(" + position.x + "," + position.y + ")"
-  }, react_1.default.createElement("rect", {
+    className: 'ept' + (isDragging ? ' drag' : ''),
+    transform: "translate(" + (offset[0] + position.x) + "," + (offset[1] + position.y) + ")",
+    onMouseDown: function onMouseDown(event) {
+      return startDragging(event, setDragging, setStartedAt);
+    },
+    onMouseMove: function onMouseMove(event) {
+      if (isDragging) drag(event, startedAt, setOffset);
+    },
+    onMouseUp: function onMouseUp() {
+      return drop(position, offset, setDragging);
+    },
+    onMouseLeave: function onMouseLeave() {
+      return setDragging(false);
+    }
+  }, react_1.default.createElement("g", null, react_1.default.createElement("rect", {
     className: "container"
   }), react_1.default.createElement("text", {
     className: "title"
@@ -28355,7 +28424,7 @@ var Ept = function Ept(_a) {
   }), react_1.default.createElement("text", {
     key: "out-label",
     className: "out"
-  }, outputType)]);
+  }, outputType)]));
 };
 
 exports.default = Ept;
@@ -28389,7 +28458,7 @@ react_dom_1.default.render(react_1.default.createElement(canvas_1.default, {
     x: 100,
     y: 50
   },
-  type: "Some EPT type very very long title",
+  type: "Address Type",
   inputTypes: ['interface'],
   outputType: 'interface'
 })), document.getElementById('content'));
