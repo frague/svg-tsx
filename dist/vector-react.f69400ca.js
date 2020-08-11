@@ -28307,10 +28307,23 @@ var Canvas = function Canvas(_a) {
   return react_1.default.createElement("svg", {
     height: height,
     width: width,
+    viewBox: "0 0 " + width + " " + height,
     xmlns: "http://www.w3.org/2000/svg",
     version: "1.2",
-    baseProfile: "tiny"
-  }, children);
+    baseProfile: "full"
+  }, react_1.default.createElement("defs", null, react_1.default.createElement("path", {
+    id: "arrow",
+    d: "M5,0 0,2.5 5,5 3.5,3 3.5,2z"
+  }), react_1.default.createElement("marker", {
+    id: "arrow-marker",
+    markerHeight: "5",
+    markerWidth: "5",
+    orient: "auto",
+    refX: "2.5",
+    refY: "2.5"
+  }, react_1.default.createElement("use", {
+    href: "#arrow"
+  }))), children);
 };
 
 exports.default = Canvas;
@@ -28358,6 +28371,7 @@ Object.defineProperty(exports, "__esModule", {
 var react_1 = __importStar(require("react"));
 
 function startDragging(event, setDragging, setStartedAt) {
+  event.stopPropagation();
   setDragging(true);
   setStartedAt([event.clientX, event.clientY]);
 }
@@ -28480,7 +28494,36 @@ var Ept = function Ept(_a) {
 };
 
 exports.default = Ept;
-},{"react":"node_modules/react/index.js","../draggable/draggable":"src/components/draggable/draggable.tsx"}],"index.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../draggable/draggable":"src/components/draggable/draggable.tsx"}],"src/components/link/link.tsx":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_1 = __importDefault(require("react"));
+
+;
+
+var Link = function Link(_a) {
+  var from = _a.from,
+      to = _a.to;
+  var hy = (to.y - from.y) / 2;
+  return react_1.default.createElement("path", {
+    className: "link",
+    d: "M" + from.x + "," + from.y + "C" + from.x + "," + (from.y + hy) + "," + to.x + "," + (to.y - hy) + "," + to.x + "," + to.y,
+    markerEnd: "url(#arrow-marker)"
+  });
+};
+
+exports.default = Link;
+},{"react":"node_modules/react/index.js"}],"index.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -28501,9 +28544,11 @@ var canvas_1 = __importDefault(require("./src/components/canvas/canvas"));
 
 var ept_1 = __importDefault(require("./src/components/ept/ept"));
 
+var link_1 = __importDefault(require("./src/components/link/link"));
+
 react_dom_1.default.render(react_1.default.createElement(canvas_1.default, {
-  width: "800",
-  height: "600"
+  width: 800,
+  height: 600
 }, react_1.default.createElement(ept_1.default, {
   title: "test ept very very long title",
   position: {
@@ -28513,8 +28558,17 @@ react_dom_1.default.render(react_1.default.createElement(canvas_1.default, {
   type: "Address Type",
   inputTypes: ['interface'],
   outputType: 'interface'
+}), react_1.default.createElement(link_1.default, {
+  from: {
+    x: 100,
+    y: 50
+  },
+  to: {
+    x: 270,
+    y: 190
+  }
 })), document.getElementById('content'));
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/ept/ept":"src/components/ept/ept.tsx"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/ept/ept":"src/components/ept/ept.tsx","./src/components/link/link":"src/components/link/link.tsx"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;

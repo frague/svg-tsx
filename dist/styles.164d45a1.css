@@ -55,4 +55,21 @@ svg text {
   fill: #f55f07;
 }
 
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+path#arrow {
+  stroke-linecap: round;
+}
+
+marker#arrow-marker use {
+  transform: translate(5px, 5px) rotate(180deg) scale(1, 1);
+  stroke-width: 1;
+  fill: #000;
+  stroke: none;
+}
+
 /*# sourceMappingURL=/styles.164d45a1.css.map */

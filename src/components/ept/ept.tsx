@@ -1,15 +1,17 @@
 import React, { useState } from 'react'
 import Draggable from '../draggable/draggable'
 
+import { IPosition } from '../../interfaces'
+
 export interface IEptProps {
 	title: string,
-	position?: {x: number, y: number},
+	position?: IPosition,
 	type: string,
 	inputTypes: string[],
 	outputType?: string
 };
 
-function move(position: {x: number, y: number}) {
+function move(position: IPosition) {
 	console.log('Moving to ', position);
 }
 

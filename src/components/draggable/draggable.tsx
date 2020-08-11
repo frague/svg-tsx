@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
 
+import { IPosition } from '../../interfaces'
+
 function startDragging(
 	event: MouseEvent,
 	setDragging: Function,
 	setStartedAt: Function) 
 {
+	event.stopPropagation();
 	setDragging(true);
 	setStartedAt([event.clientX, event.clientY]);
 }
@@ -27,7 +30,7 @@ function stopDragging(
 }
 
 function drop(
-	position: {x: number, y: number},
+	position: IPosition,
 	offset: [number, number],
 	setDragging: Function,
 	setOffset: Function,
@@ -39,8 +42,8 @@ function drop(
 }
 
 export interface IDraggableProps {
-  position: {x: number, y: number},
-  onDrop?: (position: {x: number, y: number}) => void,
+  position: IPosition,
+  onDrop?: (position: IPosition) => void,
   children?: React.ReactNode
 }
 
@@ -56,7 +59,6 @@ const Draggable = ({position={x: 0, y: 0}, children, onDrop=()=>{}}: IDraggableP
 		onMouseDown={ (event) => startDragging(event, setDragging, setStartedAt) }
 		onMouseMove={ (event) => {if (isDragging) drag(event, startedAt, setOffset)} }
 		onMouseUp={ () => drop(position, offset, setDragging, setOffset, onDrop) }
-		// onMouseLeave={ () => stopDragging(setDragging, setOffset) } 
 	>{ children }</g>
 };
 
