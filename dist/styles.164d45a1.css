@@ -6,14 +6,18 @@ svg text {
   font-size: 14px;
 }
 
-.ept {
-  stroke-width: 0;
-}
-.ept:hover {
+.draggable {
   cursor: pointer;
 }
-.ept.drag g {
-  transform: rotate(3deg);
+.draggable.drag {
+  cursor: move;
+}
+.draggable.drag .ept {
+  transform: scale(1.01);
+}
+
+.ept {
+  stroke-width: 0;
 }
 .ept .container {
   width: 150px;
@@ -25,6 +29,7 @@ svg text {
 .ept text.title {
   transform: translate(10px, 28px);
   width: 100px;
+  clip-path: inset(0 calc(100% - 130px) 0 0);
 }
 .ept text.in, .ept text.out {
   font-size: 12px;
@@ -43,11 +48,11 @@ svg text {
 }
 .ept circle.in {
   cy: 0;
-  fill: green;
+  fill: #a8e04f;
 }
 .ept circle.out {
   cy: 50px;
-  fill: red;
+  fill: #f55f07;
 }
 
 /*# sourceMappingURL=/styles.164d45a1.css.map */

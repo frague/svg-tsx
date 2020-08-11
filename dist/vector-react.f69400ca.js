@@ -28300,10 +28300,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var react_1 = __importDefault(require("react"));
 
-var Canvas = function Canvas(props) {
-  var width = props.width,
-      height = props.height,
-      children = props.children;
+var Canvas = function Canvas(_a) {
+  var width = _a.width,
+      height = _a.height,
+      children = _a.children;
   return react_1.default.createElement("svg", {
     height: height,
     width: width,
@@ -28314,7 +28314,7 @@ var Canvas = function Canvas(props) {
 };
 
 exports.default = Canvas;
-},{"react":"node_modules/react/index.js"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js"}],"src/components/draggable/draggable.tsx":[function(require,module,exports) {
 "use strict";
 
 var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
@@ -28364,38 +28364,50 @@ function startDragging(event, setDragging, setStartedAt) {
 
 function drag(event, startedAt, setOffset) {
   event.preventDefault();
-  var result = [event.clientX - startedAt[0], event.clientY - startedAt[1]];
-  setOffset(result);
+  setOffset([event.clientX - startedAt[0], event.clientY - startedAt[1]]);
 }
 
-function drop(position, offset, setDragging) {
-  console.log("Update position to (" + (position.x + offset[0]) + ", " + (position.y + offset[1]) + ")");
+function stopDragging(setDragging, setOffset) {
   setDragging(false);
+  setOffset([0, 0]);
 }
 
-var Ept = function Ept(_a) {
-  var title = _a.title,
-      position = _a.position,
-      type = _a.type,
-      inputTypes = _a.inputTypes,
-      _b = _a.outputType,
-      outputType = _b === void 0 ? null : _b;
+function drop(position, offset, setDragging, setOffset, onDrop) {
+  console.log("Update position to (" + (position.x + offset[0]) + ", " + (position.y + offset[1]) + ")");
+  onDrop({
+    x: position.x + offset[0],
+    y: position.y + offset[1]
+  });
+  stopDragging(setDragging, setOffset);
+}
 
-  var _c = react_1.useState(false),
-      isDragging = _c[0],
-      setDragging = _c[1];
+var Draggable = function Draggable(_a) {
+  var _b = _a.position,
+      position = _b === void 0 ? {
+    x: 0,
+    y: 0
+  } : _b,
+      children = _a.children,
+      _c = _a.onDrop,
+      onDrop = _c === void 0 ? function () {} : _c;
 
-  var _d = react_1.useState([0, 0]),
-      offset = _d[0],
-      setOffset = _d[1];
+  var _d = react_1.useState(false),
+      isDragging = _d[0],
+      setDragging = _d[1];
 
   var _e = react_1.useState([0, 0]),
-      startedAt = _e[0],
-      setStartedAt = _e[1];
+      offset = _e[0],
+      setOffset = _e[1];
 
+  var _f = react_1.useState([0, 0]),
+      startedAt = _f[0],
+      setStartedAt = _f[1];
+
+  var x = position.x,
+      y = position.y;
   return react_1.default.createElement("g", {
-    className: 'ept' + (isDragging ? ' drag' : ''),
-    transform: "translate(" + (offset[0] + position.x) + "," + (offset[1] + position.y) + ")",
+    className: 'draggable ' + (isDragging ? 'drag' : ''),
+    transform: "translate(" + (offset[0] + x) + "," + (offset[1] + y) + ")",
     onMouseDown: function onMouseDown(event) {
       return startDragging(event, setDragging, setStartedAt);
     },
@@ -28403,12 +28415,52 @@ var Ept = function Ept(_a) {
       if (isDragging) drag(event, startedAt, setOffset);
     },
     onMouseUp: function onMouseUp() {
-      return drop(position, offset, setDragging);
-    },
-    onMouseLeave: function onMouseLeave() {
-      return setDragging(false);
+      return drop(position, offset, setDragging, setOffset, onDrop);
     }
-  }, react_1.default.createElement("g", null, react_1.default.createElement("rect", {
+  }, children);
+};
+
+exports.default = Draggable;
+},{"react":"node_modules/react/index.js"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_1 = __importDefault(require("react"));
+
+var draggable_1 = __importDefault(require("../draggable/draggable"));
+
+;
+
+function move(position) {
+  console.log('Moving to ', position);
+}
+
+var Ept = function Ept(_a) {
+  var title = _a.title,
+      _b = _a.position,
+      position = _b === void 0 ? {
+    x: 0,
+    y: 0
+  } : _b,
+      type = _a.type,
+      inputTypes = _a.inputTypes,
+      _c = _a.outputType,
+      outputType = _c === void 0 ? null : _c;
+  return react_1.default.createElement(draggable_1.default, {
+    position: position,
+    onDrop: move
+  }, react_1.default.createElement("g", {
+    className: "ept"
+  }, react_1.default.createElement("rect", {
     className: "container"
   }), react_1.default.createElement("text", {
     className: "title"
@@ -28428,7 +28480,7 @@ var Ept = function Ept(_a) {
 };
 
 exports.default = Ept;
-},{"react":"node_modules/react/index.js"}],"index.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../draggable/draggable":"src/components/draggable/draggable.tsx"}],"index.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -28490,7 +28542,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56581" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56511" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

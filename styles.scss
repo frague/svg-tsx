@@ -1,8 +1,8 @@
 $eptWidth: 150px;
 $eptHeight: 50px;
 
-$green: green;
-$red: red;
+$green: #a8e04f;
+$red: #f55f07;
 
 svg {
 	background-color: #EEE;
@@ -12,16 +12,20 @@ svg {
 	}
 }
 
+.draggable {
+	cursor: pointer;
+ 	
+ 	&.drag {
+ 		cursor: move;
+
+	 	.ept {
+	 		transform: scale(1.01);
+	 	}
+ 	}
+}
+
 .ept {
 	stroke-width: 0;
-
-	&:hover {
-		cursor: pointer;
- 	}
-
- 	&.drag g {
- 		transform: rotate(3deg);
- 	}
 
 	.container {
 		width: $eptWidth;
@@ -30,10 +34,12 @@ svg {
 		stroke: #444;
 		stroke-width: 1;
 	}
+
 	text {
 		&.title {
 			transform: translate(10px, 28px);
 			width: 100px;
+			clip-path: inset(0 calc(100% - #{$eptWidth - 20px}) 0 0);
 		}
 
 		&.in, &.out {
