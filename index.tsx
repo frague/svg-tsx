@@ -1,16 +1,21 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
+
+import appReducer from './src/store/reducers'
+
 import Canvas from './src/components/canvas/canvas'
-import Ept from './src/components/ept/ept'
-import Link from './src/components/link/link'
+import Visualizer from './src/components/visualizer/visualizer'
+
+const store = createStore(appReducer);
 
 ReactDOM.render(
-	<Canvas width={ 800 } height={ 600 }>
-		<Ept title="test ept very very long title" position={ {x: 100, y: 50} }
-			type="Address Type" inputTypes={ ['interface'] } outputType={ 'interface' } 
-		/>
-		<Link from={ {x: 100, y: 50} } to={ {x: 270, y: 190} } />
-	</Canvas>,
+	<Provider store={ store }>
+		<Canvas width={ 800 } height={ 600 }>
+			<Visualizer />
+		</Canvas>
+	</Provider>,
 	document.getElementById('content')
 );
