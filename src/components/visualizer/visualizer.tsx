@@ -1,4 +1,5 @@
 import React from 'react'
+import { IPosition } from '../../interfaces'
 
 import Ept, { IEpt } from '../ept/ept'
 import Link from '../link/link'
@@ -13,10 +14,25 @@ export interface IVisualizerProps {
 	eptRemove: Function,
 };
 
+const eptOrder = ([, ept1], [, ept2]) => ept1.order > ept2.order ? -1 : 1;
+
+const getPosition = (id, epts, isInput): IPosition => {
+	let ept = epts[id];
+	if (!ept) return {x: 0, y: 0};
+	return {x: ept.position.x + 75, y: ept.position.y + (isInput ? 0 : 50)};
+};
+
 const Visualizer = ({epts, links, eptAdd, eptRemove}: IVisualizerProps) => {
 	return [
-		...Object.entries(epts).map(([id, ept]) =>  <Ept key={id} data={ ept } id={ id } position={ ept.position }></Ept>),
-		...Object.entries(links).map(([id, link]) =>  <Link key={ id } from={ {x: 10, y: 100} } to={ {x: 300, y: 250} }></Link>),
+		...Object.entries(epts)
+			.sort(eptOrder)
+			.map(([id, ept]) =>
+				<Ept key={ id } data={ ept } id={ id } position={ ept.position } />
+			),
+		...Object.entries(links)
+			.map(([id, link]) =>
+				<Link key={ id } from={ getPosition(link.from, epts, false) } to={ getPosition(link.to, epts, true) } />
+			),
 	];
 }
 

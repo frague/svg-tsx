@@ -41,8 +41,9 @@ const Draggable = ({position={x: 0, y: 0}, children, onMove=(position: IPosition
 
 	return <g className={ 'draggable ' + (isDragging ? 'drag' : '') }
 		transform={ `translate(${x},${y})` }
-		onMouseDown={ (event) => startDragging(event, setDragging, setStartedAt) }
-		onMouseMove={ (event) => {if (isDragging) drag(event, startedAt, setStartedAt, position, onMove)} }
+		onMouseDown={ event => startDragging(event, setDragging, setStartedAt) }
+		onMouseMove={ event => { if (isDragging) drag(event, startedAt, setStartedAt, position, onMove)} }
+		onMouseLeave={ event => { if (isDragging) drag(event, startedAt, setStartedAt, position, onMove)} }
 		onMouseUp={ () => setDragging(false) }
 	>{ children }</g>
 };

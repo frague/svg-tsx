@@ -60,6 +60,9 @@ svg text {
   stroke: #000;
   stroke-width: 2px;
 }
+.link:hover {
+  stroke: #f55f07;
+}
 
 path#arrow {
   stroke-linecap: round;

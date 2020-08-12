@@ -18,7 +18,15 @@ const dummyState = {
 		outputType: 'interface',
 		position: {x: 100, y: 85},
 		id: 'ID00001'
-	}
+	},
+	'ID00002': {
+		title: 'Dummy EPT #2',
+		type: 'some type 2',
+		inputTypes: ['interface', 'subinterface'],
+		outputType: 'interface',
+		position: {x: 150, y: 190},
+		id: 'ID00002'
+	},
 };
 
 function eptsReducer(state=dummyState, action) {
@@ -48,7 +56,15 @@ function eptsReducer(state=dummyState, action) {
 	}
 }
 
-function linksReducer(state={}, action) {
+const dummyLinks = {
+	'ID00010': {
+		from: 'ID00001',
+		to: 'ID00002',
+		id: 'ID00010',
+	}
+};
+
+function linksReducer(state=dummyLinks, action) {
 	return state;
 }
 

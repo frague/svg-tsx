@@ -31769,6 +31769,17 @@ var dummyState = {
       y: 85
     },
     id: 'ID00001'
+  },
+  'ID00002': {
+    title: 'Dummy EPT #2',
+    type: 'some type 2',
+    inputTypes: ['interface', 'subinterface'],
+    outputType: 'interface',
+    position: {
+      x: 150,
+      y: 190
+    },
+    id: 'ID00002'
   }
 };
 
@@ -31805,9 +31816,17 @@ function eptsReducer(state, action) {
   }
 }
 
+var dummyLinks = {
+  'ID00010': {
+    from: 'ID00001',
+    to: 'ID00002',
+    id: 'ID00010'
+  }
+};
+
 function linksReducer(state, action) {
   if (state === void 0) {
-    state = {};
+    state = dummyLinks;
   }
 
   return state;
@@ -31842,10 +31861,12 @@ var Canvas = function Canvas(_a) {
     width: width,
     viewBox: "0 0 " + width + " " + height,
     xmlns: "http://www.w3.org/2000/svg",
+    xmlnsXlink: "http://www.w3.org/1999/xlink",
     version: "1.2",
     baseProfile: "full"
   }, react_1.default.createElement("defs", null, react_1.default.createElement("path", {
     id: "arrow",
+    strokeLinecap: "round",
     d: "M5,0 0,2.5 5,5 3.5,3 3.5,2z"
   }), react_1.default.createElement("marker", {
     id: "arrow-marker",
@@ -31855,7 +31876,8 @@ var Canvas = function Canvas(_a) {
     refX: "2.5",
     refY: "2.5"
   }, react_1.default.createElement("use", {
-    href: "#arrow"
+    href: "#arrow",
+    transform: "rotate(180 2.5 2.5) scale(1,1)"
   }))), children);
 };
 
@@ -31949,6 +31971,9 @@ var Draggable = function Draggable(_a) {
       return startDragging(event, setDragging, setStartedAt);
     },
     onMouseMove: function onMouseMove(event) {
+      if (isDragging) drag(event, startedAt, setStartedAt, position, onMove);
+    },
+    onMouseLeave: function onMouseLeave(event) {
       if (isDragging) drag(event, startedAt, setStartedAt, position, onMove);
     },
     onMouseUp: function onMouseUp() {
@@ -32050,6 +32075,31 @@ Object.defineProperty(exports, "__esModule", {
 var react_1 = __importDefault(require("react"));
 
 ;
+var radius = 5;
+
+function calcPath(from, to) {
+  var _a;
+
+  var x = from.x,
+      y = from.y;
+  var dx = to.x - x;
+  var dy = to.y - y;
+  var l = Math.sqrt(dx * dx + dy * dy);
+  var rx = dx * (l ? radius / l : 1);
+  var ry = dy * (l ? radius / l : 1);
+  var tx = dx / 8;
+  var ty = dy / 3;
+  var _b = [to.x - 2 * rx, to.y - 2 * ry],
+      sx = _b[0],
+      sy = _b[1];
+
+  if (dy < 0) {
+    _a = [to.x - 2 * rx, to.y + 2 * ry], sx = _a[0], sy = _a[1];
+    return "M" + (x + rx) + "," + (y - ry) + "C" + (x + 6 * tx) + "," + (y - 4 * ty) + "," + (sx - 6 * tx) + "," + (sy + 4 * ty) + "," + sx + "," + sy;
+  }
+
+  return "M" + (x + rx) + "," + (y + ry) + "C" + (x + tx) + "," + (y + ty) + "," + (sx - tx) + "," + (sy - ty) + "," + sx + "," + sy;
+}
 
 var Link = function Link(_a) {
   var from = _a.from,
@@ -32057,7 +32107,7 @@ var Link = function Link(_a) {
   var hy = (to.y - from.y) / 2;
   return react_1.default.createElement("path", {
     className: "link",
-    d: "M" + from.x + "," + from.y + "C" + from.x + "," + (from.y + hy) + "," + to.x + "," + (to.y - hy) + "," + to.x + "," + to.y,
+    d: calcPath(from, to),
     markerEnd: "url(#arrow-marker)"
   });
 };
@@ -32102,12 +32152,30 @@ var react_redux_1 = require("react-redux");
 
 ;
 
+var eptOrder = function eptOrder(_a, _b) {
+  var ept1 = _a[1];
+  var ept2 = _b[1];
+  return ept1.order > ept2.order ? -1 : 1;
+};
+
+var getPosition = function getPosition(id, epts, isInput) {
+  var ept = epts[id];
+  if (!ept) return {
+    x: 0,
+    y: 0
+  };
+  return {
+    x: ept.position.x + 75,
+    y: ept.position.y + (isInput ? 0 : 50)
+  };
+};
+
 var Visualizer = function Visualizer(_a) {
   var epts = _a.epts,
       links = _a.links,
       eptAdd = _a.eptAdd,
       eptRemove = _a.eptRemove;
-  return __spreadArrays(Object.entries(epts).map(function (_a) {
+  return __spreadArrays(Object.entries(epts).sort(eptOrder).map(function (_a) {
     var id = _a[0],
         ept = _a[1];
     return react_1.default.createElement(ept_1.default, {
@@ -32121,14 +32189,8 @@ var Visualizer = function Visualizer(_a) {
         link = _a[1];
     return react_1.default.createElement(link_1.default, {
       key: id,
-      from: {
-        x: 10,
-        y: 100
-      },
-      to: {
-        x: 300,
-        y: 250
-      }
+      from: getPosition(link.from, epts, false),
+      to: getPosition(link.to, epts, true)
     });
   }));
 };
