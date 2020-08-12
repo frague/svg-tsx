@@ -8,6 +8,7 @@ import appReducer from './src/store/reducers'
 
 import Canvas from './src/components/canvas/canvas'
 import Visualizer from './src/components/visualizer/visualizer'
+import Catalogue from './src/components/catalogue/catalogue'
 
 const store = createStore(appReducer);
 
@@ -16,6 +17,7 @@ ReactDOM.render(
 		<Canvas width={ 800 } height={ 600 }>
 			<Visualizer />
 		</Canvas>
+		<Catalogue />
 	</Provider>,
 	document.getElementById('content')
 );

@@ -1,9 +1,38 @@
+* {
+  font-family: arial, tahoma, verdana;
+}
+
+div#content {
+  display: flex;
+  flex-direction: row;
+}
+div#content svg {
+  flex: 0 0 800px;
+}
+div#content .catalogue {
+  flex: 0 0 300px;
+}
+
 svg {
+  display: block;
   background-color: #EEE;
 }
 svg text {
   font-family: arial, tahoma, verdana;
   font-size: 14px;
+}
+
+button.link {
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  display: inline;
+  cursor: pointer;
+  color: #0f7cbb;
+}
+button.link, button.link:active {
+  outline: none;
 }
 
 .draggable {
@@ -62,6 +91,17 @@ svg text {
 }
 .link:hover {
   stroke: #f55f07;
+}
+
+.catalogue ul {
+  padding-left: 15px;
+}
+.catalogue ul li {
+  margin-bottom: 15px;
+  list-style: none;
+}
+.catalogue ul li h5 {
+  margin: 0;
 }
 
 path#arrow {

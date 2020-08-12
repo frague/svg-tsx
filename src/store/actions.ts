@@ -1,7 +1,7 @@
-import { IPosition } from '../interfaces'
+import { IPosition, IEpt } from '../interfaces'
 
 export const EPT_ADD = 'EPT_ADD';
-export function eptAdd(ept) {
+export function eptAdd(ept: IEpt) {
 	return {
 		type: EPT_ADD,
 		ept
@@ -26,10 +26,10 @@ export function eptRemove(id) {
 
 
 export const LINK_ADD = 'LINK_ADD';
-export function linkAdd(ept) {
+export function linkAdd(link) {
 	return {
 		type: LINK_ADD,
-		ept
+		link
 	};
 }
 

@@ -3,12 +3,44 @@ $eptHeight: 50px;
 
 $green: #a8e04f;
 $red: #f55f07;
+$blue: #0f7cbb;
+
+* {
+	font-family: arial, tahoma, verdana;	
+}
+
+div#content {
+	display: flex;
+	flex-direction: row;
+
+	svg {
+		flex: 0 0 800px;
+	}
+	.catalogue {
+		flex: 0 0 300px;
+	}
+}
 
 svg {
+	display: block;
 	background-color: #EEE;
 	text {
 		font-family: arial, tahoma, verdana;
 		font-size: 14px;
+	}
+}
+
+button.link {
+	background-color: transparent;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	display: inline;
+	cursor: pointer;
+	color: $blue;
+	
+	&, &:active {
+		outline: none;
 	}
 }
 
@@ -81,6 +113,24 @@ svg {
 		stroke: $red;
 	}
 }
+
+.catalogue {
+	ul {
+		padding-left: 15px;
+
+		li {
+			margin-bottom: 15px;
+			list-style: none;
+
+			h5 {
+				margin: 0;
+			}
+		}
+	}
+}
+
+
+
 
 // Definitions
 path#arrow {

@@ -31702,10 +31702,10 @@ function eptRemove(id) {
 exports.eptRemove = eptRemove;
 exports.LINK_ADD = 'LINK_ADD';
 
-function linkAdd(ept) {
+function linkAdd(link) {
   return {
     type: exports.LINK_ADD,
-    ept: ept
+    link: link
   };
 }
 
@@ -31744,10 +31744,6 @@ var actions_1 = require("./actions");
 
 function instantiateAndPosition(ept) {
   var _a;
-
-  if (ept === void 0) {
-    ept = {};
-  }
 
   var id = 'ID' + ('000000' + Math.round(1000 * Math.random())).substring(-5);
   ept.id = id;
@@ -32215,7 +32211,111 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var VisualizerConnected = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(Visualizer);
 exports.default = VisualizerConnected;
-},{"react":"node_modules/react/index.js","../ept/ept":"src/components/ept/ept.tsx","../link/link":"src/components/link/link.tsx","../../store/actions":"src/store/actions.ts","react-redux":"node_modules/react-redux/es/index.js"}],"index.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../ept/ept":"src/components/ept/ept.tsx","../link/link":"src/components/link/link.tsx","../../store/actions":"src/store/actions.ts","react-redux":"node_modules/react-redux/es/index.js"}],"data/test.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.primitives = void 0;
+var primitives = [{
+  'title': 'Subinterface',
+  'tags': [],
+  'node': '',
+  'parameters': {
+    'security_zone': '',
+    'vlan_id': ''
+  },
+  'inputTypes': ['interface'],
+  'outputType': 'subinterface'
+}, {
+  'title': 'Attach VLAN',
+  'tags': [],
+  'node': '',
+  'parameters': {
+    'vlan_id': '',
+    'tagged/untagged': ''
+  },
+  'inputTypes': ['interface'],
+  'outputType': null
+}, {
+  'title': 'Address type',
+  'tags': [],
+  'node': '',
+  'parameters': {
+    'IPv4': '',
+    'IPv6': ''
+  },
+  'inputTypes': ['interface', 'subinterface'],
+  'outputType': 'routable interface'
+}, {
+  'title': 'BGP unnumbered',
+  'tags': [],
+  'node': '',
+  'parameters': {
+    'timeout': ''
+  },
+  'inputTypes': ['routable interface'],
+  'outputType': 'routing session'
+}, {
+  'title': 'Routing policy',
+  'tags': [],
+  'node': '',
+  'parameters': {
+    'import/export': ''
+  },
+  'inputTypes': ['routing session'],
+  'outputType': 'routing policy'
+}];
+exports.primitives = primitives;
+},{}],"src/components/catalogue/catalogue.tsx":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_1 = __importDefault(require("react"));
+
+var react_redux_1 = require("react-redux");
+
+var actions_1 = require("../../store/actions");
+
+var test_1 = require("../../../data/test");
+
+var Catalogue = function Catalogue(_a) {
+  var onAddClick = _a.onAddClick;
+  return react_1.default.createElement("div", {
+    className: "catalogue"
+  }, react_1.default.createElement("ul", null, test_1.primitives.map(function (ept, index) {
+    return react_1.default.createElement("li", {
+      key: index
+    }, react_1.default.createElement("h5", null, ept.title), react_1.default.createElement("button", {
+      className: "link",
+      onClick: function onClick() {
+        return onAddClick(ept);
+      }
+    }, "Use"));
+  })));
+};
+
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    onAddClick: function onAddClick(ept) {
+      dispatch(actions_1.eptAdd(ept));
+    }
+  };
+};
+
+var CatalogueConnected = react_redux_1.connect(null, mapDispatchToProps)(Catalogue);
+exports.default = CatalogueConnected;
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../../data/test":"data/test.js"}],"index.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -32242,14 +32342,16 @@ var canvas_1 = __importDefault(require("./src/components/canvas/canvas"));
 
 var visualizer_1 = __importDefault(require("./src/components/visualizer/visualizer"));
 
+var catalogue_1 = __importDefault(require("./src/components/catalogue/catalogue"));
+
 var store = redux_1.createStore(reducers_1.default);
 react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider, {
   store: store
 }, react_1.default.createElement(canvas_1.default, {
   width: 800,
   height: 600
-}, react_1.default.createElement(visualizer_1.default, null))), document.getElementById('content'));
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+}, react_1.default.createElement(visualizer_1.default, null)), react_1.default.createElement(catalogue_1.default, null)), document.getElementById('content'));
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;

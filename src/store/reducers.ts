@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux'
 
 import { EPT_ADD, EPT_MOVE, EPT_REMOVE, LINK_ADD, LINK_MOVE, LINK_REMOVE } from './actions'
-import { IPosition } from '../interfaces'
+import { IPosition, IEpt } from '../interfaces'
 
-function instantiateAndPosition(ept: any={}) {
+function instantiateAndPosition(ept: IEpt) {
 	let id = 'ID' + ('000000' + Math.round(1000 * Math.random())).substring(-5);
 	ept.id = id;
 	ept.position = {x: 100, y: 80};

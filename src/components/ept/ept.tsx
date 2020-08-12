@@ -3,17 +3,9 @@ import { connect } from 'react-redux'
 
 import Draggable from '../draggable/draggable'
 
-import { IPosition } from '../../interfaces'
+import { IPosition, IEpt } from '../../interfaces'
 
 import { eptMove } from '../../store/actions'
-
-
-export interface IEpt {
-	title: string,
-	type: string,
-	inputTypes: string[],
-	outputType?: string,	
-}
 
 export interface IEptProps {
 	data: IEpt,
