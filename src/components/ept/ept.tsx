@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
+import { eptMove, eptBringOnTop } from '../../store/actions'
 
 import Draggable from '../draggable/draggable'
 
 import { IPosition, IEpt } from '../../interfaces'
+import { eptWidth, eptHeight } from '../../settings'
 
-import { eptMove, eptBringOnTop } from '../../store/actions'
+import ConnectionPoint from '../connectionPoint/connectionPoint'
 
 export interface IEptProps {
 	data: IEpt,
@@ -27,16 +29,12 @@ const Ept = ({id, data=emptyEpt, position={x: 0, y: 0}, onMove=()=>{}, bringOnTo
 			<rect className="container" />
 			<text className="title">{ data.title }</text>
 			{
-				data.inputTypes && [
-					<circle key="in" className="in" />,
-					<text key="in-label" className="in">{ data.inputTypes.join(', ') }</text>
-				]
+				data.inputTypes && 
+					<ConnectionPoint isInput={ true } position={ {x: eptWidth / 2, y: 0} } types={ data.inputTypes } />
 			}
 			{
-				data.outputType && [
-					<circle key="out" className="out" />,
-					<text key="out-label" className="out">{ data.outputType }</text>
-				]
+				data.outputType && 
+					<ConnectionPoint isInput={ false } position={ {x: eptWidth / 2, y: eptHeight} } types={ data.outputType ? [data.outputType] : null } />
 			}
 		</g>
 	</Draggable>

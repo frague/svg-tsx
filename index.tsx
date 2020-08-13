@@ -10,6 +10,8 @@ import Canvas from './src/components/canvas/canvas'
 import Visualizer from './src/components/visualizer/visualizer'
 import Catalogue from './src/components/catalogue/catalogue'
 
+import './styles.scss'
+
 const store = createStore(appReducer);
 
 ReactDOM.render(

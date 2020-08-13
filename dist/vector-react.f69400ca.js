@@ -31901,7 +31901,20 @@ var Canvas = function Canvas(_a) {
 };
 
 exports.default = Canvas;
-},{"react":"node_modules/react/index.js"}],"src/components/draggable/draggable.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js"}],"src/settings.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.connectionPointRadius = exports.eptHeight = exports.eptWidth = void 0;
+var eptWidth = 150;
+exports.eptWidth = eptWidth;
+var eptHeight = 50;
+exports.eptHeight = eptHeight;
+var connectionPointRadius = 5;
+exports.connectionPointRadius = connectionPointRadius;
+},{}],"src/components/draggable/draggable.tsx":[function(require,module,exports) {
 "use strict";
 
 var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
@@ -32005,7 +32018,44 @@ var Draggable = function Draggable(_a) {
 };
 
 exports.default = Draggable;
-},{"react":"node_modules/react/index.js"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js"}],"src/components/connectionPoint/connectionPoint.tsx":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_1 = __importDefault(require("react"));
+
+var settings_1 = require("../../settings");
+
+var ConnectionPoint = function ConnectionPoint(_a) {
+  var position = _a.position,
+      isInput = _a.isInput,
+      _b = _a.types,
+      types = _b === void 0 ? null : _b,
+      _c = _a.isMultiple,
+      isMultiple = _c === void 0 ? false : _c;
+  return react_1.default.createElement("g", {
+    className: 'connection-point ' + (isInput ? 'in' : 'out')
+  }, react_1.default.createElement("circle", {
+    cx: position.x,
+    cy: position.y,
+    radius: settings_1.connectionPointRadius
+  }), react_1.default.createElement("text", {
+    key: "in-label",
+    className: "in"
+  }, types.join(', ')));
+};
+
+exports.default = ConnectionPoint;
+},{"react":"node_modules/react/index.js","../../settings":"src/settings.js"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -32022,9 +32072,13 @@ var react_1 = __importDefault(require("react"));
 
 var react_redux_1 = require("react-redux");
 
+var actions_1 = require("../../store/actions");
+
 var draggable_1 = __importDefault(require("../draggable/draggable"));
 
-var actions_1 = require("../../store/actions");
+var settings_1 = require("../../settings");
+
+var connectionPoint_1 = __importDefault(require("../connectionPoint/connectionPoint"));
 
 ;
 var emptyEpt = {
@@ -32061,19 +32115,21 @@ var Ept = function Ept(_a) {
     className: "container"
   }), react_1.default.createElement("text", {
     className: "title"
-  }, data.title), data.inputTypes && [react_1.default.createElement("circle", {
-    key: "in",
-    className: "in"
-  }), react_1.default.createElement("text", {
-    key: "in-label",
-    className: "in"
-  }, data.inputTypes.join(', '))], data.outputType && [react_1.default.createElement("circle", {
-    key: "out",
-    className: "out"
-  }), react_1.default.createElement("text", {
-    key: "out-label",
-    className: "out"
-  }, data.outputType)]));
+  }, data.title), data.inputTypes && react_1.default.createElement(connectionPoint_1.default, {
+    isInput: true,
+    position: {
+      x: settings_1.eptWidth / 2,
+      y: 0
+    },
+    types: data.inputTypes
+  }), data.outputType && react_1.default.createElement(connectionPoint_1.default, {
+    isInput: false,
+    position: {
+      x: settings_1.eptWidth / 2,
+      y: settings_1.eptHeight
+    },
+    types: data.outputType ? [data.outputType] : null
+  })));
 };
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
@@ -32089,7 +32145,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var EptConnected = react_redux_1.connect(null, mapDispatchToProps)(Ept);
 exports.default = EptConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../draggable/draggable":"src/components/draggable/draggable.tsx","../../store/actions":"src/store/actions.ts"}],"src/components/link/link.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../draggable/draggable":"src/components/draggable/draggable.tsx","../../settings":"src/settings.js","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/link/link.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -32104,8 +32160,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var react_1 = __importDefault(require("react"));
 
+var settings_1 = require("../../settings");
+
 ;
-var radius = 5;
 
 function calcPath(from, to) {
   var _a;
@@ -32115,8 +32172,8 @@ function calcPath(from, to) {
   var dx = to.x - x;
   var dy = to.y - y;
   var l = Math.sqrt(dx * dx + dy * dy);
-  var rx = dx * (l ? radius / l : 1);
-  var ry = dy * (l ? radius / l : 1);
+  var rx = dx * (l ? settings_1.connectionPointRadius / l : 1);
+  var ry = dy * (l ? settings_1.connectionPointRadius / l : 1);
   var tx = dx / 8;
   var ty = dy / 3;
   var _b = [to.x - 2 * rx, to.y - 2 * ry],
@@ -32143,7 +32200,7 @@ var Link = function Link(_a) {
 };
 
 exports.default = Link;
-},{"react":"node_modules/react/index.js"}],"src/components/visualizer/visualizer.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../../settings":"src/settings.js"}],"src/components/visualizer/visualizer.tsx":[function(require,module,exports) {
 "use strict";
 
 var __spreadArrays = this && this.__spreadArrays || function () {
@@ -32176,6 +32233,8 @@ var react_redux_1 = require("react-redux");
 
 var actions_1 = require("../../store/actions");
 
+var settings_1 = require("../../settings");
+
 var ept_1 = __importDefault(require("../ept/ept"));
 
 var link_1 = __importDefault(require("../link/link"));
@@ -32195,8 +32254,8 @@ var getPosition = function getPosition(id, epts, isInput) {
     y: 0
   };
   return {
-    x: ept.position.x + 75,
-    y: ept.position.y + (isInput ? 0 : 50)
+    x: ept.position.x + settings_1.eptWidth / 2,
+    y: ept.position.y + (isInput ? 0 : settings_1.eptHeight)
   };
 };
 
@@ -32245,7 +32304,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var VisualizerConnected = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(Visualizer);
 exports.default = VisualizerConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../ept/ept":"src/components/ept/ept.tsx","../link/link":"src/components/link/link.tsx"}],"data/test.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../settings":"src/settings.js","../ept/ept":"src/components/ept/ept.tsx","../link/link":"src/components/link/link.tsx"}],"data/test.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32349,7 +32408,79 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var CatalogueConnected = react_redux_1.connect(null, mapDispatchToProps)(Catalogue);
 exports.default = CatalogueConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../../data/test":"data/test.js"}],"index.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../../data/test":"data/test.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+var bundleURL = null;
+
+function getBundleURLCached() {
+  if (!bundleURL) {
+    bundleURL = getBundleURL();
+  }
+
+  return bundleURL;
+}
+
+function getBundleURL() {
+  // Attempt to find the URL of the current script and use that as the base URL
+  try {
+    throw new Error();
+  } catch (err) {
+    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+
+    if (matches) {
+      return getBaseURL(matches[0]);
+    }
+  }
+
+  return '/';
+}
+
+function getBaseURL(url) {
+  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
+}
+
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
+var bundle = require('./bundle-url');
+
+function updateLink(link) {
+  var newLink = link.cloneNode();
+
+  newLink.onload = function () {
+    link.remove();
+  };
+
+  newLink.href = link.href.split('?')[0] + '?' + Date.now();
+  link.parentNode.insertBefore(newLink, link.nextSibling);
+}
+
+var cssTimeout = null;
+
+function reloadCSS() {
+  if (cssTimeout) {
+    return;
+  }
+
+  cssTimeout = setTimeout(function () {
+    var links = document.querySelectorAll('link[rel="stylesheet"]');
+
+    for (var i = 0; i < links.length; i++) {
+      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
+        updateLink(links[i]);
+      }
+    }
+
+    cssTimeout = null;
+  }, 50);
+}
+
+module.exports = reloadCSS;
+},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"styles.scss":[function(require,module,exports) {
+var reloadCSS = require('_css_loader');
+
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"index.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -32378,6 +32509,8 @@ var visualizer_1 = __importDefault(require("./src/components/visualizer/visualiz
 
 var catalogue_1 = __importDefault(require("./src/components/catalogue/catalogue"));
 
+require("./styles.scss");
+
 var store = redux_1.createStore(reducers_1.default);
 react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider, {
   store: store
@@ -32385,7 +32518,7 @@ react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider,
   width: 800,
   height: 600
 }, react_1.default.createElement(visualizer_1.default, null)), react_1.default.createElement(catalogue_1.default, null)), document.getElementById('content'));
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;

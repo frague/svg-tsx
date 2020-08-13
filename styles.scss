@@ -1,5 +1,4 @@
-$eptWidth: 150px;
-$eptHeight: 50px;
+@import "./variables.scss";
 
 $green: #a8e04f;
 $red: #f55f07;
@@ -51,7 +50,8 @@ button.link {
  		cursor: move;
 
 	 	.ept {
-	 		transform: scale(1.01);
+	 		transform: rotate(-5deg) scale(1.1);
+	 		transform-origin: $eptWidth/2 $eptHeight/2;
 	 	}
  	}
 }
@@ -73,35 +73,39 @@ button.link {
 			width: 100px;
 			clip-path: inset(0 calc(100% - #{$eptWidth - 20px}) 0 0);
 		}
-
-		&.in, &.out {
-			font-size: 12px;
-		}
-
-		&.in {
-			transform: translate($eptWidth / 2 + 10px, -10px);
-		}
-
-		&.out {
-			transform: translate($eptWidth / 2 + 10px, $eptHeight + 15);
-		}
 	}
+}
+
+.connection-point {
 	circle {
-		r: 5px;
+		r: $connectionPointRadius;
 		cx: $eptWidth / 2;
 		stroke-width: 1;
 		stroke: #000;
+	}
 
-		&.in {
-			cy: 0;
+	text {
+		font-size: 12px;
+	}
+
+	&.in {
+		circle {
 			fill: $green;
 		}
-
-		&.out {
-			cy: $eptHeight;
-			fill: $red;
+		text {
+			transform: translate($eptWidth / 2 + 10px, -10px);
 		}
 	}
+
+	&.out {
+		circle {
+			fill: $red;
+		}
+		text {
+			transform: translate($eptWidth / 2 + 10px, $eptHeight + 15);
+		}
+	}
+
 }
 
 .link {
@@ -140,6 +144,7 @@ path#arrow {
 marker#arrow-marker {
 	use {
 		transform: translate(5px, 5px) rotate(180deg) scale(1,1);
+
 		stroke-width: 1.0000;
 		fill: #000;
 		stroke: none;

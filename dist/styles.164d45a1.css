@@ -1,3 +1,9 @@
+:export {
+  eptHeight: 50px;
+  eptWidth: 150px;
+  radius: 5px;
+}
+
 * {
   font-family: arial, tahoma, verdana;
 }

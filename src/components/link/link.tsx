@@ -2,13 +2,12 @@ import React, { useState } from 'react'
 import Draggable from '../draggable/draggable'
 
 import { IPosition } from '../../interfaces'
+import { connectionPointRadius } from '../../settings'
 
 export interface ILinkProps {
 	from: IPosition,
 	to: IPosition
 };
-
-const radius = 5;
 
 function calcPath(from: IPosition, to: IPosition) {
 	let {x, y} = from;
@@ -17,8 +16,8 @@ function calcPath(from: IPosition, to: IPosition) {
 	
 	let l = Math.sqrt(dx * dx + dy * dy);
 	
-	let rx = dx * (l ? radius / l : 1);
-	let ry = dy * (l ? radius / l : 1);
+	let rx = dx * (l ? connectionPointRadius / l : 1);
+	let ry = dy * (l ? connectionPointRadius / l : 1);
 
 	let tx = dx / 8;
 	let ty = dy / 3;
