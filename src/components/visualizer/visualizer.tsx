@@ -1,11 +1,13 @@
 import React from 'react'
-import { IPosition } from '../../interfaces'
 
-import Ept, { IEpt } from '../ept/ept'
+import { connect } from 'react-redux'
+import { eptAdd, eptRemove } from '../../store/actions'
+
+import { IPosition, IEpt } from '../../interfaces'
+
+import Ept from '../ept/ept'
 import Link from '../link/link'
 
-import { eptAdd, eptRemove } from '../../store/actions'
-import { connect } from 'react-redux'
 
 export interface IVisualizerProps {
 	epts: Object,
@@ -14,7 +16,7 @@ export interface IVisualizerProps {
 	eptRemove: Function,
 };
 
-const eptOrder = ([, ept1], [, ept2]) => ept1.order > ept2.order ? -1 : 1;
+const eptOrder = ([, ept1], [, ept2]) => ept1.order < ept2.order ? -1 : 1;
 
 const getPosition = (id, epts, isInput): IPosition => {
 	let ept = epts[id];

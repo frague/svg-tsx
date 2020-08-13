@@ -10,6 +10,7 @@ export interface IEpt {
 	outputType?: string,
 
 	position?: IPosition,
-	id?: string	
+	id?: string	,
+	order?: number,
 }
 

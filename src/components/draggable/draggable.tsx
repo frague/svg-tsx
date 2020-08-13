@@ -5,9 +5,11 @@ import { IPosition } from '../../interfaces'
 function startDragging(
 	event: MouseEvent,
 	setDragging: Function,
-	setStartedAt: Function) 
-{
+	setStartedAt: Function,
+	onStartDragging: Function
+) {
 	event.stopPropagation();
+	onStartDragging();
 	setDragging(true);
 	setStartedAt([event.clientX, event.clientY]);
 }
@@ -17,7 +19,7 @@ function drag(
 	startedAt: [number, number],
 	setStartedAt: Function,
 	position: IPosition,
-	onMove: (position: IPosition) => void
+	onMove: (position: IPosition) => void,
 ) {
 	event.preventDefault();
 	let offset = [event.clientX - startedAt[0], event.clientY - startedAt[1]];
@@ -28,12 +30,13 @@ function drag(
 }
 
 export interface IDraggableProps {
-  position: IPosition,
-  onMove?: (position: IPosition) => void,
-  children?: React.ReactNode
+	position: IPosition,
+	onMove?: (position: IPosition) => void,
+	onStartDragging?: Function
+	children?: React.ReactNode,
 }
 
-const Draggable = ({position={x: 0, y: 0}, children, onMove=(position: IPosition)=>{}}: IDraggableProps) => {
+const Draggable = ({position={x: 0, y: 0}, children, onMove=(position: IPosition)=>{}, onStartDragging=()=>{}}: IDraggableProps) => {
 	let [isDragging, setDragging] = useState(false);
 	let [startedAt, setStartedAt] = useState([0, 0]);
 
@@ -41,7 +44,7 @@ const Draggable = ({position={x: 0, y: 0}, children, onMove=(position: IPosition
 
 	return <g className={ 'draggable ' + (isDragging ? 'drag' : '') }
 		transform={ `translate(${x},${y})` }
-		onMouseDown={ event => startDragging(event, setDragging, setStartedAt) }
+		onMouseDown={ event => startDragging(event, setDragging, setStartedAt, onStartDragging) }
 		onMouseMove={ event => { if (isDragging) drag(event, startedAt, setStartedAt, position, onMove)} }
 		onMouseLeave={ event => { if (isDragging) drag(event, startedAt, setStartedAt, position, onMove)} }
 		onMouseUp={ () => setDragging(false) }

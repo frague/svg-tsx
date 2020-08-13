@@ -24,6 +24,14 @@ export function eptRemove(id) {
 	};
 }
 
+export const EPT_BRING_ON_TOP = 'EPT_BRING_ON_TOP';
+export function eptBringOnTop(id) {
+	return {
+		type: EPT_BRING_ON_TOP,
+		id
+	};
+}
+
 
 export const LINK_ADD = 'LINK_ADD';
 export function linkAdd(link) {

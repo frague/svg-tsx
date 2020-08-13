@@ -1,12 +1,14 @@
 import { combineReducers } from 'redux'
 
-import { EPT_ADD, EPT_MOVE, EPT_REMOVE, LINK_ADD, LINK_MOVE, LINK_REMOVE } from './actions'
+import { EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP,
+	LINK_ADD, LINK_MOVE, LINK_REMOVE } from './actions'
 import { IPosition, IEpt } from '../interfaces'
 
 function instantiateAndPosition(ept: IEpt) {
 	let id = 'ID' + ('000000' + Math.round(1000 * Math.random())).substring(-5);
 	ept.id = id;
 	ept.position = {x: 100, y: 80};
+	ept.order = 0;
 	return {[id]: ept};
 }
 
@@ -47,6 +49,15 @@ function eptsReducer(state=dummyState, action) {
 				let result = Object.assign({}, state);
 				delete result[action.id];
 				return result;
+			} else
+				return state;
+
+		case EPT_BRING_ON_TOP:
+			if (state.hasOwnProperty(action.id)) {
+				let result1 = Object.assign({}, state);
+				let newOrder = 1 + Math.max(...Object.values(result1).map((ept: IEpt) => +ept.order || 0));
+				result1[action.id] = Object.assign({}, result1[action.id], {order: newOrder});
+				return result1;
 			} else
 				return state;
 

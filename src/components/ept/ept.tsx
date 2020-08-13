@@ -5,13 +5,14 @@ import Draggable from '../draggable/draggable'
 
 import { IPosition, IEpt } from '../../interfaces'
 
-import { eptMove } from '../../store/actions'
+import { eptMove, eptBringOnTop } from '../../store/actions'
 
 export interface IEptProps {
 	data: IEpt,
 	id: string,
 	position?: IPosition,
-	onMove: Function
+	onMove: Function,
+	bringOnTop: Function
 };
 
 const emptyEpt = {
@@ -20,8 +21,8 @@ const emptyEpt = {
 	inputTypes: [],
 };
 
-const Ept = ({id, data=emptyEpt, position={x: 0, y: 0}, onMove=()=>{}}: IEptProps) => {
-	return <Draggable position={ position } onMove={ newPosition => onMove(id, newPosition) }>
+const Ept = ({id, data=emptyEpt, position={x: 0, y: 0}, onMove=()=>{}, bringOnTop=()=>{}}: IEptProps) => {
+	return <Draggable position={ position } onStartDragging={ () => bringOnTop(id) } onMove={ newPosition => onMove(id, newPosition) }>
 		<g className="ept">
 			<rect className="container" />
 			<text className="title">{ data.title }</text>
@@ -45,6 +46,9 @@ const mapDispatchToProps = dispatch => {
   return {
     onMove: (id: string, position: IPosition) => {
       dispatch(eptMove(id, position))
+    },
+    bringOnTop: (id: string)  => {
+    	dispatch(eptBringOnTop(id))
     }
   }
 }

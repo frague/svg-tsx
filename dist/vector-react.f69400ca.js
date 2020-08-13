@@ -31668,7 +31668,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.linkRemove = exports.LINK_REMOVE = exports.linkMove = exports.LINK_MOVE = exports.linkAdd = exports.LINK_ADD = exports.eptRemove = exports.EPT_REMOVE = exports.eptMove = exports.EPT_MOVE = exports.eptAdd = exports.EPT_ADD = void 0;
+exports.linkRemove = exports.LINK_REMOVE = exports.linkMove = exports.LINK_MOVE = exports.linkAdd = exports.LINK_ADD = exports.eptBringOnTop = exports.EPT_BRING_ON_TOP = exports.eptRemove = exports.EPT_REMOVE = exports.eptMove = exports.EPT_MOVE = exports.eptAdd = exports.EPT_ADD = void 0;
 exports.EPT_ADD = 'EPT_ADD';
 
 function eptAdd(ept) {
@@ -31700,6 +31700,16 @@ function eptRemove(id) {
 }
 
 exports.eptRemove = eptRemove;
+exports.EPT_BRING_ON_TOP = 'EPT_BRING_ON_TOP';
+
+function eptBringOnTop(id) {
+  return {
+    type: exports.EPT_BRING_ON_TOP,
+    id: id
+  };
+}
+
+exports.eptBringOnTop = eptBringOnTop;
 exports.LINK_ADD = 'LINK_ADD';
 
 function linkAdd(link) {
@@ -31751,6 +31761,7 @@ function instantiateAndPosition(ept) {
     x: 100,
     y: 80
   };
+  ept.order = 0;
   return _a = {}, _a[id] = ept, _a;
 }
 
@@ -31805,6 +31816,18 @@ function eptsReducer(state, action) {
         var result = Object.assign({}, state);
         delete result[action.id];
         return result;
+      } else return state;
+
+    case actions_1.EPT_BRING_ON_TOP:
+      if (state.hasOwnProperty(action.id)) {
+        var result1 = Object.assign({}, state);
+        var newOrder = 1 + Math.max.apply(Math, Object.values(result1).map(function (ept) {
+          return +ept.order || 0;
+        }));
+        result1[action.id] = Object.assign({}, result1[action.id], {
+          order: newOrder
+        });
+        return result1;
       } else return state;
 
     default:
@@ -31921,8 +31944,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var react_1 = __importStar(require("react"));
 
-function startDragging(event, setDragging, setStartedAt) {
+function startDragging(event, setDragging, setStartedAt, onStartDragging) {
   event.stopPropagation();
+  onStartDragging();
   setDragging(true);
   setStartedAt([event.clientX, event.clientY]);
 }
@@ -31948,15 +31972,17 @@ var Draggable = function Draggable(_a) {
   } : _b,
       children = _a.children,
       _c = _a.onMove,
-      onMove = _c === void 0 ? function (position) {} : _c;
+      onMove = _c === void 0 ? function (position) {} : _c,
+      _d = _a.onStartDragging,
+      onStartDragging = _d === void 0 ? function () {} : _d;
 
-  var _d = react_1.useState(false),
-      isDragging = _d[0],
-      setDragging = _d[1];
+  var _e = react_1.useState(false),
+      isDragging = _e[0],
+      setDragging = _e[1];
 
-  var _e = react_1.useState([0, 0]),
-      startedAt = _e[0],
-      setStartedAt = _e[1];
+  var _f = react_1.useState([0, 0]),
+      startedAt = _f[0],
+      setStartedAt = _f[1];
 
   var x = position.x,
       y = position.y;
@@ -31964,7 +31990,7 @@ var Draggable = function Draggable(_a) {
     className: 'draggable ' + (isDragging ? 'drag' : ''),
     transform: "translate(" + x + "," + y + ")",
     onMouseDown: function onMouseDown(event) {
-      return startDragging(event, setDragging, setStartedAt);
+      return startDragging(event, setDragging, setStartedAt, onStartDragging);
     },
     onMouseMove: function onMouseMove(event) {
       if (isDragging) drag(event, startedAt, setStartedAt, position, onMove);
@@ -32017,10 +32043,15 @@ var Ept = function Ept(_a) {
     y: 0
   } : _c,
       _d = _a.onMove,
-      _onMove = _d === void 0 ? function () {} : _d;
+      _onMove = _d === void 0 ? function () {} : _d,
+      _e = _a.bringOnTop,
+      bringOnTop = _e === void 0 ? function () {} : _e;
 
   return react_1.default.createElement(draggable_1.default, {
     position: position,
+    onStartDragging: function onStartDragging() {
+      return bringOnTop(id);
+    },
     onMove: function onMove(newPosition) {
       return _onMove(id, newPosition);
     }
@@ -32049,6 +32080,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     onMove: function onMove(id, position) {
       dispatch(actions_1.eptMove(id, position));
+    },
+    bringOnTop: function bringOnTop(id) {
+      dispatch(actions_1.eptBringOnTop(id));
     }
   };
 };
@@ -32138,20 +32172,20 @@ Object.defineProperty(exports, "__esModule", {
 
 var react_1 = __importDefault(require("react"));
 
-var ept_1 = __importDefault(require("../ept/ept"));
-
-var link_1 = __importDefault(require("../link/link"));
+var react_redux_1 = require("react-redux");
 
 var actions_1 = require("../../store/actions");
 
-var react_redux_1 = require("react-redux");
+var ept_1 = __importDefault(require("../ept/ept"));
+
+var link_1 = __importDefault(require("../link/link"));
 
 ;
 
 var eptOrder = function eptOrder(_a, _b) {
   var ept1 = _a[1];
   var ept2 = _b[1];
-  return ept1.order > ept2.order ? -1 : 1;
+  return ept1.order < ept2.order ? -1 : 1;
 };
 
 var getPosition = function getPosition(id, epts, isInput) {
@@ -32211,7 +32245,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var VisualizerConnected = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(Visualizer);
 exports.default = VisualizerConnected;
-},{"react":"node_modules/react/index.js","../ept/ept":"src/components/ept/ept.tsx","../link/link":"src/components/link/link.tsx","../../store/actions":"src/store/actions.ts","react-redux":"node_modules/react-redux/es/index.js"}],"data/test.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../ept/ept":"src/components/ept/ept.tsx","../link/link":"src/components/link/link.tsx"}],"data/test.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
