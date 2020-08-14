@@ -16,7 +16,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false}: ICon
 	return <g className={ 'connection-point ' + (isInput ? 'in' : 'out') }>
 		<circle className="placeholder" cx={ position.x } cy={ position.y } radius={ connectionPointRadius } />
 		<text key="in-label" className="in">{ types.join(', ') }</text>
-		<Linker position={ {x: position.x, y: position.y} } />
+		<Linker position={ {x: position.x, y: position.y} } isInput={ isInput } />
 	</g>
 }
 

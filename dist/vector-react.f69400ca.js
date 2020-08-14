@@ -32173,7 +32173,8 @@ function drop(position, setMyPosition, setDragging) {
 }
 
 var Linker = function Linker(_a) {
-  var position = _a.position;
+  var position = _a.position,
+      isInput = _a.isInput;
 
   var _b = react_1.useState(false),
       isDragging = _b[0],
@@ -32210,7 +32211,16 @@ var Linker = function Linker(_a) {
     isRelative: true
   }, react_1.default.createElement("circle", {
     className: "linker"
-  }), isDragging && react_1.default.createElement(link_1.default, {
+  }), isDragging && (isInput ? react_1.default.createElement(link_1.default, {
+    to: {
+      x: position.x - myPosition.x,
+      y: position.y - myPosition.y
+    },
+    from: {
+      x: 0,
+      y: 0
+    }
+  }) : react_1.default.createElement(link_1.default, {
     from: {
       x: position.x - myPosition.x,
       y: position.y - myPosition.y
@@ -32219,7 +32229,7 @@ var Linker = function Linker(_a) {
       x: 0,
       y: 0
     }
-  }));
+  })));
 };
 
 exports.default = Linker;
@@ -32263,7 +32273,8 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     position: {
       x: position.x,
       y: position.y
-    }
+    },
+    isInput: isInput
   }));
 };
 

@@ -17,10 +17,11 @@ function drop(position: IPosition, setMyPosition: Function, setDragging: Functio
 
 export interface ILinkerProps {
 	position: IPosition,
+	isInput: boolean,
 	onDrop?: (position: IPosition) => void
 }
 
-const Linker = ({position}: ILinkerProps) => {
+const Linker = ({position, isInput}: ILinkerProps) => {
 	let [isDragging, setDragging] = useState(false);
 	let [offset, setOffset] = useState({x: 0, y: 0});
 	let [myPosition, setMyPosition] = useState({x: position.x, y: position.y});
@@ -34,7 +35,9 @@ const Linker = ({position}: ILinkerProps) => {
 		<circle className="linker"></circle>
 		{
 			isDragging && 
-				<Link from={ {x: position.x-myPosition.x, y: position.y-myPosition.y} } to={ {x: 0, y: 0} } />
+				(isInput ? 
+					<Link to={ {x: position.x-myPosition.x, y: position.y-myPosition.y} } from={ {x: 0, y: 0} } /> :
+					<Link from={ {x: position.x-myPosition.x, y: position.y-myPosition.y} } to={ {x: 0, y: 0} } />)
 		}
 	</Draggable>
 }
