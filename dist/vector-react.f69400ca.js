@@ -32103,7 +32103,7 @@ var Link = function Link(_a) {
 };
 
 exports.default = Link;
-},{"react":"node_modules/react/index.js","../../settings":"src/settings.js"}],"src/components/linker/linker.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../../settings":"src/settings.js"}],"src/components/connectionPoint/connectionPoint.tsx":[function(require,module,exports) {
 "use strict";
 
 var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
@@ -32152,6 +32152,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var react_1 = __importStar(require("react"));
 
+var settings_1 = require("../../settings");
+
 var draggable_1 = __importDefault(require("../draggable/draggable"));
 
 var link_1 = __importDefault(require("../link/link"));
@@ -32172,29 +32174,47 @@ function drop(position, setMyPosition, setDragging) {
   setDragging(false);
 }
 
-var Linker = function Linker(_a) {
+var ConnectionPoint = function ConnectionPoint(_a) {
   var position = _a.position,
-      isInput = _a.isInput;
+      isInput = _a.isInput,
+      _b = _a.types,
+      types = _b === void 0 ? null : _b,
+      _c = _a.isMultiple,
+      isMultiple = _c === void 0 ? false : _c;
 
-  var _b = react_1.useState(false),
-      isDragging = _b[0],
-      setDragging = _b[1];
+  var _d = react_1.useState(false),
+      isDragging = _d[0],
+      setDragging = _d[1];
 
-  var _c = react_1.useState({
+  var _e = react_1.useState({
     x: 0,
     y: 0
   }),
-      offset = _c[0],
-      setOffset = _c[1];
+      offset = _e[0],
+      setOffset = _e[1];
 
-  var _d = react_1.useState({
+  var _f = react_1.useState({
     x: position.x,
     y: position.y
   }),
-      myPosition = _d[0],
-      setMyPosition = _d[1];
+      myPosition = _f[0],
+      setMyPosition = _f[1];
 
-  return react_1.default.createElement(draggable_1.default, {
+  var target = {
+    x: position.x - myPosition.x,
+    y: position.y - myPosition.y
+  };
+  return react_1.default.createElement("g", {
+    className: 'connection-point ' + (isInput ? 'in' : 'out')
+  }, react_1.default.createElement("circle", {
+    className: "placeholder",
+    cx: position.x,
+    cy: position.y,
+    radius: settings_1.connectionPointRadius
+  }), react_1.default.createElement("text", {
+    key: "in-label",
+    className: "in"
+  }, types.join(', ')), react_1.default.createElement(draggable_1.default, {
     position: myPosition,
     onStartDragging: function onStartDragging(event) {
       return startDragging(event, setDragging, setOffset);
@@ -32212,74 +32232,22 @@ var Linker = function Linker(_a) {
   }, react_1.default.createElement("circle", {
     className: "linker"
   }), isDragging && (isInput ? react_1.default.createElement(link_1.default, {
-    to: {
-      x: position.x - myPosition.x,
-      y: position.y - myPosition.y
-    },
+    to: target,
     from: {
       x: 0,
       y: 0
     }
   }) : react_1.default.createElement(link_1.default, {
-    from: {
-      x: position.x - myPosition.x,
-      y: position.y - myPosition.y
-    },
+    from: target,
     to: {
       x: 0,
       y: 0
     }
-  })));
-};
-
-exports.default = Linker;
-},{"react":"node_modules/react/index.js","../draggable/draggable":"src/components/draggable/draggable.tsx","../link/link":"src/components/link/link.tsx"}],"src/components/connectionPoint/connectionPoint.tsx":[function(require,module,exports) {
-"use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var react_1 = __importDefault(require("react"));
-
-var settings_1 = require("../../settings");
-
-var linker_1 = __importDefault(require("../linker/linker"));
-
-var ConnectionPoint = function ConnectionPoint(_a) {
-  var position = _a.position,
-      isInput = _a.isInput,
-      _b = _a.types,
-      types = _b === void 0 ? null : _b,
-      _c = _a.isMultiple,
-      isMultiple = _c === void 0 ? false : _c;
-  return react_1.default.createElement("g", {
-    className: 'connection-point ' + (isInput ? 'in' : 'out')
-  }, react_1.default.createElement("circle", {
-    className: "placeholder",
-    cx: position.x,
-    cy: position.y,
-    radius: settings_1.connectionPointRadius
-  }), react_1.default.createElement("text", {
-    key: "in-label",
-    className: "in"
-  }, types.join(', ')), react_1.default.createElement(linker_1.default, {
-    position: {
-      x: position.x,
-      y: position.y
-    },
-    isInput: isInput
-  }));
+  }))));
 };
 
 exports.default = ConnectionPoint;
-},{"react":"node_modules/react/index.js","../../settings":"src/settings.js","../linker/linker":"src/components/linker/linker.tsx"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../../settings":"src/settings.js","../draggable/draggable":"src/components/draggable/draggable.tsx","../link/link":"src/components/link/link.tsx"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
