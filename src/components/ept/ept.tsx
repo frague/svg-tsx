@@ -28,14 +28,10 @@ const Ept = ({id, data=emptyEpt, position={x: 0, y: 0}, onMove=()=>{}, bringOnTo
 		<g className="ept">
 			<rect className="container" />
 			<text className="title">{ data.title }</text>
-			{
-				data.inputTypes && 
-					<ConnectionPoint isInput={ true } position={ {x: eptWidth / 2, y: 0} } types={ data.inputTypes } />
-			}
-			{
-				data.outputType && 
-					<ConnectionPoint isInput={ false } position={ {x: eptWidth / 2, y: eptHeight} } types={ data.outputType ? [data.outputType] : null } />
-			}
+			{ data.inputTypes && 
+				<ConnectionPoint isInput={ true } position={ {x: eptWidth / 2, y: 0} } types={ data.inputTypes } /> }
+			{ data.outputType && 
+				<ConnectionPoint isInput={ false } position={ {x: eptWidth / 2, y: eptHeight} } types={ data.outputType ? [data.outputType] : null } /> }
 		</g>
 	</Draggable>
 }

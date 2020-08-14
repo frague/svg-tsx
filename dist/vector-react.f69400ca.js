@@ -31882,7 +31882,8 @@ var Canvas = function Canvas(_a) {
     xmlns: "http://www.w3.org/2000/svg",
     xmlnsXlink: "http://www.w3.org/1999/xlink",
     version: "1.2",
-    baseProfile: "full"
+    baseProfile: "full",
+    id: "canvas"
   }, react_1.default.createElement("defs", null, react_1.default.createElement("path", {
     id: "arrow",
     strokeLinecap: "round",
@@ -31912,7 +31913,7 @@ var eptWidth = 150;
 exports.eptWidth = eptWidth;
 var eptHeight = 50;
 exports.eptHeight = eptHeight;
-var connectionPointRadius = 5;
+var connectionPointRadius = 7;
 exports.connectionPointRadius = connectionPointRadius;
 },{}],"src/components/draggable/draggable.tsx":[function(require,module,exports) {
 "use strict";
@@ -31957,26 +31958,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var react_1 = __importStar(require("react"));
 
-function startDragging(event, setDragging, setStartedAt, onStartDragging) {
-  event.stopPropagation();
-  onStartDragging();
-  setDragging(true);
-  setStartedAt([event.clientX, event.clientY]);
-}
-
-function drag(event, startedAt, setStartedAt, position, onMove) {
-  event.preventDefault();
-  var offset = [event.clientX - startedAt[0], event.clientY - startedAt[1]];
-
-  if (offset[0] || offset[1]) {
-    onMove({
-      x: position.x + offset[0],
-      y: position.y + offset[1]
-    });
-    setStartedAt([event.clientX, event.clientY]);
-  }
-}
-
 var Draggable = function Draggable(_a) {
   var _b = _a.position,
       position = _b === void 0 ? {
@@ -31984,41 +31965,90 @@ var Draggable = function Draggable(_a) {
     y: 0
   } : _b,
       children = _a.children,
-      _c = _a.onMove,
-      onMove = _c === void 0 ? function (position) {} : _c,
+      _c = _a.isRelative,
+      isRelative = _c === void 0 ? false : _c,
       _d = _a.onStartDragging,
-      onStartDragging = _d === void 0 ? function () {} : _d;
+      onStartDragging = _d === void 0 ? function () {} : _d,
+      _e = _a.onMove,
+      onMove = _e === void 0 ? function (position) {} : _e,
+      _f = _a.onDrop,
+      onDrop = _f === void 0 ? function () {} : _f;
 
-  var _e = react_1.useState(false),
-      isDragging = _e[0],
-      setDragging = _e[1];
+  var _g = react_1.useState(false),
+      isDragging = _g[0],
+      setDragging = _g[1];
 
-  var _f = react_1.useState([0, 0]),
-      startedAt = _f[0],
-      setStartedAt = _f[1];
+  var _h = react_1.useState({
+    x: 0,
+    y: 0
+  }),
+      mousePosition = _h[0],
+      setMousePosition = _h[1];
+
+  var _j = react_1.useState({
+    x: 0,
+    y: 0
+  }),
+      previousPosition = _j[0],
+      setPreviousPosition = _j[1];
 
   var x = position.x,
       y = position.y;
+
+  if (isDragging) {
+    var offset_1 = {
+      x: mousePosition.x - previousPosition.x,
+      y: mousePosition.y - previousPosition.y
+    };
+
+    if (offset_1.x || offset_1.y) {
+      setTimeout(function () {
+        isRelative ? onMove({
+          x: offset_1.x,
+          y: offset_1.y
+        }) : onMove({
+          x: position.x + offset_1.x,
+          y: position.y + offset_1.y
+        });
+      }, 0);
+      setPreviousPosition(mousePosition);
+    }
+  }
+
   return react_1.default.createElement("g", {
     className: 'draggable ' + (isDragging ? 'drag' : ''),
     transform: "translate(" + x + "," + y + ")",
     onMouseDown: function onMouseDown(event) {
-      return startDragging(event, setDragging, setStartedAt, onStartDragging);
-    },
-    onMouseMove: function onMouseMove(event) {
-      if (isDragging) drag(event, startedAt, setStartedAt, position, onMove);
-    },
-    onMouseLeave: function onMouseLeave(event) {
-      if (isDragging) drag(event, startedAt, setStartedAt, position, onMove);
+      event.stopPropagation();
+      setDragging(true);
+      onStartDragging(event);
+      setMousePosition({
+        x: event.clientX,
+        y: event.clientY
+      });
+      setPreviousPosition({
+        x: event.clientX,
+        y: event.clientY
+      });
+
+      document.getElementById('canvas').onmousemove = function (event) {
+        event.preventDefault();
+        setMousePosition({
+          x: event.clientX,
+          y: event.clientY
+        });
+      };
     },
     onMouseUp: function onMouseUp() {
-      return setDragging(false);
+      document.getElementById('canvas').onmousemove = undefined;
+      setDragging(false);
+      onDrop();
     }
   }, children);
 };
 
 exports.default = Draggable;
-},{"react":"node_modules/react/index.js"}],"src/components/connectionPoint/connectionPoint.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js"}],"src/components/link/link.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -32035,6 +32065,183 @@ var react_1 = __importDefault(require("react"));
 
 var settings_1 = require("../../settings");
 
+;
+
+function calcPath(from, to) {
+  var _a;
+
+  var x = from.x,
+      y = from.y;
+  var dx = to.x - x;
+  var dy = to.y - y;
+  var l = Math.sqrt(dx * dx + dy * dy);
+  var rx = dx * (l ? settings_1.connectionPointRadius / l : 1);
+  var ry = dy * (l ? settings_1.connectionPointRadius / l : 1);
+  var tx = dx / 8;
+  var ty = dy / 3;
+  var _b = [to.x - 2 * rx, to.y - 2 * ry],
+      sx = _b[0],
+      sy = _b[1];
+
+  if (dy < 0) {
+    _a = [to.x - 2 * rx, to.y + 2 * ry], sx = _a[0], sy = _a[1];
+    return "M" + (x + rx) + "," + (y - ry) + "C" + (x + 6 * tx) + "," + (y - 4 * ty) + "," + (sx - 6 * tx) + "," + (sy + 4 * ty) + "," + sx + "," + sy;
+  }
+
+  return "M" + (x + rx) + "," + (y + ry) + "C" + (x + tx) + "," + (y + ty) + "," + (sx - tx) + "," + (sy - ty) + "," + sx + "," + sy;
+}
+
+var Link = function Link(_a) {
+  var from = _a.from,
+      to = _a.to;
+  var hy = (to.y - from.y) / 2;
+  return react_1.default.createElement("path", {
+    className: "link",
+    d: calcPath(from, to),
+    markerEnd: "url(#arrow-marker)"
+  });
+};
+
+exports.default = Link;
+},{"react":"node_modules/react/index.js","../../settings":"src/settings.js"}],"src/components/linker/linker.tsx":[function(require,module,exports) {
+"use strict";
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  Object.defineProperty(o, k2, {
+    enumerable: true,
+    get: function get() {
+      return m[k];
+    }
+  });
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  }
+
+  __setModuleDefault(result, mod);
+
+  return result;
+};
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_1 = __importStar(require("react"));
+
+var draggable_1 = __importDefault(require("../draggable/draggable"));
+
+var link_1 = __importDefault(require("../link/link"));
+
+function startDragging(event, setDragging, setOffset) {
+  setOffset({
+    x: event.clientX,
+    y: event.clientY
+  });
+  setDragging(true);
+}
+
+function drop(position, setMyPosition, setDragging) {
+  setMyPosition({
+    x: position.x,
+    y: position.y
+  });
+  setDragging(false);
+}
+
+var Linker = function Linker(_a) {
+  var position = _a.position;
+
+  var _b = react_1.useState(false),
+      isDragging = _b[0],
+      setDragging = _b[1];
+
+  var _c = react_1.useState({
+    x: 0,
+    y: 0
+  }),
+      offset = _c[0],
+      setOffset = _c[1];
+
+  var _d = react_1.useState({
+    x: position.x,
+    y: position.y
+  }),
+      myPosition = _d[0],
+      setMyPosition = _d[1];
+
+  return react_1.default.createElement(draggable_1.default, {
+    position: myPosition,
+    onStartDragging: function onStartDragging(event) {
+      return startDragging(event, setDragging, setOffset);
+    },
+    onMove: function onMove(delta) {
+      return setMyPosition({
+        x: myPosition.x + delta.x,
+        y: myPosition.y + delta.y
+      });
+    },
+    onDrop: function onDrop() {
+      return drop(position, setMyPosition, setDragging);
+    },
+    isRelative: true
+  }, react_1.default.createElement("circle", {
+    className: "linker"
+  }), isDragging && react_1.default.createElement(link_1.default, {
+    from: {
+      x: position.x - myPosition.x,
+      y: position.y - myPosition.y
+    },
+    to: {
+      x: 0,
+      y: 0
+    }
+  }));
+};
+
+exports.default = Linker;
+},{"react":"node_modules/react/index.js","../draggable/draggable":"src/components/draggable/draggable.tsx","../link/link":"src/components/link/link.tsx"}],"src/components/connectionPoint/connectionPoint.tsx":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_1 = __importDefault(require("react"));
+
+var settings_1 = require("../../settings");
+
+var linker_1 = __importDefault(require("../linker/linker"));
+
 var ConnectionPoint = function ConnectionPoint(_a) {
   var position = _a.position,
       isInput = _a.isInput,
@@ -32045,17 +32252,23 @@ var ConnectionPoint = function ConnectionPoint(_a) {
   return react_1.default.createElement("g", {
     className: 'connection-point ' + (isInput ? 'in' : 'out')
   }, react_1.default.createElement("circle", {
+    className: "placeholder",
     cx: position.x,
     cy: position.y,
     radius: settings_1.connectionPointRadius
   }), react_1.default.createElement("text", {
     key: "in-label",
     className: "in"
-  }, types.join(', ')));
+  }, types.join(', ')), react_1.default.createElement(linker_1.default, {
+    position: {
+      x: position.x,
+      y: position.y
+    }
+  }));
 };
 
 exports.default = ConnectionPoint;
-},{"react":"node_modules/react/index.js","../../settings":"src/settings.js"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../../settings":"src/settings.js","../linker/linker":"src/components/linker/linker.tsx"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -32145,62 +32358,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var EptConnected = react_redux_1.connect(null, mapDispatchToProps)(Ept);
 exports.default = EptConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../draggable/draggable":"src/components/draggable/draggable.tsx","../../settings":"src/settings.js","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/link/link.tsx":[function(require,module,exports) {
-"use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var react_1 = __importDefault(require("react"));
-
-var settings_1 = require("../../settings");
-
-;
-
-function calcPath(from, to) {
-  var _a;
-
-  var x = from.x,
-      y = from.y;
-  var dx = to.x - x;
-  var dy = to.y - y;
-  var l = Math.sqrt(dx * dx + dy * dy);
-  var rx = dx * (l ? settings_1.connectionPointRadius / l : 1);
-  var ry = dy * (l ? settings_1.connectionPointRadius / l : 1);
-  var tx = dx / 8;
-  var ty = dy / 3;
-  var _b = [to.x - 2 * rx, to.y - 2 * ry],
-      sx = _b[0],
-      sy = _b[1];
-
-  if (dy < 0) {
-    _a = [to.x - 2 * rx, to.y + 2 * ry], sx = _a[0], sy = _a[1];
-    return "M" + (x + rx) + "," + (y - ry) + "C" + (x + 6 * tx) + "," + (y - 4 * ty) + "," + (sx - 6 * tx) + "," + (sy + 4 * ty) + "," + sx + "," + sy;
-  }
-
-  return "M" + (x + rx) + "," + (y + ry) + "C" + (x + tx) + "," + (y + ty) + "," + (sx - tx) + "," + (sy - ty) + "," + sx + "," + sy;
-}
-
-var Link = function Link(_a) {
-  var from = _a.from,
-      to = _a.to;
-  var hy = (to.y - from.y) / 2;
-  return react_1.default.createElement("path", {
-    className: "link",
-    d: calcPath(from, to),
-    markerEnd: "url(#arrow-marker)"
-  });
-};
-
-exports.default = Link;
-},{"react":"node_modules/react/index.js","../../settings":"src/settings.js"}],"src/components/visualizer/visualizer.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../draggable/draggable":"src/components/draggable/draggable.tsx","../../settings":"src/settings.js","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/visualizer/visualizer.tsx":[function(require,module,exports) {
 "use strict";
 
 var __spreadArrays = this && this.__spreadArrays || function () {
@@ -32546,7 +32704,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49543" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54026" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -1,0 +1,132 @@
+:export {
+  eptHeight: 50px;
+  eptWidth: 150px;
+  radius: 8px;
+}
+
+* {
+  font-family: arial, tahoma, verdana;
+}
+
+div#content {
+  display: flex;
+  flex-direction: row;
+}
+div#content svg {
+  flex: 0 0 800px;
+}
+div#content .catalogue {
+  flex: 0 0 300px;
+}
+
+svg {
+  display: block;
+  background-color: #EEE;
+}
+svg text {
+  font-family: arial, tahoma, verdana;
+  font-size: 14px;
+}
+
+button.link {
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  display: inline;
+  cursor: pointer;
+  color: #0f7cbb;
+}
+button.link, button.link:active {
+  outline: none;
+}
+
+.draggable {
+  cursor: pointer;
+}
+.draggable.drag {
+  cursor: move;
+}
+.draggable.drag .ept {
+  transform: rotate(-5deg) scale(1.1);
+  transform-origin: 75px 25px;
+}
+
+.ept {
+  stroke-width: 0;
+}
+.ept .container {
+  width: 150px;
+  height: 50px;
+  fill: #FFF;
+  stroke: #444;
+  stroke-width: 1;
+}
+.ept text.title {
+  transform: translate(10px, 28px);
+  width: 100px;
+  clip-path: inset(0 calc(100% - 130px) 0 0);
+}
+
+.connection-point .placeholder {
+  r: 8px;
+  cx: 75px;
+  stroke-width: 1;
+  stroke: #000;
+}
+.connection-point text {
+  font-size: 12px;
+}
+.connection-point.in .placeholder {
+  fill: #a8e04f;
+}
+.connection-point.in text {
+  transform: translate(85px, -10px);
+}
+.connection-point.out .placeholder {
+  fill: #f55f07;
+}
+.connection-point.out text {
+  transform: translate(85px, 65px);
+}
+
+.linker {
+  r: 6px;
+  cx: 0;
+  cy: 0;
+  stroke-width: 0;
+  fill: rgba(0, 0, 0, 0.5);
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+}
+.link:hover {
+  stroke: #f55f07;
+}
+
+.catalogue ul {
+  padding-left: 15px;
+}
+.catalogue ul li {
+  margin-bottom: 15px;
+  list-style: none;
+}
+.catalogue ul li h5 {
+  margin: 0;
+}
+
+path#arrow {
+  stroke-linecap: round;
+}
+
+marker#arrow-marker use {
+  transform: translate(5px, 5px) rotate(180deg) scale(1, 1);
+  stroke-width: 1;
+  fill: #000;
+  stroke: none;
+}
+
+/*# sourceMappingURL=/vector-react.f69400ca.css.map */

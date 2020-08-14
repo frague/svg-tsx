@@ -77,7 +77,7 @@ button.link {
 }
 
 .connection-point {
-	circle {
+	.placeholder {
 		r: $connectionPointRadius;
 		cx: $eptWidth / 2;
 		stroke-width: 1;
@@ -89,7 +89,7 @@ button.link {
 	}
 
 	&.in {
-		circle {
+		.placeholder {
 			fill: $green;
 		}
 		text {
@@ -98,7 +98,7 @@ button.link {
 	}
 
 	&.out {
-		circle {
+		.placeholder {
 			fill: $red;
 		}
 		text {
@@ -106,6 +106,14 @@ button.link {
 		}
 	}
 
+}
+
+.linker {
+	r: $connectionPointRadius - 2;
+	cx: 0;
+	cy: 0;
+	stroke-width: 0;
+	fill: rgba(0, 0, 0, 0.5);
 }
 
 .link {

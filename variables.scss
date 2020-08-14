@@ -1,0 +1,9 @@
+$eptWidth: 150px;
+$eptHeight: 50px;
+$connectionPointRadius: 8px;
+
+:export {
+	eptHeight: $eptHeight;
+	eptWidth: $eptWidth;
+	radius: $connectionPointRadius;
+}

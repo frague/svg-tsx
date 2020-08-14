@@ -1,53 +1,58 @@
 import React, { useState } from 'react'
+import { connect } from 'react-redux'
 
 import { IPosition } from '../../interfaces'
 
-function startDragging(
-	event: MouseEvent,
-	setDragging: Function,
-	setStartedAt: Function,
-	onStartDragging: Function
-) {
-	event.stopPropagation();
-	onStartDragging();
-	setDragging(true);
-	setStartedAt([event.clientX, event.clientY]);
-}
-
-function drag(
-	event: MouseEvent,
-	startedAt: [number, number],
-	setStartedAt: Function,
-	position: IPosition,
-	onMove: (position: IPosition) => void,
-) {
-	event.preventDefault();
-	let offset = [event.clientX - startedAt[0], event.clientY - startedAt[1]];
-	if (offset[0] || offset[1]) {
-		onMove({x: position.x + offset[0], y: position.y + offset[1]});
-		setStartedAt([event.clientX, event.clientY]);
-	}
-}
-
 export interface IDraggableProps {
 	position: IPosition,
-	onMove?: (position: IPosition) => void,
 	onStartDragging?: Function
+	onMove?: (position: IPosition) => void,
+	onDrop?: Function,
+	isRelative?: boolean,
 	children?: React.ReactNode,
 }
 
-const Draggable = ({position={x: 0, y: 0}, children, onMove=(position: IPosition)=>{}, onStartDragging=()=>{}}: IDraggableProps) => {
+const Draggable = ({position={x: 0, y: 0}, children, isRelative=false, 
+	onStartDragging=()=>{}, onMove=(position: IPosition)=>{}, onDrop=()=>{}}: IDraggableProps) => {
 	let [isDragging, setDragging] = useState(false);
-	let [startedAt, setStartedAt] = useState([0, 0]);
+	let [mousePosition, setMousePosition] = useState({x: 0, y: 0});
+	let [previousPosition, setPreviousPosition] = useState({x: 0, y: 0});
 
 	let {x, y} = position;
 
+	if (isDragging) {
+		let offset: IPosition = {x: mousePosition.x - previousPosition.x, y: mousePosition.y - previousPosition.y};
+		if (offset.x || offset.y) {
+			setTimeout(() => {
+				isRelative ? 
+					onMove({x: offset.x, y: offset.y}) :
+					onMove({x: position.x + offset.x, y: position.y + offset.y});
+			}, 0);
+			setPreviousPosition(mousePosition);
+		}
+	}
+
 	return <g className={ 'draggable ' + (isDragging ? 'drag' : '') }
 		transform={ `translate(${x},${y})` }
-		onMouseDown={ event => startDragging(event, setDragging, setStartedAt, onStartDragging) }
-		onMouseMove={ event => { if (isDragging) drag(event, startedAt, setStartedAt, position, onMove)} }
-		onMouseLeave={ event => { if (isDragging) drag(event, startedAt, setStartedAt, position, onMove)} }
-		onMouseUp={ () => setDragging(false) }
+		onMouseDown={ event => {
+			event.stopPropagation();
+			setDragging(true);
+			onStartDragging(event);
+			
+			setMousePosition({x: event.clientX, y: event.clientY});
+			setPreviousPosition({x: event.clientX, y: event.clientY});
+
+			document.getElementById('canvas').onmousemove = event => {
+				event.preventDefault();
+				setMousePosition({x: event.clientX, y: event.clientY});
+			}
+		}}
+		onMouseUp={ () => {
+			document.getElementById('canvas').onmousemove = undefined;
+
+			setDragging(false);
+			onDrop();
+		}}
 	>{ children }</g>
 };
 
