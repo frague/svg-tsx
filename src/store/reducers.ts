@@ -1,7 +1,10 @@
 import { combineReducers } from 'redux'
 
 import { EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP,
-	LINK_ADD, LINK_MOVE, LINK_REMOVE } from './actions'
+	LINK_ADD, LINK_MOVE, LINK_REMOVE,
+	CONNECTION_CANDIDATE_SEARCH, CONNECTION_CANDIDATE_REGISTER, CONNECTION_CANDIDATE_RESET 
+} from './actions'
+
 import { IPosition, IEpt } from '../interfaces'
 
 function instantiateAndPosition(ept: IEpt) {
@@ -79,9 +82,32 @@ function linksReducer(state=dummyLinks, action) {
 	return state;
 }
 
+function connectionCandidateReducer(state=null, action) {
+	switch (action.type) {
+		case CONNECTION_CANDIDATE_SEARCH:
+			return {
+				isInput: action.isInput,
+				types: action.types,
+				position: action.position,
+				payload: action.payload,
+				candidate: null
+			};
+
+		case CONNECTION_CANDIDATE_RESET:
+			return null;
+
+		case CONNECTION_CANDIDATE_REGISTER:
+			return Object.assign({}, state, {candidate: action.candidate});
+
+		default:
+			return state;
+	}
+}
+
 const appReducer = combineReducers({
 	epts: eptsReducer,
 	links: linksReducer,
+	connectionCandidate: connectionCandidateReducer,
 });
 
 export default appReducer;

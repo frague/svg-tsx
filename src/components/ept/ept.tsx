@@ -24,16 +24,18 @@ const emptyEpt = {
 };
 
 const Ept = ({id, data=emptyEpt, position={x: 0, y: 0}, onMove=()=>{}, bringOnTop=()=>{}}: IEptProps) => {
-	return <Draggable position={ position } onStartDragging={ () => bringOnTop(id) } onMove={ newPosition => onMove(id, newPosition) }>
-		<g className="ept">
-			<rect className="container" />
-			<text className="title">{ data.title }</text>
-			{ data.inputTypes && 
-				<ConnectionPoint isInput={ true } position={ {x: eptWidth / 2, y: 0} } types={ data.inputTypes } /> }
-			{ data.outputType && 
-				<ConnectionPoint isInput={ false } position={ {x: eptWidth / 2, y: eptHeight} } types={ data.outputType ? [data.outputType] : null } /> }
-		</g>
-	</Draggable>
+	return [
+		<Draggable key='ept' position={ position } onStartDragging={ () => bringOnTop(id) } onMove={ newPosition => onMove(id, newPosition) }>
+			<g className="ept">
+				<rect className="container" />
+				<text className="title">{ data.title }</text>
+			</g>
+		</Draggable>,
+		data.inputTypes && 
+			<ConnectionPoint key='in' isInput={ true } position={ {x: position.x + eptWidth / 2, y: position.y} } types={ data.inputTypes } />,
+		data.outputType && 
+			<ConnectionPoint key='out' isInput={ false } position={ {x: position.x + eptWidth / 2, y: position.y + eptHeight} } types={ data.outputType ? [data.outputType] : null } />
+	]
 }
 
 const mapDispatchToProps = dispatch => {

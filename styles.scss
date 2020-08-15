@@ -77,11 +77,12 @@ button.link {
 }
 
 .connection-point {
-	.placeholder {
+	circle {
 		r: $connectionPointRadius;
-		cx: $eptWidth / 2;
+		// cx: $eptWidth / 2;
 		stroke-width: 1;
 		stroke: #000;
+
 	}
 
 	text {
@@ -89,29 +90,35 @@ button.link {
 	}
 
 	&.in {
-		.placeholder {
+		circle {
 			fill: $green;
 		}
 		text {
-			transform: translate($eptWidth / 2 + 10px, -10px);
+			transform: translate(15px, -10px);
 		}
 	}
 
 	&.out {
-		.placeholder {
+		circle {
 			fill: $red;
 		}
 		text {
-			transform: translate($eptWidth / 2 + 10px, $eptHeight + 15);
+			transform: translate(15px, 15px);
 		}
 	}
 
+	&.approached {
+		circle {
+			stroke: orange;
+			stroke-width: 3px;
+		}
+	}		
 }
 
 .linker {
 	r: $connectionPointRadius - 2;
-	cx: 0;
-	cy: 0;
+	// cx: 0;
+	// cy: 0;
 	stroke-width: 0;
 	fill: rgba(0, 0, 0, 0.5);
 }

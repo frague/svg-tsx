@@ -68,32 +68,33 @@ button.link, button.link:active {
   clip-path: inset(0 calc(100% - 130px) 0 0);
 }
 
-.connection-point .placeholder {
+.connection-point circle {
   r: 8px;
-  cx: 75px;
   stroke-width: 1;
   stroke: #000;
 }
 .connection-point text {
   font-size: 12px;
 }
-.connection-point.in .placeholder {
+.connection-point.in circle {
   fill: #a8e04f;
 }
 .connection-point.in text {
-  transform: translate(85px, -10px);
+  transform: translate(15px, -10px);
 }
-.connection-point.out .placeholder {
+.connection-point.out circle {
   fill: #f55f07;
 }
 .connection-point.out text {
-  transform: translate(85px, 65px);
+  transform: translate(15px, 15px);
+}
+.connection-point.approached circle {
+  stroke: orange;
+  stroke-width: 3px;
 }
 
 .linker {
   r: 6px;
-  cx: 0;
-  cy: 0;
   stroke-width: 0;
   fill: rgba(0, 0, 0, 0.5);
 }

@@ -57,5 +57,25 @@ export function linkRemove(id) {
 	};
 }
 
+export const CONNECTION_CANDIDATE_SEARCH = 'CONNECTION_CANDIDATE_SEARCH';
+export function connectionCandidateSearch(isInput: boolean, types: string[], position: IPosition, payload: string) {
+	return {
+		type: CONNECTION_CANDIDATE_SEARCH,
+		isInput, types, position, payload,
+	};
+}
 
+export const CONNECTION_CANDIDATE_RESET = 'CONNECTION_CANDIDATE_RESET';
+export function connectionCandidateReset() {
+	return {
+		type: CONNECTION_CANDIDATE_RESET
+	};
+}
 
+export const CONNECTION_CANDIDATE_REGISTER = 'CONNECTION_CANDIDATE_REGISTER';
+export function connectionCandidateRegister(candidate: string) {
+	return {
+		type: CONNECTION_CANDIDATE_REGISTER,
+		candidate
+	};
+}
