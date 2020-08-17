@@ -35,7 +35,7 @@ export interface IConnectionPointProps {
 	addLink: Function
 }
 
-const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, payload=null,
+const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, payload=undefined,
 	connectionSearched, candidateSearch, candidateReset, candidateRegister, addLink
 }: IConnectionPointProps) => {
 	let [isDragging, setDragging] = useState(false);
@@ -46,7 +46,10 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 
 	let isApproached = false;
 	if (connectionSearched && isInput !== connectionSearched.isInput && payload !== connectionSearched.payload) {
-		let typesMatch = types && types.some(type => connectionSearched.types.includes(type));
+		let typesMatch = types && (
+			types.includes('any') ||
+			types.some(type => connectionSearched.types.includes(type))
+		);
 		if (typesMatch) {
 			let dx = position.x - connectionSearched.position.x;
 			let dy = position.y - connectionSearched.position.y;
@@ -67,7 +70,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 			if (isDragging === null) {
 				setDragging(false);
 				setMyPosition({x: position.x, y: position.y})
-				if (candidate) {
+				if (candidate !== undefined) {
 					isInput ? addLink(candidate, payload) : addLink(payload, candidate);
 				}
 				candidateReset();
@@ -88,10 +91,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 				candidateSearch(isInput, types, delta, payload);
 				setMyPosition({x: delta.x, y: delta.y});
 			}}
-			onDrop={ () => {
-				console.log('Dropped');
-				setDragging(null);
-			}}
+			onDrop={ () => setDragging(null) }
 		>
 			<circle className="linker"></circle>
 		</Draggable>,

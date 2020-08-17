@@ -102,7 +102,7 @@ function connectionCandidateReducer(state=null, action) {
 				types: action.types,
 				position: action.position,
 				payload: action.payload,
-				candidate: null
+				candidate: undefined
 			};
 
 		case CONNECTION_CANDIDATE_RESET:

@@ -31924,7 +31924,7 @@ function connectionCandidateReducer(state, action) {
         types: action.types,
         position: action.position,
         payload: action.payload,
-        candidate: null
+        candidate: undefined
       };
 
     case actions_1.CONNECTION_CANDIDATE_RESET:
@@ -31946,7 +31946,26 @@ var appReducer = redux_1.combineReducers({
   connectionSearched: connectionCandidateReducer
 });
 exports.default = appReducer;
-},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts","../utils":"src/utils.ts"}],"src/components/canvas/canvas.tsx":[function(require,module,exports) {
+},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts","../utils":"src/utils.ts"}],"src/settings.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.proximity = exports.connectionPointRadius = exports.eptHeight = exports.eptWidth = exports.canvasHeight = exports.canvasWidth = void 0;
+var canvasWidth = 800;
+exports.canvasWidth = canvasWidth;
+var canvasHeight = 600;
+exports.canvasHeight = canvasHeight;
+var eptWidth = 150;
+exports.eptWidth = eptWidth;
+var eptHeight = 50;
+exports.eptHeight = eptHeight;
+var connectionPointRadius = 7;
+exports.connectionPointRadius = connectionPointRadius;
+var proximity = 30;
+exports.proximity = proximity;
+},{}],"src/components/canvas/canvas.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -31992,22 +32011,7 @@ var Canvas = function Canvas(_a) {
 };
 
 exports.default = Canvas;
-},{"react":"node_modules/react/index.js"}],"src/settings.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.proximity = exports.connectionPointRadius = exports.eptHeight = exports.eptWidth = void 0;
-var eptWidth = 150;
-exports.eptWidth = eptWidth;
-var eptHeight = 50;
-exports.eptHeight = eptHeight;
-var connectionPointRadius = 7;
-exports.connectionPointRadius = connectionPointRadius;
-var proximity = 30;
-exports.proximity = proximity;
-},{}],"src/components/draggable/draggable.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js"}],"src/components/draggable/draggable.tsx":[function(require,module,exports) {
 "use strict";
 
 var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
@@ -32293,7 +32297,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       _c = _a.isMultiple,
       isMultiple = _c === void 0 ? false : _c,
       _d = _a.payload,
-      payload = _d === void 0 ? null : _d,
+      payload = _d === void 0 ? undefined : _d,
       connectionSearched = _a.connectionSearched,
       candidateSearch = _a.candidateSearch,
       candidateReset = _a.candidateReset,
@@ -32325,9 +32329,9 @@ var ConnectionPoint = function ConnectionPoint(_a) {
   var isApproached = false;
 
   if (connectionSearched && isInput !== connectionSearched.isInput && payload !== connectionSearched.payload) {
-    var typesMatch = types && types.some(function (type) {
+    var typesMatch = types && (types.includes('any') || types.some(function (type) {
       return connectionSearched.types.includes(type);
-    });
+    }));
 
     if (typesMatch) {
       var dx = position.x - connectionSearched.position.x;
@@ -32352,7 +32356,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
           y: position.y
         });
 
-        if (candidate) {
+        if (candidate !== undefined) {
           isInput ? addLink(candidate, payload) : addLink(payload, candidate);
         }
 
@@ -32381,8 +32385,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       });
     },
     onDrop: function onDrop() {
-      console.log('Dropped');
-      setDragging(null);
+      return setDragging(null);
     }
   }, react_1.default.createElement("circle", {
     className: "linker"
@@ -32565,6 +32568,17 @@ var eptOrder = function eptOrder(_a, _b) {
 };
 
 var getPosition = function getPosition(id, epts, isInput) {
+  if (id === null) {
+    // Global input && output
+    return isInput ? {
+      x: settings_1.canvasWidth / 2,
+      y: settings_1.canvasHeight - 20
+    } : {
+      x: settings_1.canvasWidth / 2,
+      y: 20
+    };
+  }
+
   var ept = epts[id];
   if (!ept) return {
     x: 0,
@@ -32820,7 +32834,11 @@ var react_redux_1 = require("react-redux");
 
 var reducers_1 = __importDefault(require("./src/store/reducers"));
 
+var settings_1 = require("./src/settings");
+
 var canvas_1 = __importDefault(require("./src/components/canvas/canvas"));
+
+var connectionPoint_1 = __importDefault(require("./src/components/connectionPoint/connectionPoint"));
 
 var visualizer_1 = __importDefault(require("./src/components/visualizer/visualizer"));
 
@@ -32829,13 +32847,36 @@ var catalogue_1 = __importDefault(require("./src/components/catalogue/catalogue"
 require("./styles.scss");
 
 var store = redux_1.createStore(reducers_1.default);
+var half = settings_1.canvasWidth / 2;
 react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider, {
   store: store
 }, react_1.default.createElement(canvas_1.default, {
-  width: 800,
-  height: 600
-}, react_1.default.createElement(visualizer_1.default, null)), react_1.default.createElement(catalogue_1.default, null)), document.getElementById('content'));
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+  width: settings_1.canvasWidth,
+  height: settings_1.canvasHeight
+}, react_1.default.createElement(connectionPoint_1.default, {
+  position: {
+    x: half,
+    y: 20
+  },
+  isInput: false,
+  types: ['any'],
+  payload: null
+}), react_1.default.createElement("text", {
+  x: half + 13,
+  y: "23"
+}, "Begin"), react_1.default.createElement(connectionPoint_1.default, {
+  position: {
+    x: half,
+    y: settings_1.canvasHeight - 20
+  },
+  isInput: true,
+  types: ['any'],
+  payload: null
+}), react_1.default.createElement("text", {
+  x: half + 13,
+  y: settings_1.canvasHeight - 13
+}, "End"), react_1.default.createElement(visualizer_1.default, null)), react_1.default.createElement(catalogue_1.default, null)), document.getElementById('content'));
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/settings":"src/settings.js","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
