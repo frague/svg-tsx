@@ -31712,10 +31712,11 @@ function eptBringOnTop(id) {
 exports.eptBringOnTop = eptBringOnTop;
 exports.LINK_ADD = 'LINK_ADD';
 
-function linkAdd(link) {
+function linkAdd(from, to) {
   return {
     type: exports.LINK_ADD,
-    link: link
+    from: from,
+    to: to
   };
 }
 
@@ -31773,6 +31774,19 @@ function connectionCandidateRegister(candidate) {
 }
 
 exports.connectionCandidateRegister = connectionCandidateRegister;
+},{}],"src/utils.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.generateId = void 0;
+
+function generateId() {
+  return 'ID' + ('000000' + Math.round(1000 * Math.random())).substring(-5);
+}
+
+exports.generateId = generateId;
 },{}],"src/store/reducers.ts":[function(require,module,exports) {
 "use strict";
 
@@ -31784,10 +31798,12 @@ var redux_1 = require("redux");
 
 var actions_1 = require("./actions");
 
+var utils_1 = require("../utils");
+
 function instantiateAndPosition(ept) {
   var _a;
 
-  var id = 'ID' + ('000000' + Math.round(1000 * Math.random())).substring(-5);
+  var id = utils_1.generateId();
   ept.id = id;
   ept.position = {
     x: 100,
@@ -31876,11 +31892,24 @@ var dummyLinks = {
 };
 
 function linksReducer(state, action) {
+  var _a;
+
   if (state === void 0) {
     state = dummyLinks;
   }
 
-  return state;
+  switch (action.type) {
+    case actions_1.LINK_ADD:
+      var link = {
+        id: utils_1.generateId(),
+        from: action.from,
+        to: action.to
+      };
+      return Object.assign({}, state, (_a = {}, _a[link.id] = link, _a));
+
+    default:
+      return state;
+  }
 }
 
 function connectionCandidateReducer(state, action) {
@@ -31914,10 +31943,10 @@ function connectionCandidateReducer(state, action) {
 var appReducer = redux_1.combineReducers({
   epts: eptsReducer,
   links: linksReducer,
-  connectionCandidate: connectionCandidateReducer
+  connectionSearched: connectionCandidateReducer
 });
 exports.default = appReducer;
-},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts"}],"src/components/canvas/canvas.tsx":[function(require,module,exports) {
+},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts","../utils":"src/utils.ts"}],"src/components/canvas/canvas.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -32263,27 +32292,31 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       types = _b === void 0 ? null : _b,
       _c = _a.isMultiple,
       isMultiple = _c === void 0 ? false : _c,
-      connectionCandidate = _a.connectionCandidate,
+      _d = _a.payload,
+      payload = _d === void 0 ? null : _d,
+      connectionSearched = _a.connectionSearched,
       candidateSearch = _a.candidateSearch,
-      candidateReset = _a.candidateReset;
+      candidateReset = _a.candidateReset,
+      candidateRegister = _a.candidateRegister,
+      addLink = _a.addLink;
 
-  var _d = react_1.useState(false),
-      isDragging = _d[0],
-      setDragging = _d[1];
+  var _e = react_1.useState(false),
+      isDragging = _e[0],
+      setDragging = _e[1];
 
-  var _e = react_1.useState({
+  var _f = react_1.useState({
     x: 0,
     y: 0
   }),
-      offset = _e[0],
-      setOffset = _e[1];
+      offset = _f[0],
+      setOffset = _f[1];
 
-  var _f = react_1.useState({
+  var _g = react_1.useState({
     x: position.x,
     y: position.y
   }),
-      myPosition = _f[0],
-      setMyPosition = _f[1];
+      myPosition = _g[0],
+      setMyPosition = _g[1];
 
   var target = {
     x: position.x - myPosition.x,
@@ -32291,21 +32324,40 @@ var ConnectionPoint = function ConnectionPoint(_a) {
   };
   var isApproached = false;
 
-  if (connectionCandidate && isInput !== connectionCandidate.isInput) {
+  if (connectionSearched && isInput !== connectionSearched.isInput && payload !== connectionSearched.payload) {
     var typesMatch = types && types.some(function (type) {
-      return connectionCandidate.types.includes(type);
+      return connectionSearched.types.includes(type);
     });
 
     if (typesMatch) {
-      var dx = position.x - connectionCandidate.position.x;
-      var dy = position.y - connectionCandidate.position.y;
+      var dx = position.x - connectionSearched.position.x;
+      var dy = position.y - connectionSearched.position.y;
       isApproached = dx || dy ? Math.sqrt(dx * dx + dy * dy) <= settings_1.proximity : true;
     }
   }
 
+  var candidate = (connectionSearched || {}).candidate;
   react_1.useEffect(function () {
+    if (isApproached && candidate !== payload) {
+      candidateRegister(payload);
+    }
+
     if (!isDragging) {
       setMyPosition(position);
+
+      if (isDragging === null) {
+        setDragging(false);
+        setMyPosition({
+          x: position.x,
+          y: position.y
+        });
+
+        if (candidate) {
+          isInput ? addLink(candidate, payload) : addLink(payload, candidate);
+        }
+
+        candidateReset();
+      }
     }
   });
   return [react_1.default.createElement("g", {
@@ -32322,15 +32374,15 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       return startDragging(event, setDragging, setOffset);
     },
     onMove: function onMove(delta) {
-      candidateSearch(isInput, types, delta, 1);
+      candidateSearch(isInput, types, delta, payload);
       setMyPosition({
         x: delta.x,
         y: delta.y
       });
     },
     onDrop: function onDrop() {
-      drop(position, setMyPosition, setDragging);
-      candidateReset();
+      console.log('Dropped');
+      setDragging(null);
     }
   }, react_1.default.createElement("circle", {
     className: "linker"
@@ -32347,7 +32399,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    connectionCandidate: state.connectionCandidate
+    connectionSearched: state.connectionSearched
   };
 };
 
@@ -32358,6 +32410,12 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     },
     candidateReset: function candidateReset() {
       dispatch(actions_1.connectionCandidateReset());
+    },
+    candidateRegister: function candidateRegister(candidate) {
+      dispatch(actions_1.connectionCandidateRegister(candidate));
+    },
+    addLink: function addLink(from, to) {
+      dispatch(actions_1.linkAdd(from, to));
     }
   };
 };
@@ -32432,7 +32490,8 @@ var Ept = function Ept(_a) {
       x: position.x + settings_1.eptWidth / 2,
       y: position.y
     },
-    types: data.inputTypes
+    types: data.inputTypes,
+    payload: id
   }), data.outputType && react_1.default.createElement(connectionPoint_1.default, {
     key: 'out',
     isInput: false,
@@ -32440,7 +32499,8 @@ var Ept = function Ept(_a) {
       x: position.x + settings_1.eptWidth / 2,
       y: position.y + settings_1.eptHeight
     },
-    types: data.outputType ? [data.outputType] : null
+    types: data.outputType ? [data.outputType] : null,
+    payload: id
   })];
 };
 
@@ -32803,7 +32863,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49799" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54357" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

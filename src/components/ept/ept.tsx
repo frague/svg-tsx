@@ -32,9 +32,12 @@ const Ept = ({id, data=emptyEpt, position={x: 0, y: 0}, onMove=()=>{}, bringOnTo
 			</g>
 		</Draggable>,
 		data.inputTypes && 
-			<ConnectionPoint key='in' isInput={ true } position={ {x: position.x + eptWidth / 2, y: position.y} } types={ data.inputTypes } />,
+			<ConnectionPoint key='in' isInput={ true } position={ {x: position.x + eptWidth / 2, y: position.y} }
+				types={ data.inputTypes } payload={ id } />,
 		data.outputType && 
-			<ConnectionPoint key='out' isInput={ false } position={ {x: position.x + eptWidth / 2, y: position.y + eptHeight} } types={ data.outputType ? [data.outputType] : null } />
+			<ConnectionPoint key='out' isInput={ false }
+				position={ {x: position.x + eptWidth / 2, y: position.y + eptHeight} } types={ data.outputType ? [data.outputType] : null } 
+				payload={ id } />
 	]
 }
 

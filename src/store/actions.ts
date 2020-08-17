@@ -9,7 +9,7 @@ export function eptAdd(ept: IEpt) {
 }
 
 export const EPT_MOVE = 'EPT_MOVE';
-export function eptMove(id, position: IPosition) {
+export function eptMove(id: string, position: IPosition) {
 	return {
 		type: EPT_MOVE,
 		id, position
@@ -17,7 +17,7 @@ export function eptMove(id, position: IPosition) {
 }
 
 export const EPT_REMOVE = 'EPT_REMOVE';
-export function eptRemove(id) {
+export function eptRemove(id: string) {
 	return {
 		type: EPT_REMOVE,
 		id
@@ -25,7 +25,7 @@ export function eptRemove(id) {
 }
 
 export const EPT_BRING_ON_TOP = 'EPT_BRING_ON_TOP';
-export function eptBringOnTop(id) {
+export function eptBringOnTop(id: string) {
 	return {
 		type: EPT_BRING_ON_TOP,
 		id
@@ -34,15 +34,15 @@ export function eptBringOnTop(id) {
 
 
 export const LINK_ADD = 'LINK_ADD';
-export function linkAdd(link) {
+export function linkAdd(from: string, to: string) {
 	return {
 		type: LINK_ADD,
-		link
+		from, to
 	};
 }
 
 export const LINK_MOVE = 'LINK_MOVE';
-export function linkMove(id, position: IPosition) {
+export function linkMove(id: string, position: IPosition) {
 	return {
 		type: LINK_MOVE,
 		id, position
@@ -50,7 +50,7 @@ export function linkMove(id, position: IPosition) {
 }
 
 export const LINK_REMOVE = 'LINK_REMOVE';
-export function linkRemove(id) {
+export function linkRemove(id: string) {
 	return {
 		type: LINK_REMOVE,
 		id

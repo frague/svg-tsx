@@ -55,7 +55,6 @@ const Draggable = ({position={x: 0, y: 0}, children, isRelative=false,
 			canvas.onmouseup = event => {
 				canvas.onmouseup = undefined;
 				canvas.onmousemove = undefined;
-
 				setDragging(false);
 				onDrop();
 			}

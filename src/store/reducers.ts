@@ -6,9 +6,10 @@ import { EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP,
 } from './actions'
 
 import { IPosition, IEpt } from '../interfaces'
+import { generateId } from '../utils'
 
 function instantiateAndPosition(ept: IEpt) {
-	let id = 'ID' + ('000000' + Math.round(1000 * Math.random())).substring(-5);
+	let id = generateId();
 	ept.id = id;
 	ept.position = {x: 100, y: 80};
 	ept.order = 0;
@@ -79,7 +80,18 @@ const dummyLinks = {
 };
 
 function linksReducer(state=dummyLinks, action) {
-	return state;
+	switch (action.type) {
+		case LINK_ADD:
+			let link = {
+				id: generateId(),
+				from: action.from,
+				to: action.to
+			}
+			return Object.assign({}, state, {[link.id]: link});
+
+		default:
+			return state;
+	}
 }
 
 function connectionCandidateReducer(state=null, action) {
@@ -107,7 +119,7 @@ function connectionCandidateReducer(state=null, action) {
 const appReducer = combineReducers({
 	epts: eptsReducer,
 	links: linksReducer,
-	connectionCandidate: connectionCandidateReducer,
+	connectionSearched: connectionCandidateReducer,
 });
 
 export default appReducer;
