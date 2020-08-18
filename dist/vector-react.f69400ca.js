@@ -31780,13 +31780,47 @@ exports.connectionCandidateRegister = connectionCandidateRegister;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.generateId = void 0;
+exports.findIntersection = exports.className = exports.generateId = void 0;
 
 function generateId() {
   return 'ID' + ('000000' + Math.round(1000 * Math.random())).substring(-5);
 }
 
 exports.generateId = generateId;
+
+function className(names) {
+  return Object.entries(names).filter(function (_a) {
+    var name = _a[0],
+        condition = _a[1];
+    return !!condition;
+  }).map(function (_a) {
+    var name = _a[0];
+    return name;
+  }).join(' ');
+}
+
+exports.className = className;
+
+function findIntersection(source) {
+  var sets = source.length;
+  var counts = source.reduce(function (result, subset) {
+    subset.forEach(function (type) {
+      var existing = result[type] || 0;
+      result[type] = existing + 1;
+    });
+    return result;
+  }, {});
+  return Object.entries(counts).filter(function (_a) {
+    var name = _a[0],
+        count = _a[1];
+    return count === sets;
+  }).map(function (_a) {
+    var name = _a[0];
+    return name;
+  }).sort();
+}
+
+exports.findIntersection = findIntersection;
 },{}],"src/store/reducers.ts":[function(require,module,exports) {
 "use strict";
 
@@ -32267,6 +32301,8 @@ var react_redux_1 = require("react-redux");
 
 var settings_1 = require("../../settings");
 
+var utils_1 = require("../../utils");
+
 var actions_1 = require("../../store/actions");
 
 var draggable_1 = __importDefault(require("../draggable/draggable"));
@@ -32279,14 +32315,6 @@ function startDragging(event, setDragging, setOffset) {
     y: event.clientY
   });
   setDragging(true);
-}
-
-function drop(position, setMyPosition, setDragging) {
-  setMyPosition({
-    x: position.x,
-    y: position.y
-  });
-  setDragging(false);
 }
 
 var ConnectionPoint = function ConnectionPoint(_a) {
@@ -32303,7 +32331,8 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       candidateReset = _a.candidateReset,
       candidateRegister = _a.candidateRegister,
       links = _a.links,
-      addLink = _a.addLink;
+      addLink = _a.addLink,
+      epts = _a.epts;
 
   var _e = react_1.useState(false),
       isDragging = _e[0],
@@ -32323,73 +32352,128 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       myPosition = _g[0],
       setMyPosition = _g[1];
 
+  var _h = react_1.useState(null),
+      flexibleTypes = _h[0],
+      setFlexibleTypes = _h[1];
+
   var target = {
     x: position.x - myPosition.x,
     y: position.y - myPosition.y
   };
+  var isAnyAccepted = types.includes('any');
+  var acceptedTypes = flexibleTypes || types;
+  var connectionsTypes = [];
   var myConnections = Object.values(links).reduce(function (result, _a) {
     var from = _a.from,
         to = _a.to;
-    if (!isInput && from === payload) result.push(to);else if (isInput && to === payload) result.push(from);
+
+    if (!isInput && from === payload) {
+      result.push(to);
+      if (to) connectionsTypes.push(epts[to].inputTypes);
+    } else if (isInput && to === payload) {
+      result.push(from);
+      if (from) connectionsTypes.push([epts[from].outputType]);
+    }
+
     return result;
   }, []);
   var hasConnections = myConnections.length > 0;
   var isApproached = false;
 
-  if (connectionSearched && isInput !== connectionSearched.isInput && payload !== connectionSearched.payload && (isMultiple || !hasConnections)) {
-    var typesMatch = types && (types.includes('any') || connectionSearched.types.includes('any') || types.some(function (type) {
-      return connectionSearched.types.includes(type);
-    }));
+  if (connectionSearched // Connection candidate is being searched
+  && isInput !== connectionSearched.isInput // only connect different types (in-out, out-in)
+  && payload !== connectionSearched.payload // prevent connection to itself
+  && (isMultiple || !hasConnections) // not connected or supports multiple connections
+  ) {
+      var typesMatch = types && (acceptedTypes.includes('any') || connectionSearched.types.includes('any') || // either support 'any' connection
+      acceptedTypes.some(function (type) {
+        return connectionSearched.types.includes(type);
+      }) // or acceptable types intersect
+      );
 
-    if (typesMatch) {
-      var dx = position.x - connectionSearched.position.x;
-      var dy = position.y - connectionSearched.position.y;
-      isApproached = dx || dy ? Math.sqrt(dx * dx + dy * dy) <= settings_1.proximity : true;
+      if (typesMatch) {
+        // Candidate is in close proximity
+        var dx = position.x - connectionSearched.position.x;
+        var dy = position.y - connectionSearched.position.y;
+        isApproached = dx || dy ? Math.sqrt(dx * dx + dy * dy) <= settings_1.proximity : true;
+      }
     }
-  }
 
   var candidate = (connectionSearched || {}).candidate;
   react_1.useEffect(function () {
     if (isApproached && candidate !== payload) {
+      // If connection candidate is searched in close proximity
+      // register myself as a connection candidate
       candidateRegister(payload);
     }
 
     if (!isDragging) {
+      // When no linker is dragged, is's position must be preserved
+      // the same as the initial one
       setMyPosition(position);
 
       if (isDragging === null) {
-        setDragging(false);
+        // Triggers when linker is dropped
+        setDragging(false); // Stops dragging
+
         setMyPosition({
           x: position.x,
           y: position.y
-        });
+        }); // Renews own position to the initial state
 
         if (candidate !== undefined) {
+          // If dropped onto the connection candidate, create the link
+          // to it in accordance with the isInput
           isInput ? addLink(candidate, payload) : addLink(payload, candidate);
-        }
+        } // Stop searching for the connection candidate
+
 
         candidateReset();
       }
     }
+
+    if (isAnyAccepted) {
+      // If point accepts any type it must change its type after connection
+      if (hasConnections) {
+        var myTypes = utils_1.findIntersection(connectionsTypes);
+
+        if (myTypes.join(' ') !== (flexibleTypes || []).join(' ')) {
+          setFlexibleTypes(myTypes);
+        }
+      } else if (flexibleTypes !== null) {
+        // ... or reset back after disconnection
+        setFlexibleTypes(null);
+      }
+    }
+  });
+  var classNames = utils_1.className({
+    'connection-point': true,
+    'in': isInput,
+    'out': !isInput,
+    'approached': isApproached
   });
   return [react_1.default.createElement("g", {
     key: 'connection-point',
     transform: "translate(" + position.x + "," + position.y + ")",
-    className: 'connection-point ' + (isInput ? 'in' : 'out') + (isApproached ? ' approached' : '')
+    className: classNames
   }, react_1.default.createElement("circle", {
     radius: settings_1.connectionPointRadius
-  }), react_1.default.createElement("text", null, types.join(', '))), (isMultiple || !hasConnections) && [react_1.default.createElement(draggable_1.default, {
+  }), react_1.default.createElement("text", null, acceptedTypes.join(', '))), (isMultiple || !hasConnections) && [// Don't show dragger for single-connection points already connected
+  react_1.default.createElement(draggable_1.default, {
     key: 'linker',
     position: myPosition,
     isRelative: false,
     onStartDragging: function onStartDragging(event) {
       return startDragging(event, setDragging, setOffset);
     },
-    onMove: function onMove(delta) {
-      candidateSearch(isInput, types, delta, payload);
+    onMove: function onMove(mousePosition) {
+      // When linker is being dragged:
+      // * update search criteria (including current position)
+      candidateSearch(isInput, acceptedTypes, mousePosition, payload); // * update linker position according to the mouse
+
       setMyPosition({
-        x: delta.x,
-        y: delta.y
+        x: mousePosition.x,
+        y: mousePosition.y
       });
     },
     onDrop: function onDrop() {
@@ -32397,7 +32481,8 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     }
   }, react_1.default.createElement("circle", {
     className: "linker"
-  })), isDragging && (isInput ? react_1.default.createElement(link_1.default, {
+  })), isDragging && ( // When linker is being dragged a temporary link to in must be shown
+  isInput ? react_1.default.createElement(link_1.default, {
     key: 'link',
     to: position,
     from: myPosition
@@ -32411,7 +32496,8 @@ var ConnectionPoint = function ConnectionPoint(_a) {
 var mapStateToProps = function mapStateToProps(state) {
   return {
     connectionSearched: state.connectionSearched,
-    links: state.links
+    links: state.links,
+    epts: state.epts
   };
 };
 
@@ -32434,7 +32520,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var ConnectionPointConnected = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(ConnectionPoint);
 exports.default = ConnectionPointConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../settings":"src/settings.js","../../store/actions":"src/store/actions.ts","../draggable/draggable":"src/components/draggable/draggable.tsx","../link/link":"src/components/link/link.tsx"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../settings":"src/settings.js","../../utils":"src/utils.ts","../../store/actions":"src/store/actions.ts","../draggable/draggable":"src/components/draggable/draggable.tsx","../link/link":"src/components/link/link.tsx"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -32916,7 +33002,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54357" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49741" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
