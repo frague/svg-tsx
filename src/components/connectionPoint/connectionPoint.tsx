@@ -32,11 +32,12 @@ export interface IConnectionPointProps {
 	candidateSearch: Function,
 	candidateReset: Function
 	candidateRegisteer: Function
+	links: any,
 	addLink: Function
 }
 
 const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, payload=undefined,
-	connectionSearched, candidateSearch, candidateReset, candidateRegister, addLink
+	connectionSearched, candidateSearch, candidateReset, candidateRegister, links, addLink
 }: IConnectionPointProps) => {
 	let [isDragging, setDragging] = useState(false);
 	let [offset, setOffset] = useState({x: 0, y: 0});
@@ -44,10 +45,19 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 
 	let target = {x: position.x - myPosition.x, y: position.y - myPosition.y};
 
+	let myConnections = Object.values(links).reduce((result, {from, to}) => {
+		if (!isInput && from === payload) result.push(to)
+		else if (isInput && to === payload) result.push(from);
+		return result;
+	}, []);
+	let hasConnections = myConnections.length > 0;
+
 	let isApproached = false;
-	if (connectionSearched && isInput !== connectionSearched.isInput && payload !== connectionSearched.payload) {
+	if (connectionSearched && isInput !== connectionSearched.isInput
+		&& payload !== connectionSearched.payload
+		&& (isMultiple || !hasConnections)) {
 		let typesMatch = types && (
-			types.includes('any') ||
+			types.includes('any') || connectionSearched.types.includes('any') ||
 			types.some(type => connectionSearched.types.includes(type))
 		);
 		if (typesMatch) {
@@ -85,27 +95,31 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 			<text>{ types.join(', ') }</text>
 		</g>,
 
-		<Draggable key='linker' position={ myPosition } isRelative={ false }
-			onStartDragging={ event => startDragging(event, setDragging, setOffset) }
-			onMove={ delta => {
-				candidateSearch(isInput, types, delta, payload);
-				setMyPosition({x: delta.x, y: delta.y});
-			}}
-			onDrop={ () => setDragging(null) }
-		>
-			<circle className="linker"></circle>
-		</Draggable>,
+		(isMultiple || !hasConnections) && [
+			<Draggable key='linker' position={ myPosition } isRelative={ false }
+				onStartDragging={ event => startDragging(event, setDragging, setOffset) }
+				onMove={ delta => {
+					candidateSearch(isInput, types, delta, payload);
+					setMyPosition({x: delta.x, y: delta.y});
+				}}
+				onDrop={ () => setDragging(null) }
+			>
+				<circle className="linker"></circle>
+			</Draggable>,
 
-		isDragging && 
-			(isInput ? 
-				<Link key='link' to={ position } from={ myPosition } /> :
-				<Link key='link' from={ position } to={ myPosition } />)
+			isDragging && 
+				(isInput ? 
+					<Link key='link' to={ position } from={ myPosition } /> :
+					<Link key='link' from={ position } to={ myPosition } />)
+
+		]
 	]
 }
 
 const mapStateToProps = state => {
   return {
     connectionSearched: state.connectionSearched,
+    links: state.links,
   }
 }
 

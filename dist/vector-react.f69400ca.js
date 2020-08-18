@@ -32302,6 +32302,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       candidateSearch = _a.candidateSearch,
       candidateReset = _a.candidateReset,
       candidateRegister = _a.candidateRegister,
+      links = _a.links,
       addLink = _a.addLink;
 
   var _e = react_1.useState(false),
@@ -32326,10 +32327,17 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     x: position.x - myPosition.x,
     y: position.y - myPosition.y
   };
+  var myConnections = Object.values(links).reduce(function (result, _a) {
+    var from = _a.from,
+        to = _a.to;
+    if (!isInput && from === payload) result.push(to);else if (isInput && to === payload) result.push(from);
+    return result;
+  }, []);
+  var hasConnections = myConnections.length > 0;
   var isApproached = false;
 
-  if (connectionSearched && isInput !== connectionSearched.isInput && payload !== connectionSearched.payload) {
-    var typesMatch = types && (types.includes('any') || types.some(function (type) {
+  if (connectionSearched && isInput !== connectionSearched.isInput && payload !== connectionSearched.payload && (isMultiple || !hasConnections)) {
+    var typesMatch = types && (types.includes('any') || connectionSearched.types.includes('any') || types.some(function (type) {
       return connectionSearched.types.includes(type);
     }));
 
@@ -32370,7 +32378,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     className: 'connection-point ' + (isInput ? 'in' : 'out') + (isApproached ? ' approached' : '')
   }, react_1.default.createElement("circle", {
     radius: settings_1.connectionPointRadius
-  }), react_1.default.createElement("text", null, types.join(', '))), react_1.default.createElement(draggable_1.default, {
+  }), react_1.default.createElement("text", null, types.join(', '))), (isMultiple || !hasConnections) && [react_1.default.createElement(draggable_1.default, {
     key: 'linker',
     position: myPosition,
     isRelative: false,
@@ -32397,12 +32405,13 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     key: 'link',
     from: position,
     to: myPosition
-  }))];
+  }))]];
 };
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    connectionSearched: state.connectionSearched
+    connectionSearched: state.connectionSearched,
+    links: state.links
   };
 };
 
@@ -32498,6 +32507,7 @@ var Ept = function Ept(_a) {
   }), data.outputType && react_1.default.createElement(connectionPoint_1.default, {
     key: 'out',
     isInput: false,
+    isMultiple: true,
     position: {
       x: position.x + settings_1.eptWidth / 2,
       y: position.y + settings_1.eptHeight
@@ -32860,7 +32870,8 @@ react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider,
   },
   isInput: false,
   types: ['any'],
-  payload: null
+  payload: null,
+  isMultiple: true
 }), react_1.default.createElement("text", {
   x: half + 13,
   y: "23"
@@ -32871,7 +32882,8 @@ react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider,
   },
   isInput: true,
   types: ['any'],
-  payload: null
+  payload: null,
+  isMultiple: true
 }), react_1.default.createElement("text", {
   x: half + 13,
   y: settings_1.canvasHeight - 13

@@ -21,9 +21,11 @@ const half = canvasWidth / 2;
 ReactDOM.render(
 	<Provider store={ store }>
 		<Canvas width={ canvasWidth } height={ canvasHeight }>
-			<ConnectionPoint position={ {x: half, y: 20} } isInput={ false } types={ ['any'] } payload={ null } />
+			<ConnectionPoint position={ {x: half, y: 20} } isInput={ false } types={ ['any'] }
+				payload={ null } isMultiple={ true } />
 			<text x={ half + 13 } y="23">Begin</text>
-			<ConnectionPoint position={ {x: half, y: canvasHeight - 20} } isInput={ true } types={ ['any'] } payload={ null } />
+			<ConnectionPoint position={ {x: half, y: canvasHeight - 20} } isInput={ true }
+				types={ ['any'] } payload={ null } isMultiple={ true } />
 			<text x={ half + 13 } y={ canvasHeight - 13 }>End</text>
 
 			<Visualizer />
