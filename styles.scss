@@ -2,7 +2,11 @@
 
 $green: #a8e04f;
 $red: #f55f07;
+$orange: #e0773f;
 $blue: #0f7cbb;
+$yellow: #b9c84f;
+$white: #FFF;
+$magenta: #9759b5;
 
 * {
 	font-family: arial, tahoma, verdana;	
@@ -23,7 +27,7 @@ div#content {
 
 svg {
 	display: block;
-	background-color: #EEE;
+	background-color: #FEFEFE;
 
 	text {
 		font-family: arial, tahoma, verdana;
@@ -56,6 +60,10 @@ button.link {
 	 			fill: rgba(200, 200, 200, 0.8);
 	 		}
 	 	}
+
+	 	.linker {
+	 		fill: #68707b;
+	 	}
  	}
 }
 
@@ -64,7 +72,7 @@ button.link {
 
 	&:hover {
 		.container {
-			stroke: #000;
+			fill: #4d5258;
 		}
 
 		text.action {
@@ -75,23 +83,27 @@ button.link {
 	.container {
 		width: $eptWidth;
 		height: $eptHeight;
-		fill: #FFF;
-		stroke: #444;
+		fill: #68707b;
+		stroke: $white;
 		stroke-width: 1;
+		rx: 6px;
+		ry: 6px;
 	}
 
 	text {
 		&.title {
-			transform: translate(10px, 28px);
+			font-size: 12px;
+			transform: translate($eptWidth / 2, 4px + $eptHeight / 2);
 			width: 100px;
 			clip-path: inset(0 calc(100% - #{$eptWidth - 20px}) 0 0);
+			fill: $white;
+			text-anchor: middle;
 		}
 
 		&.action {
 			transform: translate($eptWidth - 14px, 16px);
 			font-size: 18px;
-			font-weight: bolder;
-			fill: $red;
+			fill: $white;
 			display: none;
 		}
 	}
@@ -101,51 +113,60 @@ button.link {
 	circle {
 		r: $connectionPointRadius;
 		stroke-width: 1;
-		stroke: #000;
+		stroke: $white;
 
 	}
 
 	text {
-		font-size: 12px;
+		font-size: 9px;
+		fill: #828ea2;
 	}
 
 	&.in {
 		circle {
-			fill: $green;
+			fill: #5cb459;
 		}
 
 		text {
-			transform: translate(15px, -10px);
+			transform: translate(-15px, -4px);
+			text-anchor: end;
 		}
 	}
 
 	&.out {
 		circle {
-			fill: $red;
+			fill: #4590e4;
 		}
 
 		text {
+			transform: translate(15px, 10px);
+		}
+	}
+
+	&.standalone {
+		text {
+			text-anchor: start !important;
 			transform: translate(15px, 15px);
 		}
 	}
 
 	&.approached {
 		circle {
-			stroke: orange;
+			stroke: $orange;
 			stroke-width: 3px;
 		}
-	}		
+	}
 }
 
 .linker {
-	r: $connectionPointRadius - 2;
+	r: $connectionPointRadius - 3;
 	stroke-width: 0;
-	fill: rgba(0, 0, 0, 0.5);
+	fill: rgba(255, 255, 255, 0.5);
 }
 
 .link {
 	fill: none;
-	stroke: #000;
+	stroke: #E3E3E3;
 	stroke-width: 2px;
 
 	&:hover {
@@ -181,7 +202,7 @@ marker#arrow-marker {
 		transform: translate(5px, 5px) rotate(180deg) scale(1,1);
 
 		stroke-width: 1.0000;
-		fill: #000;
+		fill: #E3E3E3;
 		stroke: none;
 	}
 }

@@ -26,7 +26,7 @@ ReactDOM.render(
 			<text x={ half + 13 } y="23">Begin</text>
 			<ConnectionPoint position={ {x: half, y: canvasHeight - 20} } isInput={ true }
 				types={ ['any'] } payload={ null } isMultiple={ true } />
-			<text x={ half + 13 } y={ canvasHeight - 13 }>End</text>
+			<text x={ half + 13 } y={ canvasHeight - 17 }>End</text>
 
 			<Visualizer />
 		</Canvas>

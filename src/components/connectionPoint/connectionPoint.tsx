@@ -24,7 +24,6 @@ export interface IConnectionPointProps {
 	isMultiple?: boolean;
 	payload: string;
 	
-	// Injected from store
 	links: any;
 	epts: any;
 	connectionSearched: any;
@@ -71,6 +70,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 		&& isInput !== connectionSearched.isInput	// only connect different types (in-out, out-in)
 		&& payload !== connectionSearched.payload	// prevent connection to itself
 		&& (isMultiple || !hasConnections)	// not connected or supports multiple connections
+		&& !(myConnections as string[]).includes(connectionSearched.payload) // no such connections exist already
 	) {
 		let typesMatch = types && (
 			acceptedTypes.includes('any') || connectionSearched.types.includes('any') || // either support 'any' connection
@@ -130,7 +130,8 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 		'connection-point': true,
 		'in': isInput,
 		'out': !isInput,
-		'approached': isApproached
+		'approached': isApproached,
+		'standalone': payload === null
 	});
 
 	return [

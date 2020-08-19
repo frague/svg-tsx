@@ -32,14 +32,14 @@ const getPosition = (id, epts, isInput): IPosition => {
 
 const Visualizer = ({epts, links, eptAdd, eptRemove}: IVisualizerProps) => {
 	return [
+		...Object.entries(links)
+			.map(([id, link]) =>
+				<Link key={ id } id={ id } from={ getPosition(link.from, epts, false) } to={ getPosition(link.to, epts, true) } />
+			),
 		...Object.entries(epts)
 			.sort(eptOrder)
 			.map(([id, ept]) =>
 				<Ept key={ id } data={ ept } id={ id } position={ ept.position } />
-			),
-		...Object.entries(links)
-			.map(([id, link]) =>
-				<Link key={ id } id={ id } from={ getPosition(link.from, epts, false) } to={ getPosition(link.to, epts, true) } />
 			),
 	];
 }

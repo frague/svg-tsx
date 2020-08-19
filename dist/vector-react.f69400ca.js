@@ -32024,9 +32024,9 @@ var canvasWidth = 800;
 exports.canvasWidth = canvasWidth;
 var canvasHeight = 600;
 exports.canvasHeight = canvasHeight;
-var eptWidth = 150;
+var eptWidth = 240;
 exports.eptWidth = eptWidth;
-var eptHeight = 50;
+var eptHeight = 36;
 exports.eptHeight = eptHeight;
 var connectionPointRadius = 7;
 exports.connectionPointRadius = connectionPointRadius;
@@ -32438,6 +32438,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
   && isInput !== connectionSearched.isInput // only connect different types (in-out, out-in)
   && payload !== connectionSearched.payload // prevent connection to itself
   && (isMultiple || !hasConnections) // not connected or supports multiple connections
+  && !myConnections.includes(connectionSearched.payload) // no such connections exist already
   ) {
       var typesMatch = types && (acceptedTypes.includes('any') || connectionSearched.types.includes('any') || // either support 'any' connection
       acceptedTypes.some(function (type) {
@@ -32504,7 +32505,8 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     'connection-point': true,
     'in': isInput,
     'out': !isInput,
-    'approached': isApproached
+    'approached': isApproached,
+    'standalone': payload === null
   });
   return [react_1.default.createElement("g", {
     key: 'connection-point',
@@ -32758,16 +32760,7 @@ var Visualizer = function Visualizer(_a) {
       links = _a.links,
       eptAdd = _a.eptAdd,
       eptRemove = _a.eptRemove;
-  return __spreadArrays(Object.entries(epts).sort(eptOrder).map(function (_a) {
-    var id = _a[0],
-        ept = _a[1];
-    return react_1.default.createElement(ept_1.default, {
-      key: id,
-      data: ept,
-      id: id,
-      position: ept.position
-    });
-  }), Object.entries(links).map(function (_a) {
+  return __spreadArrays(Object.entries(links).map(function (_a) {
     var id = _a[0],
         link = _a[1];
     return react_1.default.createElement(link_1.default, {
@@ -32775,6 +32768,15 @@ var Visualizer = function Visualizer(_a) {
       id: id,
       from: getPosition(link.from, epts, false),
       to: getPosition(link.to, epts, true)
+    });
+  }), Object.entries(epts).sort(eptOrder).map(function (_a) {
+    var id = _a[0],
+        ept = _a[1];
+    return react_1.default.createElement(ept_1.default, {
+      key: id,
+      data: ept,
+      id: id,
+      position: ept.position
     });
   }));
 };
@@ -33045,7 +33047,7 @@ react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider,
   isMultiple: true
 }), react_1.default.createElement("text", {
   x: half + 13,
-  y: settings_1.canvasHeight - 13
+  y: settings_1.canvasHeight - 17
 }, "End"), react_1.default.createElement(visualizer_1.default, null)), react_1.default.createElement(catalogue_1.default, null)), document.getElementById('content'));
 },{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/settings":"src/settings.js","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
