@@ -13,7 +13,7 @@ function instantiateAndPosition(ept: IEpt) {
 	ept.id = id;
 	ept.position = {x: 100, y: 80};
 	ept.order = 0;
-	return {[id]: ept};
+	return ept;
 }
 
 const dummyState = {
@@ -35,10 +35,17 @@ const dummyState = {
 	},
 };
 
+function bringEptOnTop(epts: any, id: string) {
+	let newOrder = 1 + Math.max(...Object.values(epts).map((ept: IEpt) => +ept.order || 0));
+	epts[id] = Object.assign({}, epts[id], {order: newOrder});
+	return epts;
+}
+
 function eptsReducer(state=dummyState, action) {
 	switch (action.type) {
 		case EPT_ADD:
-			return Object.assign({}, state, instantiateAndPosition(action.ept));
+			let newEpt = instantiateAndPosition(action.ept);
+			return bringEptOnTop(Object.assign({}, state, {[newEpt.id]: newEpt}), newEpt.id)
 
 		case EPT_MOVE:
 			let ept = state[action.id];
@@ -58,10 +65,7 @@ function eptsReducer(state=dummyState, action) {
 
 		case EPT_BRING_ON_TOP:
 			if (state.hasOwnProperty(action.id)) {
-				let result1 = Object.assign({}, state);
-				let newOrder = 1 + Math.max(...Object.values(result1).map((ept: IEpt) => +ept.order || 0));
-				result1[action.id] = Object.assign({}, result1[action.id], {order: newOrder});
-				return result1;
+				return bringEptOnTop(Object.assign({}, state), action.id);
 			} else
 				return state;
 

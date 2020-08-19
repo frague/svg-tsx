@@ -31845,8 +31845,6 @@ var actions_1 = require("./actions");
 var utils_1 = require("../utils");
 
 function instantiateAndPosition(ept) {
-  var _a;
-
   var id = utils_1.generateId();
   ept.id = id;
   ept.position = {
@@ -31854,7 +31852,7 @@ function instantiateAndPosition(ept) {
     y: 80
   };
   ept.order = 0;
-  return _a = {}, _a[id] = ept, _a;
+  return ept;
 }
 
 var dummyState = {
@@ -31882,8 +31880,18 @@ var dummyState = {
   }
 };
 
+function bringEptOnTop(epts, id) {
+  var newOrder = 1 + Math.max.apply(Math, Object.values(epts).map(function (ept) {
+    return +ept.order || 0;
+  }));
+  epts[id] = Object.assign({}, epts[id], {
+    order: newOrder
+  });
+  return epts;
+}
+
 function eptsReducer(state, action) {
-  var _a;
+  var _a, _b;
 
   if (state === void 0) {
     state = dummyState;
@@ -31891,7 +31899,8 @@ function eptsReducer(state, action) {
 
   switch (action.type) {
     case actions_1.EPT_ADD:
-      return Object.assign({}, state, instantiateAndPosition(action.ept));
+      var newEpt = instantiateAndPosition(action.ept);
+      return bringEptOnTop(Object.assign({}, state, (_a = {}, _a[newEpt.id] = newEpt, _a)), newEpt.id);
 
     case actions_1.EPT_MOVE:
       var ept = state[action.id];
@@ -31900,7 +31909,7 @@ function eptsReducer(state, action) {
         ept = Object.assign({}, ept, {
           position: action.position
         });
-        return Object.assign({}, state, (_a = {}, _a[action.id] = ept, _a));
+        return Object.assign({}, state, (_b = {}, _b[action.id] = ept, _b));
       } else return state;
 
     case actions_1.EPT_REMOVE:
@@ -31912,14 +31921,7 @@ function eptsReducer(state, action) {
 
     case actions_1.EPT_BRING_ON_TOP:
       if (state.hasOwnProperty(action.id)) {
-        var result1 = Object.assign({}, state);
-        var newOrder = 1 + Math.max.apply(Math, Object.values(result1).map(function (ept) {
-          return +ept.order || 0;
-        }));
-        result1[action.id] = Object.assign({}, result1[action.id], {
-          order: newOrder
-        });
-        return result1;
+        return bringEptOnTop(Object.assign({}, state), action.id);
       } else return state;
 
     default:
@@ -32876,7 +32878,8 @@ var actions_1 = require("../../store/actions");
 var test_1 = require("../../../data/test");
 
 var Catalogue = function Catalogue(_a) {
-  var onAddClick = _a.onAddClick;
+  var onAddClick = _a.onAddClick,
+      bringOnTop = _a.bringOnTop;
   return react_1.default.createElement("div", {
     className: "catalogue"
   }, react_1.default.createElement("ul", null, test_1.primitives.map(function (ept, index) {
@@ -32885,7 +32888,8 @@ var Catalogue = function Catalogue(_a) {
     }, react_1.default.createElement("h5", null, ept.title), react_1.default.createElement("button", {
       className: "link",
       onClick: function onClick() {
-        return onAddClick(ept);
+        var id = onAddClick(ept);
+        bringOnTop(id);
       }
     }, "Use"));
   })));
@@ -32895,6 +32899,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     onAddClick: function onAddClick(ept) {
       dispatch(actions_1.eptAdd(ept));
+    },
+    bringOnTop: function bringOnTop(id) {
+      dispatch(actions_1.eptBringOnTop(id));
     }
   };
 };
