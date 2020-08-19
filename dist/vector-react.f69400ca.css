@@ -47,9 +47,8 @@ button.link, button.link:active {
 .draggable.drag {
   cursor: move;
 }
-.draggable.drag .ept {
-  transform: rotate(-5deg) scale(1.1);
-  transform-origin: 75px 25px;
+.draggable.drag .ept .container {
+  fill: rgba(200, 200, 200, 0.8);
 }
 
 .ept {

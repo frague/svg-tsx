@@ -39,7 +39,7 @@ const Visualizer = ({epts, links, eptAdd, eptRemove}: IVisualizerProps) => {
 			),
 		...Object.entries(links)
 			.map(([id, link]) =>
-				<Link key={ id } from={ getPosition(link.from, epts, false) } to={ getPosition(link.to, epts, true) } />
+				<Link key={ id } id={ id } from={ getPosition(link.from, epts, false) } to={ getPosition(link.to, epts, true) } />
 			),
 	];
 }

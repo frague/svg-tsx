@@ -1,12 +1,18 @@
 import React, { useState } from 'react'
+import { connect } from 'react-redux'
+import { linkRemove } from '../../store/actions'
+
 import Draggable from '../draggable/draggable'
 
 import { IPosition } from '../../interfaces'
 import { connectionPointRadius } from '../../settings'
 
 export interface ILinkProps {
+	id: string,
 	from: IPosition,
-	to: IPosition
+	to: IPosition,
+
+	removeLink: Function,
 };
 
 function calcPath(from: IPosition, to: IPosition) {
@@ -32,9 +38,19 @@ function calcPath(from: IPosition, to: IPosition) {
 	return `M${x + rx},${y + ry}C${x + tx},${y + ty},${sx - tx},${sy - ty},${sx},${sy}`;
 }
 
-const Link = ({from, to}: ILinkProps) => {
+const Link = ({id, from, to, removeLink}: ILinkProps) => {
 	let hy = (to.y - from.y) / 2;
-	return <path className="link" d={ calcPath(from, to) } markerEnd="url(#arrow-marker)"></path>
+	return <path className="link" d={ calcPath(from, to) } markerEnd="url(#arrow-marker)"
+		onClick={ () => removeLink(id) }
+	></path>
 }
 
-export default Link;
+let mapDispatchToProps = dispatch => {
+	return {
+		removeLink: (id: string) => dispatch(linkRemove(id))
+	}
+};
+
+let LinkConnected = connect(null, mapDispatchToProps)(Link);
+
+export default LinkConnected;

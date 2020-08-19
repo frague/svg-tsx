@@ -50,8 +50,11 @@ button.link {
  		cursor: move;
 
 	 	.ept {
-	 		transform: rotate(-5deg) scale(1.1);
-	 		transform-origin: $eptWidth/2 $eptHeight/2;
+	 		// transform: rotate(-5deg) scale(1.1);
+	 		// transform-origin: $eptWidth/2 $eptHeight/2;
+	 		.container {
+	 			fill: rgba(200, 200, 200, 0.8);
+	 		}
 	 	}
  	}
 }

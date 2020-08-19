@@ -89,6 +89,14 @@ function linksReducer(state=dummyLinks, action) {
 			}
 			return Object.assign({}, state, {[link.id]: link});
 
+		case LINK_REMOVE:
+			if (state.hasOwnProperty(action.id)) {
+				let result = Object.assign({}, state);
+				delete result[action.id];
+				return result;
+			} else
+				return state;
+
 		default:
 			return state;
 	}

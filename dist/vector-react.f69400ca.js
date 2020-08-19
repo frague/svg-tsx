@@ -31941,6 +31941,13 @@ function linksReducer(state, action) {
       };
       return Object.assign({}, state, (_a = {}, _a[link.id] = link, _a));
 
+    case actions_1.LINK_REMOVE:
+      if (state.hasOwnProperty(action.id)) {
+        var result = Object.assign({}, state);
+        delete result[action.id];
+        return result;
+      } else return state;
+
     default:
       return state;
   }
@@ -32208,6 +32215,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var react_1 = __importDefault(require("react"));
 
+var react_redux_1 = require("react-redux");
+
+var actions_1 = require("../../store/actions");
+
 var settings_1 = require("../../settings");
 
 ;
@@ -32237,18 +32248,32 @@ function calcPath(from, to) {
 }
 
 var Link = function Link(_a) {
-  var from = _a.from,
-      to = _a.to;
+  var id = _a.id,
+      from = _a.from,
+      to = _a.to,
+      removeLink = _a.removeLink;
   var hy = (to.y - from.y) / 2;
   return react_1.default.createElement("path", {
     className: "link",
     d: calcPath(from, to),
-    markerEnd: "url(#arrow-marker)"
+    markerEnd: "url(#arrow-marker)",
+    onClick: function onClick() {
+      return removeLink(id);
+    }
   });
 };
 
-exports.default = Link;
-},{"react":"node_modules/react/index.js","../../settings":"src/settings.js"}],"src/components/connectionPoint/connectionPoint.tsx":[function(require,module,exports) {
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    removeLink: function removeLink(id) {
+      return dispatch(actions_1.linkRemove(id));
+    }
+  };
+};
+
+var LinkConnected = react_redux_1.connect(null, mapDispatchToProps)(Link);
+exports.default = LinkConnected;
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../settings":"src/settings.js"}],"src/components/connectionPoint/connectionPoint.tsx":[function(require,module,exports) {
 "use strict";
 
 var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
@@ -32705,6 +32730,7 @@ var Visualizer = function Visualizer(_a) {
         link = _a[1];
     return react_1.default.createElement(link_1.default, {
       key: id,
+      id: id,
       from: getPosition(link.from, epts, false),
       to: getPosition(link.to, epts, true)
     });
