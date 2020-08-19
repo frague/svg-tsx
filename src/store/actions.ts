@@ -57,6 +57,14 @@ export function linkRemove(id: string) {
 	};
 }
 
+export const EPT_LINKS_REMOVE = 'EPT_LINKS_REMOVE';
+export function eptLinksRemove(id: string) {
+	return {
+		type: EPT_LINKS_REMOVE,
+		id
+	};
+}
+
 export const CONNECTION_CANDIDATE_SEARCH = 'CONNECTION_CANDIDATE_SEARCH';
 export function connectionCandidateSearch(isInput: boolean, types: string[], position: IPosition, payload: string) {
 	return {

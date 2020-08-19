@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
-import { eptMove, eptBringOnTop } from '../../store/actions'
+import { eptMove, eptBringOnTop, eptRemove, eptLinksRemove } from '../../store/actions'
 
 import Draggable from '../draggable/draggable'
 
@@ -14,7 +14,9 @@ export interface IEptProps {
 	id: string,
 	position?: IPosition,
 	onMove: Function,
-	bringOnTop: Function
+	bringOnTop: Function,
+	deleteEpt: Function,
+	deleteEptLinks: Function,
 };
 
 const emptyEpt = {
@@ -23,12 +25,16 @@ const emptyEpt = {
 	inputTypes: [],
 };
 
-const Ept = ({id, data=emptyEpt, position={x: 0, y: 0}, onMove=()=>{}, bringOnTop=()=>{}}: IEptProps) => {
+const Ept = ({id, data=emptyEpt, position={x: 0, y: 0}, onMove=()=>{}, bringOnTop, deleteEpt, deleteEptLinks}: IEptProps) => {
 	return [
 		<Draggable key='ept' position={ position } onStartDragging={ () => bringOnTop(id) } onMove={ newPosition => onMove(id, newPosition) }>
 			<g className="ept">
 				<rect className="container" />
 				<text className="title">{ data.title }</text>
+				<text className="action" onClick={ event => {
+					deleteEptLinks(id);
+					deleteEpt(id)}
+				}>&times;</text>
 			</g>
 		</Draggable>,
 		data.inputTypes && 
@@ -48,6 +54,12 @@ const mapDispatchToProps = dispatch => {
     },
     bringOnTop: (id: string)  => {
     	dispatch(eptBringOnTop(id))
+    },
+    deleteEpt: (id: string) => {
+    	dispatch(eptRemove(id))
+    },
+    deleteEptLinks: (id: string) => {
+    	dispatch(eptLinksRemove(id))
     }
   }
 }

@@ -15,6 +15,7 @@ div#content {
 	svg {
 		flex: 0 0 800px;
 	}
+
 	.catalogue {
 		flex: 0 0 300px;
 	}
@@ -23,6 +24,7 @@ div#content {
 svg {
 	display: block;
 	background-color: #EEE;
+
 	text {
 		font-family: arial, tahoma, verdana;
 		font-size: 14px;
@@ -50,8 +52,6 @@ button.link {
  		cursor: move;
 
 	 	.ept {
-	 		// transform: rotate(-5deg) scale(1.1);
-	 		// transform-origin: $eptWidth/2 $eptHeight/2;
 	 		.container {
 	 			fill: rgba(200, 200, 200, 0.8);
 	 		}
@@ -61,6 +61,16 @@ button.link {
 
 .ept {
 	stroke-width: 0;
+
+	&:hover {
+		.container {
+			stroke: #000;
+		}
+
+		text.action {
+			display: block;
+		}
+	}
 
 	.container {
 		width: $eptWidth;
@@ -76,13 +86,20 @@ button.link {
 			width: 100px;
 			clip-path: inset(0 calc(100% - #{$eptWidth - 20px}) 0 0);
 		}
+
+		&.action {
+			transform: translate($eptWidth - 14px, 16px);
+			font-size: 18px;
+			font-weight: bolder;
+			fill: $red;
+			display: none;
+		}
 	}
 }
 
 .connection-point {
 	circle {
 		r: $connectionPointRadius;
-		// cx: $eptWidth / 2;
 		stroke-width: 1;
 		stroke: #000;
 
@@ -96,6 +113,7 @@ button.link {
 		circle {
 			fill: $green;
 		}
+
 		text {
 			transform: translate(15px, -10px);
 		}
@@ -105,6 +123,7 @@ button.link {
 		circle {
 			fill: $red;
 		}
+
 		text {
 			transform: translate(15px, 15px);
 		}
@@ -120,8 +139,6 @@ button.link {
 
 .linker {
 	r: $connectionPointRadius - 2;
-	// cx: 0;
-	// cy: 0;
 	stroke-width: 0;
 	fill: rgba(0, 0, 0, 0.5);
 }

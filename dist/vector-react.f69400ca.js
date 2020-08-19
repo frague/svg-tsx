@@ -31668,7 +31668,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.connectionCandidateRegister = exports.CONNECTION_CANDIDATE_REGISTER = exports.connectionCandidateReset = exports.CONNECTION_CANDIDATE_RESET = exports.connectionCandidateSearch = exports.CONNECTION_CANDIDATE_SEARCH = exports.linkRemove = exports.LINK_REMOVE = exports.linkMove = exports.LINK_MOVE = exports.linkAdd = exports.LINK_ADD = exports.eptBringOnTop = exports.EPT_BRING_ON_TOP = exports.eptRemove = exports.EPT_REMOVE = exports.eptMove = exports.EPT_MOVE = exports.eptAdd = exports.EPT_ADD = void 0;
+exports.connectionCandidateRegister = exports.CONNECTION_CANDIDATE_REGISTER = exports.connectionCandidateReset = exports.CONNECTION_CANDIDATE_RESET = exports.connectionCandidateSearch = exports.CONNECTION_CANDIDATE_SEARCH = exports.eptLinksRemove = exports.EPT_LINKS_REMOVE = exports.linkRemove = exports.LINK_REMOVE = exports.linkMove = exports.LINK_MOVE = exports.linkAdd = exports.LINK_ADD = exports.eptBringOnTop = exports.EPT_BRING_ON_TOP = exports.eptRemove = exports.EPT_REMOVE = exports.eptMove = exports.EPT_MOVE = exports.eptAdd = exports.EPT_ADD = void 0;
 exports.EPT_ADD = 'EPT_ADD';
 
 function eptAdd(ept) {
@@ -31742,6 +31742,16 @@ function linkRemove(id) {
 }
 
 exports.linkRemove = linkRemove;
+exports.EPT_LINKS_REMOVE = 'EPT_LINKS_REMOVE';
+
+function eptLinksRemove(id) {
+  return {
+    type: exports.EPT_LINKS_REMOVE,
+    id: id
+  };
+}
+
+exports.eptLinksRemove = eptLinksRemove;
 exports.CONNECTION_CANDIDATE_SEARCH = 'CONNECTION_CANDIDATE_SEARCH';
 
 function connectionCandidateSearch(isInput, types, position, payload) {
@@ -31943,10 +31953,24 @@ function linksReducer(state, action) {
 
     case actions_1.LINK_REMOVE:
       if (state.hasOwnProperty(action.id)) {
-        var result = Object.assign({}, state);
-        delete result[action.id];
-        return result;
+        var result_1 = Object.assign({}, state);
+        delete result_1[action.id];
+        return result_1;
       } else return state;
+
+    case actions_1.EPT_LINKS_REMOVE:
+      var hasChanges_1 = false;
+      var result_2 = Object.assign({}, state);
+      Object.entries(state).forEach(function (_a) {
+        var id = _a[0],
+            link = _a[1];
+
+        if (link.from === action.id || link.to === action.id) {
+          hasChanges_1 = true;
+          delete result_2[id];
+        }
+      });
+      return hasChanges_1 ? result_2 : state;
 
     default:
       return state;
@@ -32386,7 +32410,10 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     y: position.y - myPosition.y
   };
   var isAnyAccepted = types.includes('any');
-  var acceptedTypes = flexibleTypes || types;
+  var acceptedTypes = flexibleTypes || types; // Collecting all connected EPTs in order to determine 
+  // * if further connections are possible (isMultiple === false)
+  // * what are the accepted types if initial type is 'any'
+
   var connectionsTypes = [];
   var myConnections = Object.values(links).reduce(function (result, _a) {
     var from = _a.from,
@@ -32394,10 +32421,10 @@ var ConnectionPoint = function ConnectionPoint(_a) {
 
     if (!isInput && from === payload) {
       result.push(to);
-      if (to) connectionsTypes.push(epts[to].inputTypes);
+      if (to && epts[to]) connectionsTypes.push(epts[to].inputTypes);
     } else if (isInput && to === payload) {
       result.push(from);
-      if (from) connectionsTypes.push([epts[from].outputType]);
+      if (from && epts[from]) connectionsTypes.push([epts[from].outputType]);
     }
 
     return result;
@@ -32588,8 +32615,9 @@ var Ept = function Ept(_a) {
   } : _c,
       _d = _a.onMove,
       _onMove = _d === void 0 ? function () {} : _d,
-      _e = _a.bringOnTop,
-      bringOnTop = _e === void 0 ? function () {} : _e;
+      bringOnTop = _a.bringOnTop,
+      deleteEpt = _a.deleteEpt,
+      deleteEptLinks = _a.deleteEptLinks;
 
   return [react_1.default.createElement(draggable_1.default, {
     key: 'ept',
@@ -32606,7 +32634,13 @@ var Ept = function Ept(_a) {
     className: "container"
   }), react_1.default.createElement("text", {
     className: "title"
-  }, data.title))), data.inputTypes && react_1.default.createElement(connectionPoint_1.default, {
+  }, data.title), react_1.default.createElement("text", {
+    className: "action",
+    onClick: function onClick(event) {
+      deleteEptLinks(id);
+      deleteEpt(id);
+    }
+  }, "\xD7"))), data.inputTypes && react_1.default.createElement(connectionPoint_1.default, {
     key: 'in',
     isInput: true,
     position: {
@@ -32635,6 +32669,12 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     },
     bringOnTop: function bringOnTop(id) {
       dispatch(actions_1.eptBringOnTop(id));
+    },
+    deleteEpt: function deleteEpt(id) {
+      dispatch(actions_1.eptRemove(id));
+    },
+    deleteEptLinks: function deleteEptLinks(id) {
+      dispatch(actions_1.eptLinksRemove(id));
     }
   };
 };

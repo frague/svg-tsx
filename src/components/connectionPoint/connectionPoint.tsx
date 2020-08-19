@@ -49,15 +49,18 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 	
 	let acceptedTypes = flexibleTypes || types;
 
+	// Collecting all connected EPTs in order to determine 
+	// * if further connections are possible (isMultiple === false)
+	// * what are the accepted types if initial type is 'any'
 	let connectionsTypes = [];
 	let myConnections = Object.values(links).reduce((result: string[], {from, to}) => {
 		if (!isInput && from === payload) {
 			result.push(to);
-			if (to) connectionsTypes.push(epts[to].inputTypes);
+			if (to && epts[to]) connectionsTypes.push(epts[to].inputTypes);
 		}
 		else if (isInput && to === payload) {
 			result.push(from);
-			if (from) connectionsTypes.push([epts[from].outputType]);
+			if (from && epts[from]) connectionsTypes.push([epts[from].outputType]);
 		}
 		return result;
 	}, []);

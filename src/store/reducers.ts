@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 
 import { EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP,
-	LINK_ADD, LINK_MOVE, LINK_REMOVE,
+	LINK_ADD, LINK_MOVE, LINK_REMOVE, EPT_LINKS_REMOVE,
 	CONNECTION_CANDIDATE_SEARCH, CONNECTION_CANDIDATE_REGISTER, CONNECTION_CANDIDATE_RESET 
 } from './actions'
 
@@ -97,6 +97,16 @@ function linksReducer(state=dummyLinks, action) {
 			} else
 				return state;
 
+		case EPT_LINKS_REMOVE:
+			let hasChanges = false;
+			let result = Object.assign({}, state);
+			Object.entries(state).forEach(([id, link]) => {
+				if (link.from === action.id || link.to === action.id) {
+					hasChanges = true;
+					delete result[id];
+				}
+			});
+			return hasChanges ? result : state;
 		default:
 			return state;
 	}
