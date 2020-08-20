@@ -20,7 +20,7 @@ export interface IVisualizerProps {
 const eptOrder = ([, ept1], [, ept2]) => ept1.order < ept2.order ? -1 : 1;
 
 const getPosition = (id, epts, isInput): IPosition => {
-	if (id === null) {
+	if (!id) {
 		// Global input && output
 		return isInput ? {x: canvasWidth / 2, y: canvasHeight - 20} : {x: canvasWidth / 2, y: 20};
 	}
@@ -39,7 +39,7 @@ const Visualizer = ({epts, links, eptAdd, eptRemove}: IVisualizerProps) => {
 		...Object.entries(epts)
 			.sort(eptOrder)
 			.map(([id, ept]) =>
-				<Ept key={ id } data={ ept } id={ id } position={ ept.position } />
+				<Ept key={ id } data={ ept } id={ id } />
 			),
 	];
 }

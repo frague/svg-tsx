@@ -6,7 +6,7 @@ import { connectionPointRadius, proximity } from '../../settings'
 import { className, findIntersection } from '../../utils'
 import { 
 	connectionCandidateSearch, connectionCandidateRegister, connectionCandidateReset,
-	linkAdd
+	linkAdd, eptSetAcceptedTypes
 } from '../../store/actions'
 
 import Draggable from '../draggable/draggable'
@@ -23,6 +23,7 @@ export interface IConnectionPointProps {
 	types?: string[];
 	isMultiple?: boolean;
 	payload: string;
+	isAnyAccepted: boolean;
 	
 	links: any;
 	epts: any;
@@ -32,38 +33,35 @@ export interface IConnectionPointProps {
 	candidateReset: Function;
 	candidateRegister: Function;
 	addLink: Function;
+	eptSetTypes: Function;
 }
 
-const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, payload=undefined,
-	connectionSearched, candidateSearch, candidateReset, candidateRegister, links, addLink, epts
+const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, payload=undefined, isAnyAccepted=false,
+	connectionSearched, candidateSearch, candidateReset, candidateRegister, eptSetTypes,
+	links, addLink, epts
 }: IConnectionPointProps) => {
 	let [isDragging, setDragging] = useState(false);
 	let [offset, setOffset] = useState({x: 0, y: 0});
 	let [myPosition, setMyPosition] = useState({x: position.x, y: position.y});
-	let [flexibleTypes, setFlexibleTypes] = useState(null);
 
 	let target = {x: position.x - myPosition.x, y: position.y - myPosition.y};
-
-	let isAnyAccepted = types.includes('any');
-	
-	let acceptedTypes = flexibleTypes || types;
 
 	// Collecting all connected EPTs in order to determine 
 	// * if further connections are possible (isMultiple === false)
 	// * what are the accepted types if initial type is 'any'
 	let connectionsTypes = [];
-	let myConnections = Object.values(links).reduce((result: string[], {from, to}) => {
+	let myConnections: string[] = Object.values(links).reduce((result: string[], {from, to}) => {
 		if (!isInput && from === payload) {
 			result.push(to);
 			if (to && epts[to]) connectionsTypes.push(epts[to].inputTypes);
 		}
 		else if (isInput && to === payload) {
 			result.push(from);
-			if (from && epts[from]) connectionsTypes.push([epts[from].outputType]);
+			if (from && epts[from]) connectionsTypes.push(epts[from].outputTypes);
 		}
 		return result;
-	}, []);
-	let hasConnections = (myConnections as string[]).length > 0;
+	}, []) as string[];
+	let hasConnections = myConnections.length > 0;
 
 	let isApproached = false;
 	if (connectionSearched	// Connection candidate is being searched
@@ -72,10 +70,11 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 		&& (isMultiple || !hasConnections)	// not connected or supports multiple connections
 		&& !(myConnections as string[]).includes(connectionSearched.payload) // no such connections exist already
 	) {
-		let typesMatch = types && (
-			acceptedTypes.includes('any') || connectionSearched.types.includes('any') || // either support 'any' connection
-			acceptedTypes.some(type => connectionSearched.types.includes(type)) // or acceptable types intersect
-		);
+		let typesMatch =
+			(isAnyAccepted && !types) || // I support 'any' type with no external typisation OR
+			(connectionSearched.isAnyAccepted && !connectionSearched.types) || // searcher supports 'any' type with no external typisation OR
+			(types && connectionSearched.types && types.some(type => connectionSearched.types.includes(type))); // acceptable types intersect
+
 		if (typesMatch) {
 			// Candidate is in close proximity
 			let dx = position.x - connectionSearched.position.x;
@@ -85,6 +84,8 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 	}
 
 	let candidate = (connectionSearched || {}).candidate;
+
+	let typesLabel = (types && types.length) ? types.join(', ') : (isAnyAccepted ? 'any' : '');
 
 	useEffect(() => {
 		if (isApproached && candidate !== payload) {
@@ -116,12 +117,15 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 			// If point accepts any type it must change its type after connection
 			if (hasConnections) {
 				let myTypes = findIntersection(connectionsTypes);
-				if (myTypes.join(' ') !== (flexibleTypes || []).join(' ')) {
-					setFlexibleTypes(myTypes);
+				// If there are connections and 
+				if (myTypes.join(', ') !== typesLabel) {
+					// the set differs from the currently registered - 
+					// register it in EPT
+					eptSetTypes(payload, myTypes, isInput);
 				}
-			} else if (flexibleTypes !== null) {
-				// ... or reset back after disconnection
-				setFlexibleTypes(null);
+			} else if (types !== null) {
+				// If no connections - reset to null to accept all types
+				eptSetTypes(payload, null, isInput);
 			}
 		}
 	});
@@ -131,13 +135,14 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 		'in': isInput,
 		'out': !isInput,
 		'approached': isApproached,
-		'standalone': payload === null
+		'standalone': !payload
 	});
+
 
 	return [
 		<g key='connection-point' transform={ `translate(${position.x},${position.y})` } className={ classNames }>
 			<circle radius={ connectionPointRadius } />
-			<text>{ acceptedTypes.join(', ') }</text>
+			<text>{ typesLabel }</text>
 		</g>,
 
 		(isMultiple || !hasConnections) && [
@@ -147,7 +152,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 				onMove={ mousePosition => {
 					// When linker is being dragged:
 					// * update search criteria (including current position)
-					candidateSearch(isInput, acceptedTypes, mousePosition, payload);
+					candidateSearch(isInput, types, mousePosition, payload, isAnyAccepted);
 					// * update linker position according to the mouse
 					setMyPosition({x: mousePosition.x, y: mousePosition.y});
 				}}
@@ -176,8 +181,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
 	return {
-		candidateSearch: (isInput: boolean, types: string[], position: IPosition, payload: string) => {
-			dispatch(connectionCandidateSearch(isInput, types, position, payload))
+		candidateSearch: (isInput: boolean, types: string[], position: IPosition, payload: string, isAnyAccepted: boolean) => {
+			dispatch(connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted))
 		},
 		candidateReset: () => {
 			dispatch(connectionCandidateReset())
@@ -187,6 +192,9 @@ const mapDispatchToProps = dispatch => {
 		},
 		addLink: (from: string, to: string) => {
 			dispatch(linkAdd(from, to))
+		},
+		eptSetTypes: (id: string, types: string[]|string, isInput: boolean) => {
+			dispatch(eptSetAcceptedTypes(id, types, isInput))
 		}
 	}
 }

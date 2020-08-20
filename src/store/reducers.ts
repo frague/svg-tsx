@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 
 import { EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP,
-	LINK_ADD, LINK_MOVE, LINK_REMOVE, EPT_LINKS_REMOVE,
+	LINK_ADD, LINK_MOVE, LINK_REMOVE, EPT_LINKS_REMOVE, EPT_SET_ACCEPTED_TYPES,
 	CONNECTION_CANDIDATE_SEARCH, CONNECTION_CANDIDATE_REGISTER, CONNECTION_CANDIDATE_RESET 
 } from './actions'
 
@@ -17,11 +17,21 @@ function instantiateAndPosition(ept: IEpt) {
 }
 
 const dummyState = {
+	['']: {
+		title: 'New EPT',
+		type: 'new',
+		inputTypes: null,
+		inputIsFlexible: true,
+		outputTypes: null,
+		outputIsFlexible: true,
+		position: {x: 100, y: 85},
+		id: ''
+	},
 	'ID00001': {
 		title: 'Dummy EPT',
 		type: 'some type',
 		inputTypes: ['interface', 'subinterface'],
-		outputType: 'interface',
+		outputTypes: ['interface'],
 		position: {x: 100, y: 85},
 		id: 'ID00001'
 	},
@@ -29,7 +39,7 @@ const dummyState = {
 		title: 'Dummy EPT #2',
 		type: 'some type 2',
 		inputTypes: ['interface', 'subinterface'],
-		outputType: 'interface',
+		outputTypes: ['interface'],
 		position: {x: 150, y: 190},
 		id: 'ID00002'
 	},
@@ -67,6 +77,14 @@ function eptsReducer(state=dummyState, action) {
 			if (state.hasOwnProperty(action.id)) {
 				return bringEptOnTop(Object.assign({}, state), action.id);
 			} else
+				return state;
+
+		case EPT_SET_ACCEPTED_TYPES:
+			if (state.hasOwnProperty(action.id)) {
+				let ept1 = Object.assign({}, state[action.id]);
+				ept1[action.isInput ? 'inputTypes' : 'outputTypes'] = action.types;
+				return Object.assign({}, state, {[action.id]: ept1})
+			} else 
 				return state;
 
 
@@ -124,6 +142,8 @@ function connectionCandidateReducer(state=null, action) {
 				types: action.types,
 				position: action.position,
 				payload: action.payload,
+				isAnyAccepted: action.isAnyAccepted,
+
 				candidate: undefined
 			};
 

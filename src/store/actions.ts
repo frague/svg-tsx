@@ -32,6 +32,13 @@ export function eptBringOnTop(id: string) {
 	};
 }
 
+export const EPT_SET_ACCEPTED_TYPES = 'EPT_SET_ACCEPTED_TYPES';
+export function eptSetAcceptedTypes(id: string, types: string[]|string, isInput: boolean) {
+	return {
+		type: EPT_SET_ACCEPTED_TYPES,
+		id, types, isInput
+	};
+}
 
 export const LINK_ADD = 'LINK_ADD';
 export function linkAdd(from: string, to: string) {
@@ -66,10 +73,10 @@ export function eptLinksRemove(id: string) {
 }
 
 export const CONNECTION_CANDIDATE_SEARCH = 'CONNECTION_CANDIDATE_SEARCH';
-export function connectionCandidateSearch(isInput: boolean, types: string[], position: IPosition, payload: string) {
+export function connectionCandidateSearch(isInput: boolean, types: string[], position: IPosition, payload: string, isAnyAccepted: boolean) {
 	return {
 		type: CONNECTION_CANDIDATE_SEARCH,
-		isInput, types, position, payload,
+		isInput, types, position, payload, isAnyAccepted
 	};
 }
 

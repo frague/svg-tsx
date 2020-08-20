@@ -1,6 +1,7 @@
 @import "./variables.scss";
 
 $green: #a8e04f;
+$seagreen: #458e99;
 $red: #f55f07;
 $orange: #e0773f;
 $blue: #0f7cbb;
@@ -86,8 +87,8 @@ button.link {
 		fill: #68707b;
 		stroke: $white;
 		stroke-width: 1;
-		rx: 6px;
-		ry: 6px;
+		rx: 4px;
+		ry: 4px;
 	}
 
 	text {

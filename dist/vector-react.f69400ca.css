@@ -69,8 +69,8 @@ button.link, button.link:active {
   fill: #68707b;
   stroke: #FFF;
   stroke-width: 1;
-  rx: 6px;
-  ry: 6px;
+  rx: 4px;
+  ry: 4px;
 }
 .ept text.title {
   font-size: 12px;

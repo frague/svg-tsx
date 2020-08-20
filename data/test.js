@@ -8,7 +8,7 @@ export const primitives = [
 			'vlan_id': ''
 		},
 		'inputTypes': ['interface'],
-		'outputType': 'subinterface',
+		'outputTypes': ['subinterface'],
 	},
 	{
 		'title': 'Attach VLAN',
@@ -19,7 +19,7 @@ export const primitives = [
 			'tagged/untagged': ''
 		},
 		'inputTypes': ['interface'],
-		'outputType': null,
+		'outputTypes': null,
 	},
 	{
 		'title': 'Address type',
@@ -30,7 +30,7 @@ export const primitives = [
 			'IPv6': ''
 		},
 		'inputTypes': ['interface', 'subinterface'],
-		'outputType': 'routable interface',
+		'outputTypes': ['routable interface'],
 	},
 	{
 		'title': 'BGP unnumbered',
@@ -40,7 +40,7 @@ export const primitives = [
 			'timeout': ''
 		},
 		'inputTypes': ['routable interface'],
-		'outputType': 'routing session',
+		'outputTypes': ['routing session'],
 	},
 	{
 		'title': 'Routing policy',
@@ -50,6 +50,6 @@ export const primitives = [
 			'import/export': ''
 		},
 		'inputTypes': ['routing session'],
-		'outputType': 'routing policy',
+		'outputTypes': ['routing policy'],
 	},
 ]

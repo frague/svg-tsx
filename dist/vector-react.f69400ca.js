@@ -31668,7 +31668,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.connectionCandidateRegister = exports.CONNECTION_CANDIDATE_REGISTER = exports.connectionCandidateReset = exports.CONNECTION_CANDIDATE_RESET = exports.connectionCandidateSearch = exports.CONNECTION_CANDIDATE_SEARCH = exports.eptLinksRemove = exports.EPT_LINKS_REMOVE = exports.linkRemove = exports.LINK_REMOVE = exports.linkMove = exports.LINK_MOVE = exports.linkAdd = exports.LINK_ADD = exports.eptBringOnTop = exports.EPT_BRING_ON_TOP = exports.eptRemove = exports.EPT_REMOVE = exports.eptMove = exports.EPT_MOVE = exports.eptAdd = exports.EPT_ADD = void 0;
+exports.connectionCandidateRegister = exports.CONNECTION_CANDIDATE_REGISTER = exports.connectionCandidateReset = exports.CONNECTION_CANDIDATE_RESET = exports.connectionCandidateSearch = exports.CONNECTION_CANDIDATE_SEARCH = exports.eptLinksRemove = exports.EPT_LINKS_REMOVE = exports.linkRemove = exports.LINK_REMOVE = exports.linkMove = exports.LINK_MOVE = exports.linkAdd = exports.LINK_ADD = exports.eptSetAcceptedTypes = exports.EPT_SET_ACCEPTED_TYPES = exports.eptBringOnTop = exports.EPT_BRING_ON_TOP = exports.eptRemove = exports.EPT_REMOVE = exports.eptMove = exports.EPT_MOVE = exports.eptAdd = exports.EPT_ADD = void 0;
 exports.EPT_ADD = 'EPT_ADD';
 
 function eptAdd(ept) {
@@ -31710,6 +31710,18 @@ function eptBringOnTop(id) {
 }
 
 exports.eptBringOnTop = eptBringOnTop;
+exports.EPT_SET_ACCEPTED_TYPES = 'EPT_SET_ACCEPTED_TYPES';
+
+function eptSetAcceptedTypes(id, types, isInput) {
+  return {
+    type: exports.EPT_SET_ACCEPTED_TYPES,
+    id: id,
+    types: types,
+    isInput: isInput
+  };
+}
+
+exports.eptSetAcceptedTypes = eptSetAcceptedTypes;
 exports.LINK_ADD = 'LINK_ADD';
 
 function linkAdd(from, to) {
@@ -31754,13 +31766,14 @@ function eptLinksRemove(id) {
 exports.eptLinksRemove = eptLinksRemove;
 exports.CONNECTION_CANDIDATE_SEARCH = 'CONNECTION_CANDIDATE_SEARCH';
 
-function connectionCandidateSearch(isInput, types, position, payload) {
+function connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted) {
   return {
     type: exports.CONNECTION_CANDIDATE_SEARCH,
     isInput: isInput,
     types: types,
     position: position,
-    payload: payload
+    payload: payload,
+    isAnyAccepted: isAnyAccepted
   };
 }
 
@@ -31834,6 +31847,8 @@ exports.findIntersection = findIntersection;
 },{}],"src/store/reducers.ts":[function(require,module,exports) {
 "use strict";
 
+var _a;
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -31855,30 +31870,39 @@ function instantiateAndPosition(ept) {
   return ept;
 }
 
-var dummyState = {
-  'ID00001': {
-    title: 'Dummy EPT',
-    type: 'some type',
-    inputTypes: ['interface', 'subinterface'],
-    outputType: 'interface',
-    position: {
-      x: 100,
-      y: 85
-    },
-    id: 'ID00001'
+var dummyState = (_a = {}, _a[''] = {
+  title: 'New EPT',
+  type: 'new',
+  inputTypes: null,
+  inputIsFlexible: true,
+  outputTypes: null,
+  outputIsFlexible: true,
+  position: {
+    x: 100,
+    y: 85
   },
-  'ID00002': {
-    title: 'Dummy EPT #2',
-    type: 'some type 2',
-    inputTypes: ['interface', 'subinterface'],
-    outputType: 'interface',
-    position: {
-      x: 150,
-      y: 190
-    },
-    id: 'ID00002'
-  }
-};
+  id: ''
+}, _a['ID00001'] = {
+  title: 'Dummy EPT',
+  type: 'some type',
+  inputTypes: ['interface', 'subinterface'],
+  outputTypes: ['interface'],
+  position: {
+    x: 100,
+    y: 85
+  },
+  id: 'ID00001'
+}, _a['ID00002'] = {
+  title: 'Dummy EPT #2',
+  type: 'some type 2',
+  inputTypes: ['interface', 'subinterface'],
+  outputTypes: ['interface'],
+  position: {
+    x: 150,
+    y: 190
+  },
+  id: 'ID00002'
+}, _a);
 
 function bringEptOnTop(epts, id) {
   var newOrder = 1 + Math.max.apply(Math, Object.values(epts).map(function (ept) {
@@ -31891,7 +31915,7 @@ function bringEptOnTop(epts, id) {
 }
 
 function eptsReducer(state, action) {
-  var _a, _b;
+  var _a, _b, _c;
 
   if (state === void 0) {
     state = dummyState;
@@ -31922,6 +31946,13 @@ function eptsReducer(state, action) {
     case actions_1.EPT_BRING_ON_TOP:
       if (state.hasOwnProperty(action.id)) {
         return bringEptOnTop(Object.assign({}, state), action.id);
+      } else return state;
+
+    case actions_1.EPT_SET_ACCEPTED_TYPES:
+      if (state.hasOwnProperty(action.id)) {
+        var ept1 = Object.assign({}, state[action.id]);
+        ept1[action.isInput ? 'inputTypes' : 'outputTypes'] = action.types;
+        return Object.assign({}, state, (_c = {}, _c[action.id] = ept1, _c));
       } else return state;
 
     default:
@@ -31991,6 +32022,7 @@ function connectionCandidateReducer(state, action) {
         types: action.types,
         position: action.position,
         payload: action.payload,
+        isAnyAccepted: action.isAnyAccepted,
         candidate: undefined
       };
 
@@ -32377,42 +32409,39 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       isMultiple = _c === void 0 ? false : _c,
       _d = _a.payload,
       payload = _d === void 0 ? undefined : _d,
+      _e = _a.isAnyAccepted,
+      isAnyAccepted = _e === void 0 ? false : _e,
       connectionSearched = _a.connectionSearched,
       candidateSearch = _a.candidateSearch,
       candidateReset = _a.candidateReset,
       candidateRegister = _a.candidateRegister,
+      eptSetTypes = _a.eptSetTypes,
       links = _a.links,
       addLink = _a.addLink,
       epts = _a.epts;
 
-  var _e = react_1.useState(false),
-      isDragging = _e[0],
-      setDragging = _e[1];
+  var _f = react_1.useState(false),
+      isDragging = _f[0],
+      setDragging = _f[1];
 
-  var _f = react_1.useState({
+  var _g = react_1.useState({
     x: 0,
     y: 0
   }),
-      offset = _f[0],
-      setOffset = _f[1];
+      offset = _g[0],
+      setOffset = _g[1];
 
-  var _g = react_1.useState({
+  var _h = react_1.useState({
     x: position.x,
     y: position.y
   }),
-      myPosition = _g[0],
-      setMyPosition = _g[1];
-
-  var _h = react_1.useState(null),
-      flexibleTypes = _h[0],
-      setFlexibleTypes = _h[1];
+      myPosition = _h[0],
+      setMyPosition = _h[1];
 
   var target = {
     x: position.x - myPosition.x,
     y: position.y - myPosition.y
-  };
-  var isAnyAccepted = types.includes('any');
-  var acceptedTypes = flexibleTypes || types; // Collecting all connected EPTs in order to determine 
+  }; // Collecting all connected EPTs in order to determine 
   // * if further connections are possible (isMultiple === false)
   // * what are the accepted types if initial type is 'any'
 
@@ -32426,7 +32455,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       if (to && epts[to]) connectionsTypes.push(epts[to].inputTypes);
     } else if (isInput && to === payload) {
       result.push(from);
-      if (from && epts[from]) connectionsTypes.push([epts[from].outputType]);
+      if (from && epts[from]) connectionsTypes.push(epts[from].outputTypes);
     }
 
     return result;
@@ -32440,11 +32469,11 @@ var ConnectionPoint = function ConnectionPoint(_a) {
   && (isMultiple || !hasConnections) // not connected or supports multiple connections
   && !myConnections.includes(connectionSearched.payload) // no such connections exist already
   ) {
-      var typesMatch = types && (acceptedTypes.includes('any') || connectionSearched.types.includes('any') || // either support 'any' connection
-      acceptedTypes.some(function (type) {
+      var typesMatch = isAnyAccepted && !types || // I support 'any' type with no external typisation OR
+      connectionSearched.isAnyAccepted && !connectionSearched.types || // searcher supports 'any' type with no external typisation OR
+      types && connectionSearched.types && types.some(function (type) {
         return connectionSearched.types.includes(type);
-      }) // or acceptable types intersect
-      );
+      }); // acceptable types intersect
 
       if (typesMatch) {
         // Candidate is in close proximity
@@ -32455,6 +32484,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     }
 
   var candidate = (connectionSearched || {}).candidate;
+  var typesLabel = types && types.length ? types.join(', ') : isAnyAccepted ? 'any' : '';
   react_1.useEffect(function () {
     if (isApproached && candidate !== payload) {
       // If connection candidate is searched in close proximity
@@ -32490,14 +32520,16 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     if (isAnyAccepted) {
       // If point accepts any type it must change its type after connection
       if (hasConnections) {
-        var myTypes = utils_1.findIntersection(connectionsTypes);
+        var myTypes = utils_1.findIntersection(connectionsTypes); // If there are connections and 
 
-        if (myTypes.join(' ') !== (flexibleTypes || []).join(' ')) {
-          setFlexibleTypes(myTypes);
+        if (myTypes.join(', ') !== typesLabel) {
+          // the set differs from the currently registered - 
+          // register it in EPT
+          eptSetTypes(payload, myTypes, isInput);
         }
-      } else if (flexibleTypes !== null) {
-        // ... or reset back after disconnection
-        setFlexibleTypes(null);
+      } else if (types !== null) {
+        // If no connections - reset to null to accept all types
+        eptSetTypes(payload, null, isInput);
       }
     }
   });
@@ -32506,7 +32538,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     'in': isInput,
     'out': !isInput,
     'approached': isApproached,
-    'standalone': payload === null
+    'standalone': !payload
   });
   return [react_1.default.createElement("g", {
     key: 'connection-point',
@@ -32514,7 +32546,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     className: classNames
   }, react_1.default.createElement("circle", {
     radius: settings_1.connectionPointRadius
-  }), react_1.default.createElement("text", null, acceptedTypes.join(', '))), (isMultiple || !hasConnections) && [// Don't show dragger for single-connection points already connected
+  }), react_1.default.createElement("text", null, typesLabel)), (isMultiple || !hasConnections) && [// Don't show dragger for single-connection points already connected
   react_1.default.createElement(draggable_1.default, {
     key: 'linker',
     position: myPosition,
@@ -32525,7 +32557,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     onMove: function onMove(mousePosition) {
       // When linker is being dragged:
       // * update search criteria (including current position)
-      candidateSearch(isInput, acceptedTypes, mousePosition, payload); // * update linker position according to the mouse
+      candidateSearch(isInput, types, mousePosition, payload, isAnyAccepted); // * update linker position according to the mouse
 
       setMyPosition({
         x: mousePosition.x,
@@ -32559,8 +32591,8 @@ var mapStateToProps = function mapStateToProps(state) {
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
-    candidateSearch: function candidateSearch(isInput, types, position, payload) {
-      dispatch(actions_1.connectionCandidateSearch(isInput, types, position, payload));
+    candidateSearch: function candidateSearch(isInput, types, position, payload, isAnyAccepted) {
+      dispatch(actions_1.connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted));
     },
     candidateReset: function candidateReset() {
       dispatch(actions_1.connectionCandidateReset());
@@ -32570,6 +32602,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     },
     addLink: function addLink(from, to) {
       dispatch(actions_1.linkAdd(from, to));
+    },
+    eptSetTypes: function eptSetTypes(id, types, isInput) {
+      dispatch(actions_1.eptSetAcceptedTypes(id, types, isInput));
     }
   };
 };
@@ -32604,26 +32639,44 @@ var connectionPoint_1 = __importDefault(require("../connectionPoint/connectionPo
 ;
 var emptyEpt = {
   title: 'Undefined',
+  position: {
+    x: 0,
+    y: 0
+  },
   type: '',
-  inputTypes: []
+  inputTypes: null,
+  outputTypes: null,
+  inputIsFlexible: true,
+  outputIsFlexible: true
 };
 
 var Ept = function Ept(_a) {
   var id = _a.id,
       _b = _a.data,
       data = _b === void 0 ? emptyEpt : _b,
-      _c = _a.position,
-      position = _c === void 0 ? {
-    x: 0,
-    y: 0
-  } : _c,
-      _d = _a.onMove,
-      _onMove = _d === void 0 ? function () {} : _d,
+      _c = _a.onMove,
+      _onMove = _c === void 0 ? function () {} : _c,
       bringOnTop = _a.bringOnTop,
       deleteEpt = _a.deleteEpt,
       deleteEptLinks = _a.deleteEptLinks;
 
-  return [react_1.default.createElement(draggable_1.default, {
+  var isStandalone = !id;
+  var position = data.position;
+  var inPosition = isStandalone ? {
+    x: settings_1.canvasWidth / 2,
+    y: settings_1.canvasHeight - 20
+  } : {
+    x: position.x + settings_1.eptWidth / 2,
+    y: position.y
+  };
+  var outPosition = isStandalone ? {
+    x: settings_1.canvasWidth / 2,
+    y: 20
+  } : {
+    x: position.x + settings_1.eptWidth / 2,
+    y: position.y + settings_1.eptHeight
+  };
+  return [!isStandalone && react_1.default.createElement(draggable_1.default, {
     key: 'ept',
     position: position,
     onStartDragging: function onStartDragging() {
@@ -32644,25 +32697,22 @@ var Ept = function Ept(_a) {
       deleteEptLinks(id);
       deleteEpt(id);
     }
-  }, "\xD7"))), data.inputTypes && react_1.default.createElement(connectionPoint_1.default, {
+  }, "\xD7"))), (data.inputTypes || data.inputIsFlexible) && react_1.default.createElement(connectionPoint_1.default, {
     key: 'in',
     isInput: true,
-    position: {
-      x: position.x + settings_1.eptWidth / 2,
-      y: position.y
-    },
+    position: inPosition,
     types: data.inputTypes,
-    payload: id
-  }), data.outputType && react_1.default.createElement(connectionPoint_1.default, {
+    payload: id,
+    isMultiple: isStandalone,
+    isAnyAccepted: data.inputIsFlexible
+  }), (data.outputTypes || data.outputIsFlexible) && react_1.default.createElement(connectionPoint_1.default, {
     key: 'out',
     isInput: false,
     isMultiple: true,
-    position: {
-      x: position.x + settings_1.eptWidth / 2,
-      y: position.y + settings_1.eptHeight
-    },
-    types: data.outputType ? [data.outputType] : null,
-    payload: id
+    position: outPosition,
+    types: data.outputTypes,
+    payload: id,
+    isAnyAccepted: data.outputIsFlexible
   })];
 };
 
@@ -32733,7 +32783,7 @@ var eptOrder = function eptOrder(_a, _b) {
 };
 
 var getPosition = function getPosition(id, epts, isInput) {
-  if (id === null) {
+  if (!id) {
     // Global input && output
     return isInput ? {
       x: settings_1.canvasWidth / 2,
@@ -32775,8 +32825,7 @@ var Visualizer = function Visualizer(_a) {
     return react_1.default.createElement(ept_1.default, {
       key: id,
       data: ept,
-      id: id,
-      position: ept.position
+      id: id
     });
   }));
 };
@@ -32817,7 +32866,7 @@ var primitives = [{
     'vlan_id': ''
   },
   'inputTypes': ['interface'],
-  'outputType': 'subinterface'
+  'outputTypes': ['subinterface']
 }, {
   'title': 'Attach VLAN',
   'tags': [],
@@ -32827,7 +32876,7 @@ var primitives = [{
     'tagged/untagged': ''
   },
   'inputTypes': ['interface'],
-  'outputType': null
+  'outputTypes': null
 }, {
   'title': 'Address type',
   'tags': [],
@@ -32837,7 +32886,7 @@ var primitives = [{
     'IPv6': ''
   },
   'inputTypes': ['interface', 'subinterface'],
-  'outputType': 'routable interface'
+  'outputTypes': ['routable interface']
 }, {
   'title': 'BGP unnumbered',
   'tags': [],
@@ -32846,7 +32895,7 @@ var primitives = [{
     'timeout': ''
   },
   'inputTypes': ['routable interface'],
-  'outputType': 'routing session'
+  'outputTypes': ['routing session']
 }, {
   'title': 'Routing policy',
   'tags': [],
@@ -32855,7 +32904,7 @@ var primitives = [{
     'import/export': ''
   },
   'inputTypes': ['routing session'],
-  'outputType': 'routing policy'
+  'outputTypes': ['routing policy']
 }];
 exports.primitives = primitives;
 },{}],"src/components/catalogue/catalogue.tsx":[function(require,module,exports) {
@@ -32880,7 +32929,9 @@ var actions_1 = require("../../store/actions");
 var test_1 = require("../../../data/test");
 
 var Catalogue = function Catalogue(_a) {
-  var onAddClick = _a.onAddClick,
+  var epts = _a.epts,
+      links = _a.links,
+      onAddClick = _a.onAddClick,
       bringOnTop = _a.bringOnTop;
   return react_1.default.createElement("div", {
     className: "catalogue"
@@ -32897,10 +32948,20 @@ var Catalogue = function Catalogue(_a) {
   })));
 };
 
+var mapStateToProps = function mapStateToProps(state) {
+  return {
+    epts: state.epts,
+    links: state.links
+  };
+};
+
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     onAddClick: function onAddClick(ept) {
       dispatch(actions_1.eptAdd(ept));
+    },
+    addLink: function addLink(from, to) {
+      dispatch(actions_1.linkAdd(from, to));
     },
     bringOnTop: function bringOnTop(id) {
       dispatch(actions_1.eptBringOnTop(id));
@@ -32908,7 +32969,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   };
 };
 
-var CatalogueConnected = react_redux_1.connect(null, mapDispatchToProps)(Catalogue);
+var CatalogueConnected = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(Catalogue);
 exports.default = CatalogueConnected;
 },{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../../data/test":"data/test.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
@@ -33009,8 +33070,6 @@ var settings_1 = require("./src/settings");
 
 var canvas_1 = __importDefault(require("./src/components/canvas/canvas"));
 
-var connectionPoint_1 = __importDefault(require("./src/components/connectionPoint/connectionPoint"));
-
 var visualizer_1 = __importDefault(require("./src/components/visualizer/visualizer"));
 
 var catalogue_1 = __importDefault(require("./src/components/catalogue/catalogue"));
@@ -33024,32 +33083,14 @@ react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider,
 }, react_1.default.createElement(canvas_1.default, {
   width: settings_1.canvasWidth,
   height: settings_1.canvasHeight
-}, react_1.default.createElement(connectionPoint_1.default, {
-  position: {
-    x: half,
-    y: 20
-  },
-  isInput: false,
-  types: ['any'],
-  payload: null,
-  isMultiple: true
-}), react_1.default.createElement("text", {
+}, react_1.default.createElement("text", {
   x: half + 13,
   y: "23"
-}, "Begin"), react_1.default.createElement(connectionPoint_1.default, {
-  position: {
-    x: half,
-    y: settings_1.canvasHeight - 20
-  },
-  isInput: true,
-  types: ['any'],
-  payload: null,
-  isMultiple: true
-}), react_1.default.createElement("text", {
+}, "Begin"), react_1.default.createElement("text", {
   x: half + 13,
   y: settings_1.canvasHeight - 17
 }, "End"), react_1.default.createElement(visualizer_1.default, null)), react_1.default.createElement(catalogue_1.default, null)), document.getElementById('content'));
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/settings":"src/settings.js","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/settings":"src/settings.js","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -33077,7 +33118,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49741" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49965" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
