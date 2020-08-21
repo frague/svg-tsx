@@ -17,6 +17,29 @@ function startDragging(event: MouseEvent, setDragging: Function, setOffset: Func
 	setDragging(true);
 }
 
+function collectConnections(payload: string, isInput: boolean, links: any, epts: any): [string[], string[][]] {
+	// Collecting all connected EPTs in order to determine 
+	// * if further connections are possible (isMultiple === false)
+	// * what are the accepted types if initial type is 'any'
+	let connectionsTypes = [];
+	let foundConnections = Object.values(links).reduce((result: string[], {from, to}) => {
+		if (!isInput && from === payload) {
+			result.push(to);
+			if (to && epts[to] && epts[to].inputTypes) {
+				connectionsTypes.push(epts[to].inputTypes);
+			}
+		}
+		else if (isInput && to === payload) {
+			result.push(from);
+			if (from && epts[from] && epts[from].outputTypes) {
+				connectionsTypes.push(epts[from].outputTypes);
+			}
+		}
+		return result;
+	}, []) as string[];
+	return [foundConnections, connectionsTypes];
+}
+
 export interface IConnectionPointProps {
 	position: IPosition;
 	isInput: boolean;
@@ -46,21 +69,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 
 	let target = {x: position.x - myPosition.x, y: position.y - myPosition.y};
 
-	// Collecting all connected EPTs in order to determine 
-	// * if further connections are possible (isMultiple === false)
-	// * what are the accepted types if initial type is 'any'
-	let connectionsTypes = [];
-	let myConnections: string[] = Object.values(links).reduce((result: string[], {from, to}) => {
-		if (!isInput && from === payload) {
-			result.push(to);
-			if (to && epts[to] && epts[to].inputTypes) connectionsTypes.push(epts[to].inputTypes);
-		}
-		else if (isInput && to === payload) {
-			result.push(from);
-			if (from && epts[from] && epts[from].outputTypes) connectionsTypes.push(epts[from].outputTypes);
-		}
-		return result;
-	}, []) as string[];
+	let [myConnections, connectionsTypes] = collectConnections(payload, isInput, links, epts);
 	let hasConnections = myConnections.length > 0;
 
 	let isPotentialMatch = false;
@@ -71,8 +80,9 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 		&& !(myConnections as string[]).includes(connectionSearched.payload) // no such connections exist already
 	) {
 		let typesMatch =
-			(isAnyAccepted && !types && !hasConnections) || // I support 'any' type with no external typisation OR
-			(connectionSearched.isAnyAccepted && !connectionSearched.types && !hasConnections) || // searcher supports 'any' type with no external typisation OR
+			(!types && !connectionSearched.types) || 
+			(!types && !payload && !hasConnections) ||
+			(!connectionSearched.types && !connectionSearched.payload && !connectionSearched.hasConnections) ||
 			(types && connectionSearched.types && types.some(type => connectionSearched.types.includes(type))); // acceptable types intersect
 
 		if (typesMatch) {
@@ -113,7 +123,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 			}
 		}
 
-		if (isAnyAccepted) {
+		if (isAnyAccepted && !payload) {
 			// If point accepts any type it must change its type after connection
 			if (hasConnections) {
 				let intersectedTypes = findIntersection(connectionsTypes);
@@ -158,7 +168,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 				onMove={ mousePosition => {
 					// When linker is being dragged:
 					// * update search criteria (including current position)
-					candidateSearch(isInput, types, mousePosition, payload, isAnyAccepted);
+					candidateSearch(isInput, types, mousePosition, payload, isAnyAccepted, hasConnections);
 					// * update linker position according to the mouse
 					setMyPosition({x: mousePosition.x, y: mousePosition.y});
 				}}
@@ -187,8 +197,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
 	return {
-		candidateSearch: (isInput: boolean, types: string[], position: IPosition, payload: string, isAnyAccepted: boolean) => {
-			dispatch(connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted))
+		candidateSearch: (isInput: boolean, types: string[], position: IPosition, 
+			payload: string, isAnyAccepted: boolean, hasConnections: boolean) => {
+			dispatch(connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted, hasConnections))
 		},
 		candidateReset: () => {
 			dispatch(connectionCandidateReset())

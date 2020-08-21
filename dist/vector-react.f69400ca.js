@@ -31766,14 +31766,15 @@ function eptLinksRemove(id) {
 exports.eptLinksRemove = eptLinksRemove;
 exports.CONNECTION_CANDIDATE_SEARCH = 'CONNECTION_CANDIDATE_SEARCH';
 
-function connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted) {
+function connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted, hasConnections) {
   return {
     type: exports.CONNECTION_CANDIDATE_SEARCH,
     isInput: isInput,
     types: types,
     position: position,
     payload: payload,
-    isAnyAccepted: isAnyAccepted
+    isAnyAccepted: isAnyAccepted,
+    hasConnections: hasConnections
   };
 }
 
@@ -32024,6 +32025,7 @@ function connectionCandidateReducer(state, action) {
         position: action.position,
         payload: action.payload,
         isAnyAccepted: action.isAnyAccepted,
+        hasConnections: action.hasConnections,
         candidate: undefined
       };
 
@@ -32401,6 +32403,34 @@ function startDragging(event, setDragging, setOffset) {
   setDragging(true);
 }
 
+function collectConnections(payload, isInput, links, epts) {
+  // Collecting all connected EPTs in order to determine 
+  // * if further connections are possible (isMultiple === false)
+  // * what are the accepted types if initial type is 'any'
+  var connectionsTypes = [];
+  var foundConnections = Object.values(links).reduce(function (result, _a) {
+    var from = _a.from,
+        to = _a.to;
+
+    if (!isInput && from === payload) {
+      result.push(to);
+
+      if (to && epts[to] && epts[to].inputTypes) {
+        connectionsTypes.push(epts[to].inputTypes);
+      }
+    } else if (isInput && to === payload) {
+      result.push(from);
+
+      if (from && epts[from] && epts[from].outputTypes) {
+        connectionsTypes.push(epts[from].outputTypes);
+      }
+    }
+
+    return result;
+  }, []);
+  return [foundConnections, connectionsTypes];
+}
+
 var ConnectionPoint = function ConnectionPoint(_a) {
   var position = _a.position,
       isInput = _a.isInput,
@@ -32442,25 +32472,12 @@ var ConnectionPoint = function ConnectionPoint(_a) {
   var target = {
     x: position.x - myPosition.x,
     y: position.y - myPosition.y
-  }; // Collecting all connected EPTs in order to determine 
-  // * if further connections are possible (isMultiple === false)
-  // * what are the accepted types if initial type is 'any'
+  };
 
-  var connectionsTypes = [];
-  var myConnections = Object.values(links).reduce(function (result, _a) {
-    var from = _a.from,
-        to = _a.to;
+  var _j = collectConnections(payload, isInput, links, epts),
+      myConnections = _j[0],
+      connectionsTypes = _j[1];
 
-    if (!isInput && from === payload) {
-      result.push(to);
-      if (to && epts[to] && epts[to].inputTypes) connectionsTypes.push(epts[to].inputTypes);
-    } else if (isInput && to === payload) {
-      result.push(from);
-      if (from && epts[from] && epts[from].outputTypes) connectionsTypes.push(epts[from].outputTypes);
-    }
-
-    return result;
-  }, []);
   var hasConnections = myConnections.length > 0;
   var isPotentialMatch = false;
 
@@ -32470,9 +32487,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
   && (isMultiple || !hasConnections) // not connected or supports multiple connections
   && !myConnections.includes(connectionSearched.payload) // no such connections exist already
   ) {
-      var typesMatch = isAnyAccepted && !types && !hasConnections || // I support 'any' type with no external typisation OR
-      connectionSearched.isAnyAccepted && !connectionSearched.types && !hasConnections || // searcher supports 'any' type with no external typisation OR
-      types && connectionSearched.types && types.some(function (type) {
+      var typesMatch = !types && !connectionSearched.types || !types && !payload && !hasConnections || !connectionSearched.types && !connectionSearched.payload && !connectionSearched.hasConnections || types && connectionSearched.types && types.some(function (type) {
         return connectionSearched.types.includes(type);
       }); // acceptable types intersect
 
@@ -32518,7 +32533,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       }
     }
 
-    if (isAnyAccepted) {
+    if (isAnyAccepted && !payload) {
       // If point accepts any type it must change its type after connection
       if (hasConnections) {
         var intersectedTypes = utils_1.findIntersection(connectionsTypes); // If there are connections and 
@@ -32564,7 +32579,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     onMove: function onMove(mousePosition) {
       // When linker is being dragged:
       // * update search criteria (including current position)
-      candidateSearch(isInput, types, mousePosition, payload, isAnyAccepted); // * update linker position according to the mouse
+      candidateSearch(isInput, types, mousePosition, payload, isAnyAccepted, hasConnections); // * update linker position according to the mouse
 
       setMyPosition({
         x: mousePosition.x,
@@ -32598,8 +32613,8 @@ var mapStateToProps = function mapStateToProps(state) {
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
-    candidateSearch: function candidateSearch(isInput, types, position, payload, isAnyAccepted) {
-      dispatch(actions_1.connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted));
+    candidateSearch: function candidateSearch(isInput, types, position, payload, isAnyAccepted, hasConnections) {
+      dispatch(actions_1.connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted, hasConnections));
     },
     candidateReset: function candidateReset() {
       dispatch(actions_1.connectionCandidateReset());

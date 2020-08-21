@@ -73,10 +73,11 @@ export function eptLinksRemove(id: string) {
 }
 
 export const CONNECTION_CANDIDATE_SEARCH = 'CONNECTION_CANDIDATE_SEARCH';
-export function connectionCandidateSearch(isInput: boolean, types: string[], position: IPosition, payload: string, isAnyAccepted: boolean) {
+export function connectionCandidateSearch(isInput: boolean, types: string[], position: IPosition, 
+	payload: string, isAnyAccepted: boolean, hasConnections: boolean) {
 	return {
 		type: CONNECTION_CANDIDATE_SEARCH,
-		isInput, types, position, payload, isAnyAccepted
+		isInput, types, position, payload, isAnyAccepted, hasConnections
 	};
 }
 

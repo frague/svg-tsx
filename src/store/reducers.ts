@@ -143,6 +143,7 @@ function connectionCandidateReducer(state=null, action) {
 				position: action.position,
 				payload: action.payload,
 				isAnyAccepted: action.isAnyAccepted,
+				hasConnections: action.hasConnections,
 
 				candidate: undefined
 			};
