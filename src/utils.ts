@@ -1,5 +1,5 @@
 export function generateId(): string {
-	return 'ID' + ('000000' + Math.round(1000 * Math.random())).substring(-5);
+	return 'ID' + ('000000' + Math.round(99999 * Math.random())).substr(-5);
 }
 
 export function className(names: any): string {

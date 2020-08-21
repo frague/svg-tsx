@@ -3,6 +3,8 @@ import { connect } from 'react-redux'
 
 import { eptAdd,linkAdd, eptBringOnTop } from '../../store/actions'
 import { IEpt } from '../../interfaces'
+import { Positioner } from '../../positioner'
+import { generateId } from '../../utils'
 
 import { primitives } from '../../../data/test'
 
@@ -11,18 +13,22 @@ export interface ICatalogueProps {
 	links: any,
 	onAddClick: Function,
 	addLink: Function,
-	bringOnTop: Function,
 }
 
-const Catalogue = ({ epts, links, onAddClick, bringOnTop }) => {
+const Catalogue = ({ epts, links, onAddClick, addLink }) => {
 	return <div className="catalogue">
 		<ul>
 			{
 				primitives.map((ept, index) => <li key={ index }>
 					<h5>{ ept.title }</h5>
 					<button className="link" onClick={ () => {
-						let id = onAddClick(ept);
-						bringOnTop(id);
+						let newEpt = Object.assign({}, ept, {id: generateId()})
+						let connectionEpt = new Positioner(epts, links, newEpt).position();
+						onAddClick(newEpt);
+
+						if (connectionEpt) {
+							addLink(connectionEpt.id, newEpt.id);
+						}
 					} }>Use</button>
 				</li>)
 			}
@@ -44,9 +50,6 @@ const mapDispatchToProps = dispatch => {
     },
     addLink: (from: string, to: string) => {
     	dispatch(linkAdd(from, to))
-    },
-    bringOnTop: (id: string) => {
-    	dispatch(eptBringOnTop(id))
     }
   }
 }

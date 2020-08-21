@@ -31807,7 +31807,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.findIntersection = exports.className = exports.generateId = void 0;
 
 function generateId() {
-  return 'ID' + ('000000' + Math.round(1000 * Math.random())).substring(-5);
+  return 'ID' + ('000000' + Math.round(99999 * Math.random())).substr(-5);
 }
 
 exports.generateId = generateId;
@@ -31862,9 +31862,7 @@ var actions_1 = require("./actions");
 var utils_1 = require("../utils");
 
 function instantiateAndPosition(ept) {
-  var id = utils_1.generateId();
-  ept.id = id;
-  ept.position = {
+  ept.position = ept.position || {
     x: 100,
     y: 80
   };
@@ -32487,7 +32485,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
   && (isMultiple || !hasConnections) // not connected or supports multiple connections
   && !myConnections.includes(connectionSearched.payload) // no such connections exist already
   ) {
-      var typesMatch = !types && !connectionSearched.types || !types && !payload && !hasConnections || !connectionSearched.types && !connectionSearched.payload && !connectionSearched.hasConnections || types && connectionSearched.types && types.some(function (type) {
+      var typesMatch = isInput && !types && !hasConnections || !isInput && !connectionSearched.types && !connectionSearched.hasConnections || !types && !connectionSearched.types || !types && !payload && !hasConnections || !connectionSearched.types && !connectionSearched.payload && !connectionSearched.hasConnections || types && connectionSearched.types && types.some(function (type) {
         return connectionSearched.types.includes(type);
       }); // acceptable types intersect
 
@@ -32872,7 +32870,123 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var VisualizerConnected = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(Visualizer);
 exports.default = VisualizerConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../settings":"src/settings.js","../ept/ept":"src/components/ept/ept.tsx","../link/link":"src/components/link/link.tsx"}],"data/test.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../settings":"src/settings.js","../ept/ept":"src/components/ept/ept.tsx","../link/link":"src/components/link/link.tsx"}],"src/positioner.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Positioner = void 0;
+
+var settings_1 = require("./settings");
+
+var utils_1 = require("./utils");
+
+var Positioner =
+/** @class */
+function () {
+  function Positioner(epts, links, ept) {
+    var _this = this;
+
+    this.ept = ept;
+    this.connectionsCount = {};
+    this.positions = [];
+    var inputTypes = ept.inputTypes;
+    this.starts = Object.entries(epts).filter(function (_a) {
+      var id = _a[0],
+          ept = _a[1];
+      if (id) _this.positions.push(ept.position);
+      var _b = ept,
+          outputTypes = _b.outputTypes,
+          outputIsFlexible = _b.outputIsFlexible;
+      return !outputTypes && outputIsFlexible || utils_1.findIntersection([inputTypes, outputTypes]);
+    }).map(function (_a) {
+      var id = _a[0],
+          ept = _a[1];
+      _this.connectionsCount[id] = _this._countConnections(id, links);
+      return ept;
+    }).sort(function (a, b) {
+      var _a = [_this.connectionsCount[a.id], _this.connectionsCount[b.id]],
+          countA = _a[0],
+          countB = _a[1];
+
+      if (countA === countB) {
+        return a.id < b.id ? -1 : 1;
+      }
+
+      return countA < countB ? -1 : 1;
+    });
+  }
+
+  Positioner.prototype._countConnections = function (id, links) {
+    return Object.values(links).filter(function (link) {
+      return link.from === id;
+    }).length;
+  };
+
+  Positioner.prototype.addLink = function () {
+    if (this.starts && this.starts.length) {
+      return this.starts[0];
+    }
+
+    return;
+  };
+
+  Positioner.prototype._isPositionOverlapping = function (position) {
+    return this.positions.some(function (_a) {
+      var x = _a.x,
+          y = _a.y;
+      return Math.abs(x - position.x) < settings_1.eptWidth && Math.abs(y - position.y) < settings_1.eptHeight;
+    });
+  };
+
+  Positioner.prototype._tryPlacingTo = function (position) {
+    if (!this._isPositionOverlapping(position)) {
+      this.ept.position = position;
+      return true;
+    }
+
+    return false;
+  };
+
+  Positioner.prototype.position = function () {
+    var middle = settings_1.canvasWidth / 2 - settings_1.eptWidth / 2;
+    var basePosition;
+    var connectedTo = this.addLink();
+
+    if (connectedTo !== undefined && connectedTo.id) {
+      basePosition = {
+        x: connectedTo.position.x,
+        y: connectedTo.position.y + settings_1.eptHeight + 30
+      };
+    } else {
+      // let maxY = Math.max(...this.positions.map(p => p.y), 20);
+      basePosition = {
+        x: middle,
+        y: 80
+      };
+    }
+
+    for (var ky = 0; ky < 6; ky++) {
+      for (var kx = 0; kx < 300; kx += 27) {
+        if (this._tryPlacingTo({
+          x: basePosition.x + kx,
+          y: basePosition.y + (settings_1.eptHeight + 30) * ky
+        }) || this._tryPlacingTo({
+          x: basePosition.x - kx,
+          y: basePosition.y + (settings_1.eptHeight + 30) * ky
+        })) return connectedTo;
+      }
+    }
+
+    return connectedTo;
+  };
+
+  return Positioner;
+}();
+
+exports.Positioner = Positioner;
+},{"./settings":"src/settings.js","./utils":"src/utils.ts"}],"data/test.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32959,13 +33073,17 @@ var react_redux_1 = require("react-redux");
 
 var actions_1 = require("../../store/actions");
 
+var positioner_1 = require("../../positioner");
+
+var utils_1 = require("../../utils");
+
 var test_1 = require("../../../data/test");
 
 var Catalogue = function Catalogue(_a) {
   var epts = _a.epts,
       links = _a.links,
       onAddClick = _a.onAddClick,
-      bringOnTop = _a.bringOnTop;
+      addLink = _a.addLink;
   return react_1.default.createElement("div", {
     className: "catalogue"
   }, react_1.default.createElement("ul", null, test_1.primitives.map(function (ept, index) {
@@ -32974,8 +33092,15 @@ var Catalogue = function Catalogue(_a) {
     }, react_1.default.createElement("h5", null, ept.title), react_1.default.createElement("button", {
       className: "link",
       onClick: function onClick() {
-        var id = onAddClick(ept);
-        bringOnTop(id);
+        var newEpt = Object.assign({}, ept, {
+          id: utils_1.generateId()
+        });
+        var connectionEpt = new positioner_1.Positioner(epts, links, newEpt).position();
+        onAddClick(newEpt);
+
+        if (connectionEpt) {
+          addLink(connectionEpt.id, newEpt.id);
+        }
       }
     }, "Use"));
   })));
@@ -32995,16 +33120,13 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     },
     addLink: function addLink(from, to) {
       dispatch(actions_1.linkAdd(from, to));
-    },
-    bringOnTop: function bringOnTop(id) {
-      dispatch(actions_1.eptBringOnTop(id));
     }
   };
 };
 
 var CatalogueConnected = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(Catalogue);
 exports.default = CatalogueConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../../data/test":"data/test.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../positioner":"src/positioner.ts","../../utils":"src/utils.ts","../../../data/test":"data/test.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {

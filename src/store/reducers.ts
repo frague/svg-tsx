@@ -9,9 +9,7 @@ import { IPosition, IEpt } from '../interfaces'
 import { generateId } from '../utils'
 
 function instantiateAndPosition(ept: IEpt) {
-	let id = generateId();
-	ept.id = id;
-	ept.position = {x: 100, y: 80};
+	ept.position = ept.position || {x: 100, y: 80};
 	ept.order = 0;
 	return ept;
 }

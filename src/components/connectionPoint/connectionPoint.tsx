@@ -80,6 +80,8 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 		&& !(myConnections as string[]).includes(connectionSearched.payload) // no such connections exist already
 	) {
 		let typesMatch =
+			(isInput && !types && !hasConnections) ||
+			(!isInput && !connectionSearched.types && !connectionSearched.hasConnections) ||
 			(!types && !connectionSearched.types) || 
 			(!types && !payload && !hasConnections) ||
 			(!connectionSearched.types && !connectionSearched.payload && !connectionSearched.hasConnections) ||
