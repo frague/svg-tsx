@@ -31827,13 +31827,13 @@ exports.className = className;
 function findIntersection(source) {
   var sets = source.length;
   var counts = source.reduce(function (result, subset) {
-    subset.forEach(function (type) {
+    (subset || []).forEach(function (type) {
       var existing = result[type] || 0;
       result[type] = existing + 1;
     });
     return result;
   }, {});
-  return Object.entries(counts).filter(function (_a) {
+  var intersection = Object.entries(counts).filter(function (_a) {
     var name = _a[0],
         count = _a[1];
     return count === sets;
@@ -31841,6 +31841,7 @@ function findIntersection(source) {
     var name = _a[0];
     return name;
   }).sort();
+  return intersection.length ? intersection : null;
 }
 
 exports.findIntersection = findIntersection;
@@ -32058,7 +32059,7 @@ var canvasHeight = 600;
 exports.canvasHeight = canvasHeight;
 var eptWidth = 240;
 exports.eptWidth = eptWidth;
-var eptHeight = 36;
+var eptHeight = 40;
 exports.eptHeight = eptHeight;
 var connectionPointRadius = 7;
 exports.connectionPointRadius = connectionPointRadius;
@@ -32452,16 +32453,16 @@ var ConnectionPoint = function ConnectionPoint(_a) {
 
     if (!isInput && from === payload) {
       result.push(to);
-      if (to && epts[to]) connectionsTypes.push(epts[to].inputTypes);
+      if (to && epts[to] && epts[to].inputTypes) connectionsTypes.push(epts[to].inputTypes);
     } else if (isInput && to === payload) {
       result.push(from);
-      if (from && epts[from]) connectionsTypes.push(epts[from].outputTypes);
+      if (from && epts[from] && epts[from].outputTypes) connectionsTypes.push(epts[from].outputTypes);
     }
 
     return result;
   }, []);
   var hasConnections = myConnections.length > 0;
-  var isApproached = false;
+  var isPotentialMatch = false;
 
   if (connectionSearched // Connection candidate is being searched
   && isInput !== connectionSearched.isInput // only connect different types (in-out, out-in)
@@ -32469,8 +32470,8 @@ var ConnectionPoint = function ConnectionPoint(_a) {
   && (isMultiple || !hasConnections) // not connected or supports multiple connections
   && !myConnections.includes(connectionSearched.payload) // no such connections exist already
   ) {
-      var typesMatch = isAnyAccepted && !types || // I support 'any' type with no external typisation OR
-      connectionSearched.isAnyAccepted && !connectionSearched.types || // searcher supports 'any' type with no external typisation OR
+      var typesMatch = isAnyAccepted && !types && !hasConnections || // I support 'any' type with no external typisation OR
+      connectionSearched.isAnyAccepted && !connectionSearched.types && !hasConnections || // searcher supports 'any' type with no external typisation OR
       types && connectionSearched.types && types.some(function (type) {
         return connectionSearched.types.includes(type);
       }); // acceptable types intersect
@@ -32479,14 +32480,14 @@ var ConnectionPoint = function ConnectionPoint(_a) {
         // Candidate is in close proximity
         var dx = position.x - connectionSearched.position.x;
         var dy = position.y - connectionSearched.position.y;
-        isApproached = dx || dy ? Math.sqrt(dx * dx + dy * dy) <= settings_1.proximity : true;
+        isPotentialMatch = dx || dy ? Math.sqrt(dx * dx + dy * dy) <= settings_1.proximity : true;
       }
     }
 
   var candidate = (connectionSearched || {}).candidate;
   var typesLabel = types && types.length ? types.join(', ') : isAnyAccepted ? 'any' : '';
   react_1.useEffect(function () {
-    if (isApproached && candidate !== payload) {
+    if (isPotentialMatch && candidate !== payload) {
       // If connection candidate is searched in close proximity
       // register myself as a connection candidate
       candidateRegister(payload);
@@ -32520,12 +32521,18 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     if (isAnyAccepted) {
       // If point accepts any type it must change its type after connection
       if (hasConnections) {
-        var myTypes = utils_1.findIntersection(connectionsTypes); // If there are connections and 
+        var intersectedTypes = utils_1.findIntersection(connectionsTypes); // If there are connections and 
 
-        if (myTypes.join(', ') !== typesLabel) {
-          // the set differs from the currently registered - 
-          // register it in EPT
-          eptSetTypes(payload, myTypes, isInput);
+        if (intersectedTypes) {
+          if (intersectedTypes.join(', ') !== typesLabel) {
+            // the set differs from the currently registered -
+            // register it in EPT
+            eptSetTypes(payload, intersectedTypes, isInput);
+          }
+        } else if (typesLabel !== 'any') {
+          // If there are connections but all of them are 'any'
+          // reset type to 'any' as well
+          eptSetTypes(payload, null, isInput);
         }
       } else if (types !== null) {
         // If no connections - reset to null to accept all types
@@ -32537,7 +32544,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     'connection-point': true,
     'in': isInput,
     'out': !isInput,
-    'approached': isApproached,
+    'approached': isPotentialMatch,
     'standalone': !payload
   });
   return [react_1.default.createElement("g", {
@@ -32905,6 +32912,17 @@ var primitives = [{
   },
   'inputTypes': ['routing session'],
   'outputTypes': ['routing policy']
+}, {
+  'title': 'Freetype',
+  'tags': [],
+  'node': '',
+  'parameters': {
+    'import/export': ''
+  },
+  'inputTypes': null,
+  'inputIsFlexible': true,
+  'outputTypes': null,
+  'outputIsFlexible': true
 }];
 exports.primitives = primitives;
 },{}],"src/components/catalogue/catalogue.tsx":[function(require,module,exports) {

@@ -52,4 +52,16 @@ export const primitives = [
 		'inputTypes': ['routing session'],
 		'outputTypes': ['routing policy'],
 	},
+	{
+		'title': 'Freetype',
+		'tags': [],
+		'node': '',
+		'parameters': {
+			'import/export': ''
+		},
+		'inputTypes': null,
+		'inputIsFlexible': true,
+		'outputTypes': null,
+		'outputIsFlexible': true,
+	},
 ]

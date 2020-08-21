@@ -1,5 +1,5 @@
 :export {
-  eptHeight: 36px;
+  eptHeight: 40px;
   eptWidth: 240px;
   radius: 8px;
 }
@@ -65,7 +65,7 @@ button.link, button.link:active {
 }
 .ept .container {
   width: 240px;
-  height: 36px;
+  height: 40px;
   fill: #68707b;
   stroke: #FFF;
   stroke-width: 1;
@@ -74,7 +74,7 @@ button.link, button.link:active {
 }
 .ept text.title {
   font-size: 12px;
-  transform: translate(120px, 22px);
+  transform: translate(120px, 24px);
   width: 100px;
   clip-path: inset(0 calc(100% - 220px) 0 0);
   fill: #FFF;

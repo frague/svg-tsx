@@ -53,17 +53,17 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 	let myConnections: string[] = Object.values(links).reduce((result: string[], {from, to}) => {
 		if (!isInput && from === payload) {
 			result.push(to);
-			if (to && epts[to]) connectionsTypes.push(epts[to].inputTypes);
+			if (to && epts[to] && epts[to].inputTypes) connectionsTypes.push(epts[to].inputTypes);
 		}
 		else if (isInput && to === payload) {
 			result.push(from);
-			if (from && epts[from]) connectionsTypes.push(epts[from].outputTypes);
+			if (from && epts[from] && epts[from].outputTypes) connectionsTypes.push(epts[from].outputTypes);
 		}
 		return result;
 	}, []) as string[];
 	let hasConnections = myConnections.length > 0;
 
-	let isApproached = false;
+	let isPotentialMatch = false;
 	if (connectionSearched	// Connection candidate is being searched
 		&& isInput !== connectionSearched.isInput	// only connect different types (in-out, out-in)
 		&& payload !== connectionSearched.payload	// prevent connection to itself
@@ -71,15 +71,15 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 		&& !(myConnections as string[]).includes(connectionSearched.payload) // no such connections exist already
 	) {
 		let typesMatch =
-			(isAnyAccepted && !types) || // I support 'any' type with no external typisation OR
-			(connectionSearched.isAnyAccepted && !connectionSearched.types) || // searcher supports 'any' type with no external typisation OR
+			(isAnyAccepted && !types && !hasConnections) || // I support 'any' type with no external typisation OR
+			(connectionSearched.isAnyAccepted && !connectionSearched.types && !hasConnections) || // searcher supports 'any' type with no external typisation OR
 			(types && connectionSearched.types && types.some(type => connectionSearched.types.includes(type))); // acceptable types intersect
 
 		if (typesMatch) {
 			// Candidate is in close proximity
 			let dx = position.x - connectionSearched.position.x;
 			let dy = position.y - connectionSearched.position.y;
-			isApproached = (dx || dy) ? Math.sqrt(dx * dx + dy * dy) <= proximity : true;
+			isPotentialMatch = (dx || dy) ? Math.sqrt(dx * dx + dy * dy) <= proximity : true;
 		}
 	}
 
@@ -88,7 +88,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 	let typesLabel = (types && types.length) ? types.join(', ') : (isAnyAccepted ? 'any' : '');
 
 	useEffect(() => {
-		if (isApproached && candidate !== payload) {
+		if (isPotentialMatch && candidate !== payload) {
 			// If connection candidate is searched in close proximity
 			// register myself as a connection candidate
 			candidateRegister(payload);
@@ -116,12 +116,18 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 		if (isAnyAccepted) {
 			// If point accepts any type it must change its type after connection
 			if (hasConnections) {
-				let myTypes = findIntersection(connectionsTypes);
+				let intersectedTypes = findIntersection(connectionsTypes);
 				// If there are connections and 
-				if (myTypes.join(', ') !== typesLabel) {
-					// the set differs from the currently registered - 
-					// register it in EPT
-					eptSetTypes(payload, myTypes, isInput);
+				if (intersectedTypes) {
+					if (intersectedTypes.join(', ') !== typesLabel) {
+						// the set differs from the currently registered -
+						// register it in EPT
+						eptSetTypes(payload, intersectedTypes, isInput);
+					}
+				} else if (typesLabel !== 'any') {
+					// If there are connections but all of them are 'any'
+					// reset type to 'any' as well
+					eptSetTypes(payload, null, isInput);
 				}
 			} else if (types !== null) {
 				// If no connections - reset to null to accept all types
@@ -134,7 +140,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 		'connection-point': true,
 		'in': isInput,
 		'out': !isInput,
-		'approached': isApproached,
+		'approached': isPotentialMatch,
 		'standalone': !payload
 	});
 

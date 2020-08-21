@@ -9,11 +9,12 @@ export function className(names: any): string {
 export function findIntersection(source: string[][]): string[] {
 	let sets = source.length;
 	let counts = source.reduce((result, subset) => {
-		subset.forEach(type => {
+		(subset || []).forEach(type => {
 			let existing = result[type] || 0;
 			result[type] = existing + 1;
 		});
 		return result;
 	}, {});
-	return Object.entries(counts).filter(([name, count]) => count === sets).map(([name]) => name).sort();
+	let intersection = Object.entries(counts).filter(([name, count]) => count === sets).map(([name]) => name).sort();
+	return intersection.length ? intersection : null;
 }
