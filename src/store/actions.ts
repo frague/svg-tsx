@@ -95,3 +95,11 @@ export function connectionCandidateRegister(candidate: string) {
 		candidate
 	};
 }
+
+export const ACTIVE_EPT_SET = 'ACTIVE_EPT_SET';
+export function activeEptSet(ept: IEpt) {
+	return {
+		type: ACTIVE_EPT_SET,
+		ept
+	};
+}

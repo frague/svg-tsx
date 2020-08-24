@@ -2,10 +2,14 @@ export const primitives = [
 	{
 		'title': 'Subinterface',
 		'tags': [],
-		'node': '',
+		'type': 'primitive',
 		'parameters': {
-			'security_zone': '',
-			'vlan_id': ''
+			'security_zone': {
+				'values': ['default', 'system']
+			},
+			'vlan_id': {
+				'type': 'number'
+			}
 		},
 		'inputTypes': ['interface'],
 		'outputTypes': ['subinterface'],
@@ -13,10 +17,14 @@ export const primitives = [
 	{
 		'title': 'Attach VLAN',
 		'tags': [],
-		'node': '',
+		'type': 'primitive',
 		'parameters': {
-			'vlan_id': '',
-			'tagged/untagged': ''
+			'vlan_id': {
+				'type': 'number'
+			},
+			'tagged/untagged': {
+				'values': ['tagged', 'untagged']
+			}
 		},
 		'inputTypes': ['interface'],
 		'outputTypes': null,
@@ -24,10 +32,14 @@ export const primitives = [
 	{
 		'title': 'Address type',
 		'tags': [],
-		'node': '',
+		'type': 'primitive',
 		'parameters': {
-			'IPv4': '',
-			'IPv6': ''
+			'IPv4': {
+				'values': ['none', 'unnumbered']
+			},
+			'IPv6': {
+				'values': ['default']
+			}
 		},
 		'inputTypes': ['interface', 'subinterface'],
 		'outputTypes': ['routable interface'],
@@ -35,9 +47,11 @@ export const primitives = [
 	{
 		'title': 'BGP unnumbered',
 		'tags': [],
-		'node': '',
+		'type': 'primitive',
 		'parameters': {
-			'timeout': ''
+			'timeout': {
+				'type': 'number'
+			}
 		},
 		'inputTypes': ['routable interface'],
 		'outputTypes': ['routing session'],
@@ -45,23 +59,25 @@ export const primitives = [
 	{
 		'title': 'Routing policy',
 		'tags': [],
-		'node': '',
+		'type': 'primitive',
 		'parameters': {
-			'import/export': ''
+			'import/export': {
+				'type': 'number'
+			}
 		},
 		'inputTypes': ['routing session'],
 		'outputTypes': ['routing policy'],
 	},
-	{
-		'title': 'Freetype',
-		'tags': [],
-		'node': '',
-		'parameters': {
-			'import/export': ''
-		},
-		'inputTypes': null,
-		'inputIsFlexible': true,
-		'outputTypes': null,
-		'outputIsFlexible': true,
-	},
+	// {
+	// 	'title': 'Freetype',
+	// 	'tags': [],
+	// 	'type': 'primitive',
+	// 	'parameters': {
+	// 		'import/export': ''
+	// 	},
+	// 	'inputTypes': null,
+	// 	'inputIsFlexible': true,
+	// 	'outputTypes': null,
+	// 	'outputIsFlexible': true,
+	// },
 ]

@@ -15,9 +15,11 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
+    "fomantic-ui": "^2.8.6",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.1",
-    "redux": "^4.0.5"
+    "redux": "^4.0.5",
+    "semantic-ui-react": "^1.2.1"
   }
 }

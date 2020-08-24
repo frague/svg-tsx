@@ -15,7 +15,7 @@ function instantiateAndPosition(ept: IEpt) {
 }
 
 const dummyState = {
-	['']: {
+	'': {
 		title: 'New EPT',
 		type: 'new',
 		inputTypes: null,
@@ -25,22 +25,22 @@ const dummyState = {
 		position: {x: 100, y: 85},
 		id: ''
 	},
-	'ID00001': {
-		title: 'Dummy EPT',
-		type: 'some type',
-		inputTypes: ['interface', 'subinterface'],
-		outputTypes: ['interface'],
-		position: {x: 100, y: 85},
-		id: 'ID00001'
-	},
-	'ID00002': {
-		title: 'Dummy EPT #2',
-		type: 'some type 2',
-		inputTypes: ['interface', 'subinterface'],
-		outputTypes: ['interface'],
-		position: {x: 150, y: 190},
-		id: 'ID00002'
-	},
+	// 'ID00001': {
+	// 	title: 'Dummy EPT',
+	// 	type: 'some type',
+	// 	inputTypes: ['interface', 'subinterface'],
+	// 	outputTypes: ['interface'],
+	// 	position: {x: 100, y: 85},
+	// 	id: 'ID00001'
+	// },
+	// 'ID00002': {
+	// 	title: 'Dummy EPT #2',
+	// 	type: 'some type 2',
+	// 	inputTypes: ['interface', 'subinterface'],
+	// 	outputTypes: ['interface'],
+	// 	position: {x: 150, y: 190},
+	// 	id: 'ID00002'
+	// },
 };
 
 function bringEptOnTop(epts: any, id: string) {
@@ -99,7 +99,7 @@ const dummyLinks = {
 	}
 };
 
-function linksReducer(state=dummyLinks, action) {
+function linksReducer(state={}, action) {
 	switch (action.type) {
 		case LINK_ADD:
 			let link = {

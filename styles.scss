@@ -10,12 +10,12 @@ $white: #FFF;
 $magenta: #9759b5;
 
 * {
-	font-family: arial, tahoma, verdana;	
+	font-family: Lato, arial, tahoma, verdana;	
 }
 
 div#content {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 
 	svg {
 		flex: 0 0 800px;
@@ -26,12 +26,16 @@ div#content {
 	}
 }
 
+div.builder {
+	display: flex;
+	flex-direction: row;
+}
+
 svg {
-	display: block;
 	background-color: #FEFEFE;
 
 	text {
-		font-family: arial, tahoma, verdana;
+		font-family: Lato, arial, tahoma, verdana;
 		font-size: 14px;
 	}
 }
@@ -190,7 +194,9 @@ button.link {
 	}
 }
 
-
+div.properties {
+	padding: 15px;
+}
 
 
 // Definitions

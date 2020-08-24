@@ -52,7 +52,7 @@ const Ept = ({id, data=emptyEpt, onMove=()=>{}, bringOnTop, deleteEpt, deleteEpt
 					}>&times;</text>
 				</g>
 			</Draggable>,
-		(data.inputTypes || data.inputIsFlexible) &&
+		(!isStandalone && (data.inputTypes || data.inputIsFlexible)) &&
 			<ConnectionPoint key='in' isInput={ true } position={ inPosition }
 				types={ data.inputTypes } payload={ id } isMultiple={ isStandalone }
 				isAnyAccepted={ data.inputIsFlexible } />,
