@@ -7,15 +7,17 @@ import { Positioner } from '../../positioner'
 import { generateId } from '../../utils'
 
 import { primitives } from '../../../data/test'
+import { IPosition } from '../../interfaces'
 
 export interface ICatalogueProps {
-	epts: any,
-	links: any,
+	activeEpt: any,
+	applicationPointPosition: IPosition,
 	onAddClick: Function,
 	addLink: Function,
 }
 
-const Catalogue = ({ epts, links, onAddClick, addLink }) => {
+const Catalogue = ({ activeEpt, onAddClick, addLink, applicationPointPosition }) => {
+	let { epts, links } = activeEpt;
 	return <div className="catalogue">
 		<ul>
 			{
@@ -23,7 +25,7 @@ const Catalogue = ({ epts, links, onAddClick, addLink }) => {
 					<h5>{ ept.title }</h5>
 					<button className="link" onClick={ () => {
 						let newEpt = Object.assign({}, ept, {id: generateId()})
-						let connectionEpt = new Positioner(epts, links, newEpt).position();
+						let connectionEpt = new Positioner(epts, links, newEpt, applicationPointPosition).position();
 						onAddClick(newEpt);
 
 						if (connectionEpt) {
@@ -38,8 +40,7 @@ const Catalogue = ({ epts, links, onAddClick, addLink }) => {
 
 const mapStateToProps = state => {
 	return {
-		epts: state.epts,
-		links: state.links,
+		activeEpt: state.activeEpt,
 	}
 };
 

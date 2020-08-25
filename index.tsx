@@ -11,6 +11,7 @@ import EptProperties from './src/components/eptProperties/eptProperties'
 import Canvas from './src/components/canvas/canvas'
 import Visualizer from './src/components/visualizer/visualizer'
 import Catalogue from './src/components/catalogue/catalogue'
+import ApplicationPoint from './src/components/applicationPoint/applicationPoint'
 
 import 'fomantic-ui/dist/semantic.min.css';
 import './styles.scss';
@@ -24,8 +25,7 @@ ReactDOM.render(
 		<EptProperties ept={ {title: 'Test'} }  />
 		<div className="builder">
 			<Canvas width={ canvasWidth } height={ canvasHeight }>
-				<text x={ half + 13 } y="23">Application Point(s)</text>
-				{/*<text x={ half + 13 } y={ canvasHeight - 17 }>End</text>*/}
+				{/*<ApplicationPoint position={ {x: half + 13, y: 23} } />*/}
 
 				<Visualizer />
 			</Canvas>

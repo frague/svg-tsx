@@ -31808,6 +31808,25 @@ function activeEptSet(ept) {
 }
 
 exports.activeEptSet = activeEptSet;
+},{}],"src/settings.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.proximity = exports.connectionPointRadius = exports.eptHeight = exports.eptWidth = exports.canvasHeight = exports.canvasWidth = void 0;
+var canvasWidth = 800;
+exports.canvasWidth = canvasWidth;
+var canvasHeight = 600;
+exports.canvasHeight = canvasHeight;
+var eptWidth = 200;
+exports.eptWidth = eptWidth;
+var eptHeight = 40;
+exports.eptHeight = eptHeight;
+var connectionPointRadius = 7;
+exports.connectionPointRadius = connectionPointRadius;
+var proximity = 30;
+exports.proximity = proximity;
 },{}],"src/utils.ts":[function(require,module,exports) {
 "use strict";
 
@@ -31867,6 +31886,8 @@ var redux_1 = require("redux");
 
 var actions_1 = require("./actions");
 
+var settings_1 = require("../settings");
+
 var utils_1 = require("../utils");
 
 function instantiateAndPosition(ept) {
@@ -31878,22 +31899,6 @@ function instantiateAndPosition(ept) {
   return ept;
 }
 
-var dummyState = {
-  '': {
-    title: 'New EPT',
-    type: 'new',
-    inputTypes: null,
-    inputIsFlexible: true,
-    outputTypes: null,
-    outputIsFlexible: true,
-    position: {
-      x: 100,
-      y: 85
-    },
-    id: ''
-  }
-};
-
 function bringEptOnTop(epts, id) {
   var newOrder = 1 + Math.max.apply(Math, Object.values(epts).map(function (ept) {
     return +ept.order || 0;
@@ -31902,102 +31907,6 @@ function bringEptOnTop(epts, id) {
     order: newOrder
   });
   return epts;
-}
-
-function eptsReducer(state, action) {
-  var _a, _b, _c;
-
-  if (state === void 0) {
-    state = dummyState;
-  }
-
-  switch (action.type) {
-    case actions_1.EPT_ADD:
-      var newEpt = instantiateAndPosition(action.ept);
-      return bringEptOnTop(Object.assign({}, state, (_a = {}, _a[newEpt.id] = newEpt, _a)), newEpt.id);
-
-    case actions_1.EPT_MOVE:
-      var ept = state[action.id];
-
-      if (ept) {
-        ept = Object.assign({}, ept, {
-          position: action.position
-        });
-        return Object.assign({}, state, (_b = {}, _b[action.id] = ept, _b));
-      } else return state;
-
-    case actions_1.EPT_REMOVE:
-      if (state.hasOwnProperty(action.id)) {
-        var result = Object.assign({}, state);
-        delete result[action.id];
-        return result;
-      } else return state;
-
-    case actions_1.EPT_BRING_ON_TOP:
-      if (state.hasOwnProperty(action.id)) {
-        return bringEptOnTop(Object.assign({}, state), action.id);
-      } else return state;
-
-    case actions_1.EPT_SET_ACCEPTED_TYPES:
-      if (state.hasOwnProperty(action.id)) {
-        var ept1 = Object.assign({}, state[action.id]);
-        ept1[action.isInput ? 'inputTypes' : 'outputTypes'] = action.types;
-        return Object.assign({}, state, (_c = {}, _c[action.id] = ept1, _c));
-      } else return state;
-
-    default:
-      return state;
-  }
-}
-
-var dummyLinks = {
-  'ID00010': {
-    from: 'ID00001',
-    to: 'ID00002',
-    id: 'ID00010'
-  }
-};
-
-function linksReducer(state, action) {
-  var _a;
-
-  if (state === void 0) {
-    state = {};
-  }
-
-  switch (action.type) {
-    case actions_1.LINK_ADD:
-      var link = {
-        id: utils_1.generateId(),
-        from: action.from,
-        to: action.to
-      };
-      return Object.assign({}, state, (_a = {}, _a[link.id] = link, _a));
-
-    case actions_1.LINK_REMOVE:
-      if (state.hasOwnProperty(action.id)) {
-        var result_1 = Object.assign({}, state);
-        delete result_1[action.id];
-        return result_1;
-      } else return state;
-
-    case actions_1.EPT_LINKS_REMOVE:
-      var hasChanges_1 = false;
-      var result_2 = Object.assign({}, state);
-      Object.entries(state).forEach(function (_a) {
-        var id = _a[0],
-            link = _a[1];
-
-        if (link.from === action.id || link.to === action.id) {
-          hasChanges_1 = true;
-          delete result_2[id];
-        }
-      });
-      return hasChanges_1 ? result_2 : state;
-
-    default:
-      return state;
-  }
 }
 
 function connectionCandidateReducer(state, action) {
@@ -32030,32 +31939,156 @@ function connectionCandidateReducer(state, action) {
   }
 }
 
+var applicationPoint = {
+  position: {
+    x: settings_1.canvasWidth / 2,
+    y: 23
+  },
+  isInput: false,
+  outputTypes: null,
+  outputIsFlexible: true,
+  id: ''
+};
+var dummyState = {
+  title: 'New EPT',
+  type: 'new',
+  inputTypes: null,
+  inputIsFlexible: true,
+  outputTypes: null,
+  outputIsFlexible: true,
+  position: {
+    x: 100,
+    y: 85
+  },
+  id: '',
+  epts: {
+    '': applicationPoint
+  },
+  links: {},
+  parameters: {}
+};
+
+function activeEptReducer(state, action) {
+  var _a, _b, _c, _d;
+
+  if (state === void 0) {
+    state = dummyState;
+  }
+
+  switch (action.type) {
+    case actions_1.ACTIVE_EPT_SET:
+      var _e = action.ept,
+          epts = _e.epts,
+          links = _e.links,
+          parameters = _e.parameters;
+      var result_1 = Object.assign({}, action.ept, {
+        epts: Object.assign({}, epts),
+        links: Object.assign({}, links),
+        parameters: Object.assign({})
+      });
+      return result_1;
+    // EPTs
+
+    case actions_1.EPT_ADD:
+      var newEpt = instantiateAndPosition(action.ept);
+      state.epts = bringEptOnTop(Object.assign({}, state.epts, (_a = {}, _a[newEpt.id] = newEpt, _a)), newEpt.id);
+      return Object.assign({}, state);
+
+    case actions_1.EPT_MOVE:
+      var ept = state.epts[action.id];
+
+      if (ept) {
+        ept = Object.assign({}, ept, {
+          position: action.position
+        });
+        state.epts = Object.assign({}, state.epts, (_b = {}, _b[action.id] = ept, _b));
+        return Object.assign({}, state);
+      }
+
+      return state;
+
+    case actions_1.EPT_REMOVE:
+      if (state.epts.hasOwnProperty(action.id)) {
+        var result_2 = Object.assign({}, state.epts);
+        delete result_2[action.id];
+        return Object.assign({}, state, {
+          epts: result_2
+        });
+      }
+
+      return state;
+
+    case actions_1.EPT_BRING_ON_TOP:
+      if (state.epts.hasOwnProperty(action.id)) {
+        state.epts = bringEptOnTop(Object.assign({}, state.epts), action.id);
+        return Object.assign({}, state);
+      }
+
+      return state;
+
+    case actions_1.EPT_SET_ACCEPTED_TYPES:
+      if (state.epts.hasOwnProperty(action.id)) {
+        var ept1 = Object.assign({}, state.epts[action.id]);
+        ept1[action.isInput ? 'inputTypes' : 'outputTypes'] = action.types;
+        state.epts = Object.assign({}, state.epts, (_c = {}, _c[action.id] = ept1, _c));
+        return Object.assign({}, state);
+      }
+
+      return state;
+    // links
+
+    case actions_1.LINK_ADD:
+      var link = {
+        id: utils_1.generateId(),
+        from: action.from,
+        to: action.to
+      };
+      state.links = Object.assign({}, state.links, (_d = {}, _d[link.id] = link, _d));
+      return Object.assign({}, state);
+
+    case actions_1.LINK_REMOVE:
+      if (state.links.hasOwnProperty(action.id)) {
+        var result_3 = Object.assign({}, state.links);
+        delete result_3[action.id];
+        state.links = result_3;
+        return Object.assign({}, state);
+      }
+
+      return state;
+
+    case actions_1.EPT_LINKS_REMOVE:
+      var hasChanges_1 = false;
+      var result1 = Object.assign({}, state.links);
+      Object.entries(result1).forEach(function (_a) {
+        var id = _a[0],
+            link = _a[1];
+
+        if (link.from === action.id || link.to === action.id) {
+          hasChanges_1 = true;
+          delete result_1[id];
+        }
+      });
+
+      if (hasChanges_1) {
+        state.links = result1;
+        return Object.assign({}, state);
+      }
+
+      return state;
+
+    default:
+      return state;
+  }
+}
+
 var appReducer = redux_1.combineReducers({
-  epts: eptsReducer,
-  links: linksReducer,
-  connectionSearched: connectionCandidateReducer
+  // epts: eptsReducer,
+  // links: linksReducer,
+  connectionSearched: connectionCandidateReducer,
+  activeEpt: activeEptReducer
 });
 exports.default = appReducer;
-},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts","../utils":"src/utils.ts"}],"src/settings.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.proximity = exports.connectionPointRadius = exports.eptHeight = exports.eptWidth = exports.canvasHeight = exports.canvasWidth = void 0;
-var canvasWidth = 800;
-exports.canvasWidth = canvasWidth;
-var canvasHeight = 600;
-exports.canvasHeight = canvasHeight;
-var eptWidth = 140;
-exports.eptWidth = eptWidth;
-var eptHeight = 40;
-exports.eptHeight = eptHeight;
-var connectionPointRadius = 7;
-exports.connectionPointRadius = connectionPointRadius;
-var proximity = 30;
-exports.proximity = proximity;
-},{}],"node_modules/@babel/runtime/helpers/esm/inheritsLoose.js":[function(require,module,exports) {
+},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts","../settings":"src/settings.js","../utils":"src/utils.ts"}],"node_modules/@babel/runtime/helpers/esm/inheritsLoose.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74912,9 +74945,15 @@ var EptProperties = function EptProperties(_a) {
   var ept = _a.ept;
   return react_1.default.createElement("div", {
     className: 'properties'
-  }, react_1.default.createElement("h1", null, "Endpoint Template"), react_1.default.createElement(semantic_ui_react_1.Form.Input, {
+  }, react_1.default.createElement("h1", null, "Endpoint Template"), react_1.default.createElement("form", null, react_1.default.createElement("section", null, react_1.default.createElement(semantic_ui_react_1.Form.Input, {
     label: 'Title'
-  }));
+  })), react_1.default.createElement("section", null, react_1.default.createElement(semantic_ui_react_1.Form.TextArea, {
+    label: 'Description'
+  })), react_1.default.createElement("section", null, react_1.default.createElement(semantic_ui_react_1.Button, null, react_1.default.createElement(semantic_ui_react_1.Icon, {
+    name: "check"
+  }), " Save"), react_1.default.createElement(semantic_ui_react_1.Button, null, react_1.default.createElement(semantic_ui_react_1.Icon, {
+    name: "plus"
+  }), " New EPT"))));
 };
 
 exports.default = EptProperties;
@@ -75298,9 +75337,10 @@ var ConnectionPoint = function ConnectionPoint(_a) {
       candidateReset = _a.candidateReset,
       candidateRegister = _a.candidateRegister,
       eptSetTypes = _a.eptSetTypes,
-      links = _a.links,
       addLink = _a.addLink,
-      epts = _a.epts;
+      activeEpt = _a.activeEpt;
+  var epts = activeEpt.epts,
+      links = activeEpt.links;
 
   var _f = react_1.useState(false),
       isDragging = _f[0],
@@ -75457,8 +75497,7 @@ var ConnectionPoint = function ConnectionPoint(_a) {
 var mapStateToProps = function mapStateToProps(state) {
   return {
     connectionSearched: state.connectionSearched,
-    links: state.links,
-    epts: state.epts
+    activeEpt: state.activeEpt
   };
 };
 
@@ -75608,7 +75647,42 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var EptConnected = react_redux_1.connect(null, mapDispatchToProps)(Ept);
 exports.default = EptConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../draggable/draggable":"src/components/draggable/draggable.tsx","../../settings":"src/settings.js","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/visualizer/visualizer.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../draggable/draggable":"src/components/draggable/draggable.tsx","../../settings":"src/settings.js","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/applicationPoint/applicationPoint.tsx":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var react_1 = __importDefault(require("react"));
+
+var connectionPoint_1 = __importDefault(require("../connectionPoint/connectionPoint"));
+
+var ApplicationPoint = function ApplicationPoint(_a) {
+  var data = _a.data;
+  return [react_1.default.createElement(connectionPoint_1.default, {
+    key: 'cp',
+    isInput: false,
+    position: data.position,
+    types: data.outputTypes,
+    payload: '',
+    isMultiple: true,
+    isAnyAccepted: true
+  }), react_1.default.createElement("text", {
+    key: 'label',
+    x: data.position.x + 15,
+    y: data.position.y - 3
+  }, "Application Point(s)")];
+};
+
+exports.default = ApplicationPoint;
+},{"react":"node_modules/react/index.js","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/visualizer/visualizer.tsx":[function(require,module,exports) {
 "use strict";
 
 var __spreadArrays = this && this.__spreadArrays || function () {
@@ -75639,11 +75713,11 @@ var react_1 = __importDefault(require("react"));
 
 var react_redux_1 = require("react-redux");
 
-var actions_1 = require("../../store/actions");
-
 var settings_1 = require("../../settings");
 
 var ept_1 = __importDefault(require("../ept/ept"));
+
+var applicationPoint_1 = __importDefault(require("../applicationPoint/applicationPoint"));
 
 var link_1 = __importDefault(require("../link/link"));
 
@@ -75656,18 +75730,13 @@ var eptOrder = function eptOrder(_a, _b) {
 };
 
 var getPosition = function getPosition(id, epts, isInput) {
+  var ept = epts[id];
+
   if (!id) {
-    // Global input && output
-    return isInput ? {
-      x: settings_1.canvasWidth / 2,
-      y: settings_1.canvasHeight - 20
-    } : {
-      x: settings_1.canvasWidth / 2,
-      y: 20
-    };
+    // Application Point
+    return ept.position;
   }
 
-  var ept = epts[id];
   if (!ept) return {
     x: 0,
     y: 0
@@ -75679,10 +75748,9 @@ var getPosition = function getPosition(id, epts, isInput) {
 };
 
 var Visualizer = function Visualizer(_a) {
-  var epts = _a.epts,
-      links = _a.links,
-      eptAdd = _a.eptAdd,
-      eptRemove = _a.eptRemove;
+  var activeEpt = _a.activeEpt;
+  var epts = activeEpt.epts,
+      links = activeEpt.links;
   return __spreadArrays(Object.entries(links).map(function (_a) {
     var id = _a[0],
         link = _a[1];
@@ -75694,36 +75762,27 @@ var Visualizer = function Visualizer(_a) {
     });
   }), Object.entries(epts).sort(eptOrder).map(function (_a) {
     var id = _a[0],
-        ept = _a[1];
-    return react_1.default.createElement(ept_1.default, {
+        data = _a[1];
+    return id ? react_1.default.createElement(ept_1.default, {
       key: id,
-      data: ept,
+      data: data,
       id: id
+    }) : react_1.default.createElement(applicationPoint_1.default, {
+      key: "ap",
+      data: data
     });
   }));
 };
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    epts: state.epts,
-    links: state.links
+    activeEpt: state.activeEpt
   };
 };
 
-var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-  return {
-    eptAdd: function eptAdd(ept) {
-      dispatch(actions_1.eptAdd(ept));
-    },
-    eptRemove: function eptRemove(id) {
-      dispatch(actions_1.eptRemove(id));
-    }
-  };
-};
-
-var VisualizerConnected = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(Visualizer);
+var VisualizerConnected = react_redux_1.connect(mapStateToProps)(Visualizer);
 exports.default = VisualizerConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../settings":"src/settings.js","../ept/ept":"src/components/ept/ept.tsx","../link/link":"src/components/link/link.tsx"}],"src/positioner.ts":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../settings":"src/settings.js","../ept/ept":"src/components/ept/ept.tsx","../applicationPoint/applicationPoint":"src/components/applicationPoint/applicationPoint.tsx","../link/link":"src/components/link/link.tsx"}],"src/positioner.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -75950,10 +76009,12 @@ var utils_1 = require("../../utils");
 var test_1 = require("../../../data/test");
 
 var Catalogue = function Catalogue(_a) {
-  var epts = _a.epts,
-      links = _a.links,
+  var activeEpt = _a.activeEpt,
       onAddClick = _a.onAddClick,
-      addLink = _a.addLink;
+      addLink = _a.addLink,
+      applicationPointPosition = _a.applicationPointPosition;
+  var epts = activeEpt.epts,
+      links = activeEpt.links;
   return react_1.default.createElement("div", {
     className: "catalogue"
   }, react_1.default.createElement("ul", null, test_1.primitives.map(function (ept, index) {
@@ -75965,7 +76026,7 @@ var Catalogue = function Catalogue(_a) {
         var newEpt = Object.assign({}, ept, {
           id: utils_1.generateId()
         });
-        var connectionEpt = new positioner_1.Positioner(epts, links, newEpt).position();
+        var connectionEpt = new positioner_1.Positioner(epts, links, newEpt, applicationPointPosition).position();
         onAddClick(newEpt);
 
         if (connectionEpt) {
@@ -75978,8 +76039,7 @@ var Catalogue = function Catalogue(_a) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    epts: state.epts,
-    links: state.links
+    activeEpt: state.activeEpt
   };
 };
 
@@ -76123,10 +76183,7 @@ react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider,
 }, react_1.default.createElement(canvas_1.default, {
   width: settings_1.canvasWidth,
   height: settings_1.canvasHeight
-}, react_1.default.createElement("text", {
-  x: half + 13,
-  y: "23"
-}, "Application Point(s)"), react_1.default.createElement(visualizer_1.default, null)), react_1.default.createElement(catalogue_1.default, null))), document.getElementById('content'));
+}, react_1.default.createElement(visualizer_1.default, null)), react_1.default.createElement(catalogue_1.default, null))), document.getElementById('content'));
 },{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/settings":"src/settings.js","./src/components/eptProperties/eptProperties":"src/components/eptProperties/eptProperties.tsx","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx","fomantic-ui/dist/semantic.min.css":"node_modules/fomantic-ui/dist/semantic.min.css","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';

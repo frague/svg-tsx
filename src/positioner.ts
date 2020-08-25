@@ -27,12 +27,12 @@ export class Positioner {
 				return ept;
 			})
 			.sort((a, b) => {
-				let [countA, countB] = [this.connectionsCount[(a as IEpt).id], this.connectionsCount[(b as IEpt).id]];
-				if (countA === countB) {
-					return (a as IEpt).id < (b as IEpt).id ? -1 : 1;
-				}
-				return countA < countB ? -1 : 1;
-			});
+			let [countA, countB] = [this.connectionsCount[(a as IEpt).id], this.connectionsCount[(b as IEpt).id]];
+			if (countA === countB) {
+				return (a as IEpt).id < (b as IEpt).id ? -1 : 1;
+			}
+			return countA < countB ? -1 : 1;
+		});
 	}
 
 	_countConnections(id: string, links: any) {

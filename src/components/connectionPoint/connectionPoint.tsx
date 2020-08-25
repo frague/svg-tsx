@@ -48,8 +48,7 @@ export interface IConnectionPointProps {
 	payload: string;
 	isAnyAccepted: boolean;
 	
-	links: any;
-	epts: any;
+	activeEpt: any;
 	connectionSearched: any;
 
 	candidateSearch: Function;
@@ -61,8 +60,10 @@ export interface IConnectionPointProps {
 
 const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, payload=undefined, isAnyAccepted=false,
 	connectionSearched, candidateSearch, candidateReset, candidateRegister, eptSetTypes,
-	links, addLink, epts
+	addLink, activeEpt
 }: IConnectionPointProps) => {
+	let { epts, links } = activeEpt;
+
 	let [isDragging, setDragging] = useState(false);
 	let [offset, setOffset] = useState({x: 0, y: 0});
 	let [myPosition, setMyPosition] = useState({x: position.x, y: position.y});
@@ -192,8 +193,7 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 const mapStateToProps = state => {
   return {
     connectionSearched: state.connectionSearched,
-    links: state.links,
-    epts: state.epts,
+    activeEpt: state.activeEpt,
   }
 }
 

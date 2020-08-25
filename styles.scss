@@ -151,7 +151,7 @@ button.link {
 	&.standalone {
 		text {
 			text-anchor: start !important;
-			transform: translate(15px, 15px);
+			// transform: translate(15px, 15px);
 		}
 	}
 
@@ -194,8 +194,24 @@ button.link {
 	}
 }
 
-div.properties {
+.shadow-stroke {
+	border: solid 1px #EEE;
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+	border-radius: 6px;
 	padding: 15px;
+	margin: 15px;
+}
+
+div.properties {
+	@extend .shadow-stroke;
+
+	form {
+		display: flex;
+
+		section {
+			flex: 1 1;
+		}
+	}
 }
 
 
