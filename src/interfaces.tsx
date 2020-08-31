@@ -3,17 +3,17 @@ export interface IPosition {
 	y: number;
 }
 
-enum parameterType {
+export enum parameterType {
 	number,
 	boolean,
 	string
 }
 
 export interface IParameter {
-	name: string;
 	values?: string[];
 	type?: parameterType;
 	defaultValue?: any;
+	value: any;
 }
 
 export interface ILink {

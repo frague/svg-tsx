@@ -5,10 +5,12 @@ export const primitives = [
 		'type': 'primitive',
 		'parameters': {
 			'security_zone': {
-				'values': ['default', 'system']
+				'values': ['default', 'system'],
+				'value': 'system'
 			},
 			'vlan_id': {
-				'type': 'number'
+				'type': 'number',
+				'value': 100
 			}
 		},
 		'inputTypes': ['interface'],

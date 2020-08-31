@@ -40,6 +40,14 @@ export function eptSetAcceptedTypes(id: string, types: string[]|string, isInput:
 	};
 }
 
+export const EPT_SET_PARAMETER = 'EPT_SET_PARAMETER';
+export function eptSetParameter(id: string, name: string, value: any) {
+	return {
+		type: EPT_SET_PARAMETER,
+		id, name, value
+	};
+}
+
 export const LINK_ADD = 'LINK_ADD';
 export function linkAdd(from: string, to: string) {
 	return {

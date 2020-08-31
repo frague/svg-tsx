@@ -179,9 +179,11 @@ button.link {
 	}
 }
 
-.catalogue {
+.catalogue, .parameters {
+	@extend .shadow-stroke;
+
 	ul {
-		padding-left: 15px;
+		padding-left: 0;
 
 		li {
 			margin-bottom: 15px;
@@ -209,7 +211,48 @@ div.properties {
 		display: flex;
 
 		section {
-			flex: 1 1;
+			&:nth-child(1) {
+				flex: 2 1;
+			}
+
+			&:nth-child(2) {
+				flex: 3 1;
+				padding: 0 20px;
+			}
+
+			&:nth-child(3) {
+				flex: 0 0 222px;
+				padding-top: 23px;
+				text-align: center;
+			}
+		}
+	}
+}
+
+div.parameters {
+	@extend .shadow-stroke;
+
+	.enum {
+		.field {
+			margin-bottom: 0;
+			height: 26px;
+		}
+		ul {
+			padding-left: 0;
+
+			li {
+				display: inline-block;
+				border: solid 1px #CCC;
+				padding: 4px 6px;
+				margin: 0 4px 4px 0;
+				border-radius: 4px;
+				cursor: pointer;
+
+				&.selected {
+					background-color: $blue;
+					color: $white;
+				}
+			}
 		}
 	}
 }

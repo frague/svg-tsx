@@ -19,6 +19,7 @@ export interface ICatalogueProps {
 const Catalogue = ({ activeEpt, onAddClick, addLink, applicationPointPosition }) => {
 	let { epts, links } = activeEpt;
 	return <div className="catalogue">
+		<h1>Catalogue</h1>
 		<ul>
 			{
 				primitives.map((ept, index) => <li key={ index }>

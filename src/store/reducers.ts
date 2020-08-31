@@ -1,10 +1,9 @@
 import { combineReducers } from 'redux'
 
-import { EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP,
-	LINK_ADD, LINK_MOVE, LINK_REMOVE, EPT_LINKS_REMOVE, EPT_SET_ACCEPTED_TYPES,
+import { EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP, EPT_SET_ACCEPTED_TYPES, EPT_SET_PARAMETER,
+	LINK_ADD, LINK_MOVE, LINK_REMOVE, EPT_LINKS_REMOVE, 
 	CONNECTION_CANDIDATE_SEARCH, CONNECTION_CANDIDATE_REGISTER, CONNECTION_CANDIDATE_RESET,
 	ACTIVE_EPT_SET,
-	APPLICATION_POINT_SET_ACCEPTED_TYPES,
 } from './actions'
 
 import { IPosition, IEpt, ILink } from '../interfaces'
@@ -123,6 +122,19 @@ function activeEptReducer(state=dummyState as any, action) {
 			}
 			return state;
 
+		case EPT_SET_PARAMETER:
+			if (state.epts.hasOwnProperty(action.id)) {
+				let ept2 = Object.assign({}, state.epts[action.id]);
+				let parameter = ept2.parameters[action.name];
+				if (parameter) {
+					parameter = Object.assign({}, parameter, {value: action.value});
+					ept2.parameters = Object.assign({}, ept2.parameters, {[action.name]: parameter});
+					state.epts = Object.assign({}, state.epts, {[action.id]: ept2})
+					return Object.assign({}, state);
+				}
+			}
+			return state;			
+
 		// links
 
 		case LINK_ADD:
@@ -149,7 +161,7 @@ function activeEptReducer(state=dummyState as any, action) {
 			Object.entries(result1).forEach(([id, link]) => {
 				if ((link as ILink).from === action.id || (link as ILink).to === action.id) {
 					hasChanges = true;
-					delete result[id];
+					delete result1[id];
 				}
 			});
 			if (hasChanges) {
