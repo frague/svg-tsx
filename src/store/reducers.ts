@@ -1,14 +1,18 @@
 import { combineReducers } from 'redux'
 
 import { EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP, EPT_SET_ACCEPTED_TYPES, EPT_SET_PARAMETER,
-	LINK_ADD, LINK_MOVE, LINK_REMOVE, EPT_LINKS_REMOVE, 
+	LINK_ADD, LINK_MOVE, LINK_REMOVE, EPT_LINKS_REMOVE, EPT_SET_PROPERTIES,
 	CONNECTION_CANDIDATE_SEARCH, CONNECTION_CANDIDATE_REGISTER, CONNECTION_CANDIDATE_RESET,
-	ACTIVE_EPT_SET,
+	ACTIVE_EPT_SET, ACTIVE_EPT_RESET,
+	CATALOGUE_EPT_SAVE, 
 } from './actions'
 
 import { IPosition, IEpt, ILink } from '../interfaces'
 import { canvasWidth } from '../settings'
 import { generateId } from '../utils'
+
+import { primitives } from '../../data/test'
+
 
 function instantiateAndPosition(ept: IEpt) {
 	ept.position = ept.position || {x: 100, y: 80};
@@ -56,32 +60,37 @@ const applicationPoint = {
 	id: ''
 };
 
-const dummyState = {
-	title: 'New EPT',
-	type: 'new',
-	inputTypes: null,
-	inputIsFlexible: true,
-	outputTypes: null,
-	outputIsFlexible: true,
-	position: {x: 100, y: 85},
-	id: '',
-	epts: {
-		'': applicationPoint
-	},
-	links: {},
-	parameters: {},
+const makeEmptyEpt = () => {
+	return {
+		title: 'New EPT',
+		type: 'new',
+		inputTypes: null,
+		inputIsFlexible: true,
+		outputTypes: null,
+		outputIsFlexible: true,
+		position: {x: 100, y: 85},
+		id: '',
+		epts: {
+			'': applicationPoint
+		},
+		links: {},
+		parameters: {},
+	}
 };
 
-function activeEptReducer(state=dummyState as any, action) {
+function activeEptReducer(state=makeEmptyEpt() as any, action) {
 	switch (action.type) {
 		case ACTIVE_EPT_SET:
 			let { epts, links, parameters } = action.ept;
 			let result = Object.assign({}, action.ept, {
 				epts: Object.assign({}, epts),
 				links: Object.assign({}, links),
-				parameters: Object.assign({}),
+				parameters: Object.assign({}, parameters),
 			});
 			return result;
+
+		case ACTIVE_EPT_RESET:
+			return makeEmptyEpt();
 
 		// EPTs
 		case EPT_ADD:
@@ -170,16 +179,44 @@ function activeEptReducer(state=dummyState as any, action) {
 			}
 			return state;
 
+		case EPT_SET_PROPERTIES:
+			return Object.assign({}, state, {title: action.title, description: action.description});
+
 		default:
 			return state;
 	}
 }
 
+const modifyEpt = ept => {
+	ept = Object.assign({}, ept);
+	let applicationPoint = ept.epts[''];
+	if (applicationPoint) {
+		ept.inputTypes = applicationPoint.outputTypes;
+		ept.inputIsFlexible = !applicationPoint.outputTypes || !applicationPoint.outputTypes.length;
+	}
+	return ept;
+}
+
+const catalogueReducer = (state=primitives, action) => {
+	switch (action.type) {
+		case CATALOGUE_EPT_SAVE:
+			let ept = modifyEpt(action.ept);
+			if (ept.id) {
+				return state.map(e => e.id === ept.id ? ept : e);
+			} else {
+				ept.id = generateId();
+				return [...state, ept];
+			}
+
+		default:
+			return state;
+	}
+};
+
 const appReducer = combineReducers({
-	// epts: eptsReducer,
-	// links: linksReducer,
 	connectionSearched: connectionCandidateReducer,
 	activeEpt: activeEptReducer,
+	catalogue: catalogueReducer,
 });
 
 export default appReducer;

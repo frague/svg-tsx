@@ -22,7 +22,11 @@ div#content {
 	}
 
 	.catalogue {
-		flex: 0 0 300px;
+		flex: 0 0 200px;
+	}
+
+	.parameters {
+		flex: 0 0 250px;
 	}
 }
 
@@ -212,15 +216,18 @@ div.properties {
 
 		section {
 			&:nth-child(1) {
+				// Title
 				flex: 2 1;
 			}
 
 			&:nth-child(2) {
+				// Description
 				flex: 3 1;
 				padding: 0 20px;
 			}
 
 			&:nth-child(3) {
+				// Buttons
 				flex: 0 0 222px;
 				padding-top: 23px;
 				text-align: center;
@@ -231,6 +238,10 @@ div.properties {
 
 div.parameters {
 	@extend .shadow-stroke;
+
+	h5 {
+		cursor: pointer;
+	}
 
 	.enum {
 		.field {

@@ -8,6 +8,7 @@ export function eptAdd(ept: IEpt) {
 	};
 }
 
+
 export const EPT_MOVE = 'EPT_MOVE';
 export function eptMove(id: string, position: IPosition) {
 	return {
@@ -45,6 +46,14 @@ export function eptSetParameter(id: string, name: string, value: any) {
 	return {
 		type: EPT_SET_PARAMETER,
 		id, name, value
+	};
+}
+
+export const EPT_SET_PROPERTIES = 'EPT_SET_PROPERTIES';
+export function eptSetProperties(title: string, description: any) {
+	return {
+		type: EPT_SET_PROPERTIES,
+		title, description
 	};
 }
 
@@ -108,6 +117,23 @@ export const ACTIVE_EPT_SET = 'ACTIVE_EPT_SET';
 export function activeEptSet(ept: IEpt) {
 	return {
 		type: ACTIVE_EPT_SET,
+		ept
+	};
+}
+
+export const ACTIVE_EPT_RESET = 'ACTIVE_EPT_RESET';
+export function activeEptReset() {
+	return {
+		type: ACTIVE_EPT_RESET
+	};
+}
+
+
+
+export const CATALOGUE_EPT_SAVE = 'CATALOGUE_EPT_SAVE';
+export function catalogueEptSave(ept: IEpt) {
+	return {
+		type: CATALOGUE_EPT_SAVE,
 		ept
 	};
 }

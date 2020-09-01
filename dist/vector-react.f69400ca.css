@@ -388,7 +388,10 @@ div#content svg {
   flex: 0 0 800px;
 }
 div#content .catalogue {
-  flex: 0 0 300px;
+  flex: 0 0 200px;
+}
+div#content .parameters {
+  flex: 0 0 250px;
 }
 
 div.builder {
@@ -543,6 +546,9 @@ div.properties form section:nth-child(3) {
   text-align: center;
 }
 
+div.parameters h5 {
+  cursor: pointer;
+}
 div.parameters .enum .field {
   margin-bottom: 0;
   height: 26px;

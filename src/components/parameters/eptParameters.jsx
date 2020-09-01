@@ -16,12 +16,16 @@ class EptParameters extends React.Component {
 			.some(parameter => !parameter.value);
 	}
 
+	toggleCollapsed() {
+		this.setState({isCollapsed: !this.state.isCollapsed})
+	}
+
 	render() {
 		let ept = this.props.ept;
 		let id = ept.id;
 
 		return <ul>
-			<h5 onClick={ () => this.setState({isCollapsed: !this.state.isCollapsed}) }>
+			<h5 onClick={ () => this.toggleCollapsed() }>
 				<Icon name={ 'triangle ' + (this.state.isCollapsed ? 'right' : 'down') } />{ ept.title }
 			</h5>
 			{

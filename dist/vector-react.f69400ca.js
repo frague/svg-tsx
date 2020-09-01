@@ -31668,7 +31668,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.activeEptSet = exports.ACTIVE_EPT_SET = exports.connectionCandidateRegister = exports.CONNECTION_CANDIDATE_REGISTER = exports.connectionCandidateReset = exports.CONNECTION_CANDIDATE_RESET = exports.connectionCandidateSearch = exports.CONNECTION_CANDIDATE_SEARCH = exports.eptLinksRemove = exports.EPT_LINKS_REMOVE = exports.linkRemove = exports.LINK_REMOVE = exports.linkMove = exports.LINK_MOVE = exports.linkAdd = exports.LINK_ADD = exports.eptSetParameter = exports.EPT_SET_PARAMETER = exports.eptSetAcceptedTypes = exports.EPT_SET_ACCEPTED_TYPES = exports.eptBringOnTop = exports.EPT_BRING_ON_TOP = exports.eptRemove = exports.EPT_REMOVE = exports.eptMove = exports.EPT_MOVE = exports.eptAdd = exports.EPT_ADD = void 0;
+exports.catalogueEptSave = exports.CATALOGUE_EPT_SAVE = exports.activeEptReset = exports.ACTIVE_EPT_RESET = exports.activeEptSet = exports.ACTIVE_EPT_SET = exports.connectionCandidateRegister = exports.CONNECTION_CANDIDATE_REGISTER = exports.connectionCandidateReset = exports.CONNECTION_CANDIDATE_RESET = exports.connectionCandidateSearch = exports.CONNECTION_CANDIDATE_SEARCH = exports.eptLinksRemove = exports.EPT_LINKS_REMOVE = exports.linkRemove = exports.LINK_REMOVE = exports.linkMove = exports.LINK_MOVE = exports.linkAdd = exports.LINK_ADD = exports.eptSetProperties = exports.EPT_SET_PROPERTIES = exports.eptSetParameter = exports.EPT_SET_PARAMETER = exports.eptSetAcceptedTypes = exports.EPT_SET_ACCEPTED_TYPES = exports.eptBringOnTop = exports.EPT_BRING_ON_TOP = exports.eptRemove = exports.EPT_REMOVE = exports.eptMove = exports.EPT_MOVE = exports.eptAdd = exports.EPT_ADD = void 0;
 exports.EPT_ADD = 'EPT_ADD';
 
 function eptAdd(ept) {
@@ -31734,6 +31734,17 @@ function eptSetParameter(id, name, value) {
 }
 
 exports.eptSetParameter = eptSetParameter;
+exports.EPT_SET_PROPERTIES = 'EPT_SET_PROPERTIES';
+
+function eptSetProperties(title, description) {
+  return {
+    type: exports.EPT_SET_PROPERTIES,
+    title: title,
+    description: description
+  };
+}
+
+exports.eptSetProperties = eptSetProperties;
 exports.LINK_ADD = 'LINK_ADD';
 
 function linkAdd(from, to) {
@@ -31820,6 +31831,25 @@ function activeEptSet(ept) {
 }
 
 exports.activeEptSet = activeEptSet;
+exports.ACTIVE_EPT_RESET = 'ACTIVE_EPT_RESET';
+
+function activeEptReset() {
+  return {
+    type: exports.ACTIVE_EPT_RESET
+  };
+}
+
+exports.activeEptReset = activeEptReset;
+exports.CATALOGUE_EPT_SAVE = 'CATALOGUE_EPT_SAVE';
+
+function catalogueEptSave(ept) {
+  return {
+    type: exports.CATALOGUE_EPT_SAVE,
+    ept: ept
+  };
+}
+
+exports.catalogueEptSave = catalogueEptSave;
 },{}],"src/settings.js":[function(require,module,exports) {
 "use strict";
 
@@ -31887,8 +31917,102 @@ function findIntersection(source) {
 }
 
 exports.findIntersection = findIntersection;
+},{}],"data/test.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.primitives = void 0;
+var primitives = [{
+  'id': 'ID0000001',
+  'title': 'Subinterface',
+  'tags': [],
+  'type': 'primitive',
+  'parameters': {
+    'security_zone': {
+      'values': ['default', 'system'],
+      'value': 'system'
+    },
+    'vlan_id': {
+      'type': 'number',
+      'value': 100
+    }
+  },
+  'inputTypes': ['interface'],
+  'outputTypes': ['subinterface']
+}, {
+  'id': 'ID0000002',
+  'title': 'Attach VLAN',
+  'tags': [],
+  'type': 'primitive',
+  'parameters': {
+    'vlan_id': {
+      'type': 'number'
+    },
+    'tagged/untagged': {
+      'values': ['tagged', 'untagged']
+    }
+  },
+  'inputTypes': ['interface'],
+  'outputTypes': null
+}, {
+  'id': 'ID0000003',
+  'title': 'Address type',
+  'tags': [],
+  'type': 'primitive',
+  'parameters': {
+    'IPv4': {
+      'values': ['none', 'unnumbered']
+    },
+    'IPv6': {
+      'values': ['default']
+    }
+  },
+  'inputTypes': ['interface', 'subinterface'],
+  'outputTypes': ['routable interface']
+}, {
+  'id': 'ID0000004',
+  'title': 'BGP unnumbered',
+  'tags': [],
+  'type': 'primitive',
+  'parameters': {
+    'timeout': {
+      'type': 'number'
+    }
+  },
+  'inputTypes': ['routable interface'],
+  'outputTypes': ['routing session']
+}, {
+  'id': 'ID0000005',
+  'title': 'Routing policy',
+  'tags': [],
+  'type': 'primitive',
+  'parameters': {
+    'import/export': {
+      'type': 'number'
+    }
+  },
+  'inputTypes': ['routing session'],
+  'outputTypes': ['routing policy']
+}];
+exports.primitives = primitives;
 },{}],"src/store/reducers.ts":[function(require,module,exports) {
 "use strict";
+
+var __spreadArrays = this && this.__spreadArrays || function () {
+  for (var s = 0, i = 0, il = arguments.length; i < il; i++) {
+    s += arguments[i].length;
+  }
+
+  for (var r = Array(s), k = 0, i = 0; i < il; i++) {
+    for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++) {
+      r[k] = a[j];
+    }
+  }
+
+  return r;
+};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -31901,6 +32025,8 @@ var actions_1 = require("./actions");
 var settings_1 = require("../settings");
 
 var utils_1 = require("../utils");
+
+var test_1 = require("../../data/test");
 
 function instantiateAndPosition(ept) {
   ept.position = ept.position || {
@@ -31961,30 +32087,33 @@ var applicationPoint = {
   outputIsFlexible: true,
   id: ''
 };
-var dummyState = {
-  title: 'New EPT',
-  type: 'new',
-  inputTypes: null,
-  inputIsFlexible: true,
-  outputTypes: null,
-  outputIsFlexible: true,
-  position: {
-    x: 100,
-    y: 85
-  },
-  id: '',
-  epts: {
-    '': applicationPoint
-  },
-  links: {},
-  parameters: {}
+
+var makeEmptyEpt = function makeEmptyEpt() {
+  return {
+    title: 'New EPT',
+    type: 'new',
+    inputTypes: null,
+    inputIsFlexible: true,
+    outputTypes: null,
+    outputIsFlexible: true,
+    position: {
+      x: 100,
+      y: 85
+    },
+    id: '',
+    epts: {
+      '': applicationPoint
+    },
+    links: {},
+    parameters: {}
+  };
 };
 
 function activeEptReducer(state, action) {
   var _a, _b, _c, _d, _e, _f;
 
   if (state === void 0) {
-    state = dummyState;
+    state = makeEmptyEpt();
   }
 
   switch (action.type) {
@@ -31996,9 +32125,12 @@ function activeEptReducer(state, action) {
       var result = Object.assign({}, action.ept, {
         epts: Object.assign({}, epts),
         links: Object.assign({}, links),
-        parameters: Object.assign({})
+        parameters: Object.assign({}, parameters)
       });
       return result;
+
+    case actions_1.ACTIVE_EPT_RESET:
+      return makeEmptyEpt();
     // EPTs
 
     case actions_1.EPT_ADD:
@@ -32105,19 +32237,59 @@ function activeEptReducer(state, action) {
 
       return state;
 
+    case actions_1.EPT_SET_PROPERTIES:
+      return Object.assign({}, state, {
+        title: action.title,
+        description: action.description
+      });
+
     default:
       return state;
   }
 }
 
+var modifyEpt = function modifyEpt(ept) {
+  ept = Object.assign({}, ept);
+  var applicationPoint = ept.epts[''];
+
+  if (applicationPoint) {
+    ept.inputTypes = applicationPoint.outputTypes;
+    ept.inputIsFlexible = !applicationPoint.outputTypes || !applicationPoint.outputTypes.length;
+  }
+
+  return ept;
+};
+
+var catalogueReducer = function catalogueReducer(state, action) {
+  if (state === void 0) {
+    state = test_1.primitives;
+  }
+
+  switch (action.type) {
+    case actions_1.CATALOGUE_EPT_SAVE:
+      var ept_1 = modifyEpt(action.ept);
+
+      if (ept_1.id) {
+        return state.map(function (e) {
+          return e.id === ept_1.id ? ept_1 : e;
+        });
+      } else {
+        ept_1.id = utils_1.generateId();
+        return __spreadArrays(state, [ept_1]);
+      }
+
+    default:
+      return state;
+  }
+};
+
 var appReducer = redux_1.combineReducers({
-  // epts: eptsReducer,
-  // links: linksReducer,
   connectionSearched: connectionCandidateReducer,
-  activeEpt: activeEptReducer
+  activeEpt: activeEptReducer,
+  catalogue: catalogueReducer
 });
 exports.default = appReducer;
-},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts","../settings":"src/settings.js","../utils":"src/utils.ts"}],"node_modules/@babel/runtime/helpers/esm/inheritsLoose.js":[function(require,module,exports) {
+},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts","../settings":"src/settings.js","../utils":"src/utils.ts","../../data/test":"data/test.js"}],"node_modules/@babel/runtime/helpers/esm/inheritsLoose.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -74953,40 +75125,127 @@ var _StatisticLabel2 = _interopRequireDefault(require("./views/Statistic/Statist
 var _StatisticValue2 = _interopRequireDefault(require("./views/Statistic/StatisticValue"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"@fluentui/react-component-ref":"node_modules/@fluentui/react-component-ref/dist/es/index.js","./addons/Confirm":"node_modules/semantic-ui-react/dist/es/addons/Confirm/index.js","./addons/MountNode":"node_modules/semantic-ui-react/dist/es/addons/MountNode/index.js","./addons/Pagination":"node_modules/semantic-ui-react/dist/es/addons/Pagination/index.js","./addons/Pagination/PaginationItem":"node_modules/semantic-ui-react/dist/es/addons/Pagination/PaginationItem.js","./addons/Portal":"node_modules/semantic-ui-react/dist/es/addons/Portal/index.js","./addons/Portal/PortalInner":"node_modules/semantic-ui-react/dist/es/addons/Portal/PortalInner.js","./addons/Radio":"node_modules/semantic-ui-react/dist/es/addons/Radio/index.js","./addons/Responsive":"node_modules/semantic-ui-react/dist/es/addons/Responsive/index.js","./addons/Select":"node_modules/semantic-ui-react/dist/es/addons/Select/index.js","./addons/TextArea":"node_modules/semantic-ui-react/dist/es/addons/TextArea/index.js","./addons/TransitionablePortal":"node_modules/semantic-ui-react/dist/es/addons/TransitionablePortal/index.js","./behaviors/Visibility":"node_modules/semantic-ui-react/dist/es/behaviors/Visibility/index.js","./collections/Breadcrumb":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/index.js","./collections/Breadcrumb/BreadcrumbDivider":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/BreadcrumbDivider.js","./collections/Breadcrumb/BreadcrumbSection":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/BreadcrumbSection.js","./collections/Form":"node_modules/semantic-ui-react/dist/es/collections/Form/index.js","./collections/Form/FormButton":"node_modules/semantic-ui-react/dist/es/collections/Form/FormButton.js","./collections/Form/FormCheckbox":"node_modules/semantic-ui-react/dist/es/collections/Form/FormCheckbox.js","./collections/Form/FormDropdown":"node_modules/semantic-ui-react/dist/es/collections/Form/FormDropdown.js","./collections/Form/FormField":"node_modules/semantic-ui-react/dist/es/collections/Form/FormField.js","./collections/Form/FormGroup":"node_modules/semantic-ui-react/dist/es/collections/Form/FormGroup.js","./collections/Form/FormInput":"node_modules/semantic-ui-react/dist/es/collections/Form/FormInput.js","./collections/Form/FormRadio":"node_modules/semantic-ui-react/dist/es/collections/Form/FormRadio.js","./collections/Form/FormSelect":"node_modules/semantic-ui-react/dist/es/collections/Form/FormSelect.js","./collections/Form/FormTextArea":"node_modules/semantic-ui-react/dist/es/collections/Form/FormTextArea.js","./collections/Grid":"node_modules/semantic-ui-react/dist/es/collections/Grid/index.js","./collections/Grid/GridColumn":"node_modules/semantic-ui-react/dist/es/collections/Grid/GridColumn.js","./collections/Grid/GridRow":"node_modules/semantic-ui-react/dist/es/collections/Grid/GridRow.js","./collections/Menu":"node_modules/semantic-ui-react/dist/es/collections/Menu/index.js","./collections/Menu/MenuHeader":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuHeader.js","./collections/Menu/MenuItem":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuItem.js","./collections/Menu/MenuMenu":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuMenu.js","./collections/Message":"node_modules/semantic-ui-react/dist/es/collections/Message/index.js","./collections/Message/MessageContent":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageContent.js","./collections/Message/MessageHeader":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageHeader.js","./collections/Message/MessageItem":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageItem.js","./collections/Message/MessageList":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageList.js","./collections/Table":"node_modules/semantic-ui-react/dist/es/collections/Table/index.js","./collections/Table/TableBody":"node_modules/semantic-ui-react/dist/es/collections/Table/TableBody.js","./collections/Table/TableCell":"node_modules/semantic-ui-react/dist/es/collections/Table/TableCell.js","./collections/Table/TableFooter":"node_modules/semantic-ui-react/dist/es/collections/Table/TableFooter.js","./collections/Table/TableHeader":"node_modules/semantic-ui-react/dist/es/collections/Table/TableHeader.js","./collections/Table/TableHeaderCell":"node_modules/semantic-ui-react/dist/es/collections/Table/TableHeaderCell.js","./collections/Table/TableRow":"node_modules/semantic-ui-react/dist/es/collections/Table/TableRow.js","./elements/Button/Button":"node_modules/semantic-ui-react/dist/es/elements/Button/Button.js","./elements/Button/ButtonContent":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonContent.js","./elements/Button/ButtonGroup":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonGroup.js","./elements/Button/ButtonOr":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonOr.js","./elements/Container":"node_modules/semantic-ui-react/dist/es/elements/Container/index.js","./elements/Divider":"node_modules/semantic-ui-react/dist/es/elements/Divider/index.js","./elements/Flag":"node_modules/semantic-ui-react/dist/es/elements/Flag/index.js","./elements/Header":"node_modules/semantic-ui-react/dist/es/elements/Header/index.js","./elements/Header/HeaderContent":"node_modules/semantic-ui-react/dist/es/elements/Header/HeaderContent.js","./elements/Header/HeaderSubheader":"node_modules/semantic-ui-react/dist/es/elements/Header/HeaderSubheader.js","./elements/Icon":"node_modules/semantic-ui-react/dist/es/elements/Icon/index.js","./elements/Icon/IconGroup":"node_modules/semantic-ui-react/dist/es/elements/Icon/IconGroup.js","./elements/Image":"node_modules/semantic-ui-react/dist/es/elements/Image/index.js","./elements/Image/ImageGroup":"node_modules/semantic-ui-react/dist/es/elements/Image/ImageGroup.js","./elements/Input":"node_modules/semantic-ui-react/dist/es/elements/Input/index.js","./elements/Label":"node_modules/semantic-ui-react/dist/es/elements/Label/index.js","./elements/Label/LabelDetail":"node_modules/semantic-ui-react/dist/es/elements/Label/LabelDetail.js","./elements/Label/LabelGroup":"node_modules/semantic-ui-react/dist/es/elements/Label/LabelGroup.js","./elements/List":"node_modules/semantic-ui-react/dist/es/elements/List/index.js","./elements/List/ListContent":"node_modules/semantic-ui-react/dist/es/elements/List/ListContent.js","./elements/List/ListDescription":"node_modules/semantic-ui-react/dist/es/elements/List/ListDescription.js","./elements/List/ListHeader":"node_modules/semantic-ui-react/dist/es/elements/List/ListHeader.js","./elements/List/ListIcon":"node_modules/semantic-ui-react/dist/es/elements/List/ListIcon.js","./elements/List/ListItem":"node_modules/semantic-ui-react/dist/es/elements/List/ListItem.js","./elements/List/ListList":"node_modules/semantic-ui-react/dist/es/elements/List/ListList.js","./elements/Loader":"node_modules/semantic-ui-react/dist/es/elements/Loader/index.js","./elements/Placeholder":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/index.js","./elements/Placeholder/PlaceholderHeader":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderHeader.js","./elements/Placeholder/PlaceholderImage":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderImage.js","./elements/Placeholder/PlaceholderLine":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderLine.js","./elements/Placeholder/PlaceholderParagraph":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderParagraph.js","./elements/Rail":"node_modules/semantic-ui-react/dist/es/elements/Rail/index.js","./elements/Reveal":"node_modules/semantic-ui-react/dist/es/elements/Reveal/index.js","./elements/Reveal/RevealContent":"node_modules/semantic-ui-react/dist/es/elements/Reveal/RevealContent.js","./elements/Segment":"node_modules/semantic-ui-react/dist/es/elements/Segment/index.js","./elements/Segment/SegmentGroup":"node_modules/semantic-ui-react/dist/es/elements/Segment/SegmentGroup.js","./elements/Segment/SegmentInline":"node_modules/semantic-ui-react/dist/es/elements/Segment/SegmentInline.js","./elements/Step":"node_modules/semantic-ui-react/dist/es/elements/Step/index.js","./elements/Step/StepContent":"node_modules/semantic-ui-react/dist/es/elements/Step/StepContent.js","./elements/Step/StepDescription":"node_modules/semantic-ui-react/dist/es/elements/Step/StepDescription.js","./elements/Step/StepGroup":"node_modules/semantic-ui-react/dist/es/elements/Step/StepGroup.js","./elements/Step/StepTitle":"node_modules/semantic-ui-react/dist/es/elements/Step/StepTitle.js","./modules/Accordion/Accordion":"node_modules/semantic-ui-react/dist/es/modules/Accordion/Accordion.js","./modules/Accordion/AccordionAccordion":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionAccordion.js","./modules/Accordion/AccordionContent":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionContent.js","./modules/Accordion/AccordionPanel":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionPanel.js","./modules/Accordion/AccordionTitle":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionTitle.js","./modules/Checkbox":"node_modules/semantic-ui-react/dist/es/modules/Checkbox/index.js","./modules/Dimmer":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/index.js","./modules/Dimmer/DimmerDimmable":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/DimmerDimmable.js","./modules/Dimmer/DimmerInner":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/DimmerInner.js","./modules/Dropdown":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/index.js","./modules/Dropdown/DropdownDivider":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownDivider.js","./modules/Dropdown/DropdownHeader":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownHeader.js","./modules/Dropdown/DropdownItem":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownItem.js","./modules/Dropdown/DropdownMenu":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownMenu.js","./modules/Dropdown/DropdownSearchInput":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownSearchInput.js","./modules/Dropdown/DropdownText":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownText.js","./modules/Embed":"node_modules/semantic-ui-react/dist/es/modules/Embed/index.js","./modules/Modal":"node_modules/semantic-ui-react/dist/es/modules/Modal/index.js","./modules/Modal/ModalActions":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalActions.js","./modules/Modal/ModalContent":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalContent.js","./modules/Modal/ModalDescription":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalDescription.js","./modules/Modal/ModalDimmer":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalDimmer.js","./modules/Modal/ModalHeader":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalHeader.js","./modules/Popup":"node_modules/semantic-ui-react/dist/es/modules/Popup/index.js","./modules/Popup/PopupContent":"node_modules/semantic-ui-react/dist/es/modules/Popup/PopupContent.js","./modules/Popup/PopupHeader":"node_modules/semantic-ui-react/dist/es/modules/Popup/PopupHeader.js","./modules/Progress":"node_modules/semantic-ui-react/dist/es/modules/Progress/index.js","./modules/Rating":"node_modules/semantic-ui-react/dist/es/modules/Rating/index.js","./modules/Rating/RatingIcon":"node_modules/semantic-ui-react/dist/es/modules/Rating/RatingIcon.js","./modules/Search":"node_modules/semantic-ui-react/dist/es/modules/Search/index.js","./modules/Search/SearchCategory":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchCategory.js","./modules/Search/SearchResult":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchResult.js","./modules/Search/SearchResults":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchResults.js","./modules/Sidebar":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/index.js","./modules/Sidebar/SidebarPushable":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/SidebarPushable.js","./modules/Sidebar/SidebarPusher":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/SidebarPusher.js","./modules/Sticky":"node_modules/semantic-ui-react/dist/es/modules/Sticky/index.js","./modules/Tab":"node_modules/semantic-ui-react/dist/es/modules/Tab/index.js","./modules/Tab/TabPane":"node_modules/semantic-ui-react/dist/es/modules/Tab/TabPane.js","./modules/Transition":"node_modules/semantic-ui-react/dist/es/modules/Transition/index.js","./modules/Transition/TransitionGroup":"node_modules/semantic-ui-react/dist/es/modules/Transition/TransitionGroup.js","./views/Advertisement":"node_modules/semantic-ui-react/dist/es/views/Advertisement/index.js","./views/Card/Card":"node_modules/semantic-ui-react/dist/es/views/Card/Card.js","./views/Card/CardContent":"node_modules/semantic-ui-react/dist/es/views/Card/CardContent.js","./views/Card/CardDescription":"node_modules/semantic-ui-react/dist/es/views/Card/CardDescription.js","./views/Card/CardGroup":"node_modules/semantic-ui-react/dist/es/views/Card/CardGroup.js","./views/Card/CardHeader":"node_modules/semantic-ui-react/dist/es/views/Card/CardHeader.js","./views/Card/CardMeta":"node_modules/semantic-ui-react/dist/es/views/Card/CardMeta.js","./views/Comment":"node_modules/semantic-ui-react/dist/es/views/Comment/index.js","./views/Comment/CommentAction":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAction.js","./views/Comment/CommentActions":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentActions.js","./views/Comment/CommentAuthor":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAuthor.js","./views/Comment/CommentAvatar":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAvatar.js","./views/Comment/CommentContent":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentContent.js","./views/Comment/CommentGroup":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentGroup.js","./views/Comment/CommentMetadata":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentMetadata.js","./views/Comment/CommentText":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentText.js","./views/Feed":"node_modules/semantic-ui-react/dist/es/views/Feed/index.js","./views/Feed/FeedContent":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedContent.js","./views/Feed/FeedDate":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedDate.js","./views/Feed/FeedEvent":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedEvent.js","./views/Feed/FeedExtra":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedExtra.js","./views/Feed/FeedLabel":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedLabel.js","./views/Feed/FeedLike":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedLike.js","./views/Feed/FeedMeta":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedMeta.js","./views/Feed/FeedSummary":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedSummary.js","./views/Feed/FeedUser":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedUser.js","./views/Item":"node_modules/semantic-ui-react/dist/es/views/Item/index.js","./views/Item/ItemContent":"node_modules/semantic-ui-react/dist/es/views/Item/ItemContent.js","./views/Item/ItemDescription":"node_modules/semantic-ui-react/dist/es/views/Item/ItemDescription.js","./views/Item/ItemExtra":"node_modules/semantic-ui-react/dist/es/views/Item/ItemExtra.js","./views/Item/ItemGroup":"node_modules/semantic-ui-react/dist/es/views/Item/ItemGroup.js","./views/Item/ItemHeader":"node_modules/semantic-ui-react/dist/es/views/Item/ItemHeader.js","./views/Item/ItemImage":"node_modules/semantic-ui-react/dist/es/views/Item/ItemImage.js","./views/Item/ItemMeta":"node_modules/semantic-ui-react/dist/es/views/Item/ItemMeta.js","./views/Statistic":"node_modules/semantic-ui-react/dist/es/views/Statistic/index.js","./views/Statistic/StatisticGroup":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticGroup.js","./views/Statistic/StatisticLabel":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticLabel.js","./views/Statistic/StatisticValue":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticValue.js"}],"src/components/eptProperties/eptProperties.tsx":[function(require,module,exports) {
+},{"@fluentui/react-component-ref":"node_modules/@fluentui/react-component-ref/dist/es/index.js","./addons/Confirm":"node_modules/semantic-ui-react/dist/es/addons/Confirm/index.js","./addons/MountNode":"node_modules/semantic-ui-react/dist/es/addons/MountNode/index.js","./addons/Pagination":"node_modules/semantic-ui-react/dist/es/addons/Pagination/index.js","./addons/Pagination/PaginationItem":"node_modules/semantic-ui-react/dist/es/addons/Pagination/PaginationItem.js","./addons/Portal":"node_modules/semantic-ui-react/dist/es/addons/Portal/index.js","./addons/Portal/PortalInner":"node_modules/semantic-ui-react/dist/es/addons/Portal/PortalInner.js","./addons/Radio":"node_modules/semantic-ui-react/dist/es/addons/Radio/index.js","./addons/Responsive":"node_modules/semantic-ui-react/dist/es/addons/Responsive/index.js","./addons/Select":"node_modules/semantic-ui-react/dist/es/addons/Select/index.js","./addons/TextArea":"node_modules/semantic-ui-react/dist/es/addons/TextArea/index.js","./addons/TransitionablePortal":"node_modules/semantic-ui-react/dist/es/addons/TransitionablePortal/index.js","./behaviors/Visibility":"node_modules/semantic-ui-react/dist/es/behaviors/Visibility/index.js","./collections/Breadcrumb":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/index.js","./collections/Breadcrumb/BreadcrumbDivider":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/BreadcrumbDivider.js","./collections/Breadcrumb/BreadcrumbSection":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/BreadcrumbSection.js","./collections/Form":"node_modules/semantic-ui-react/dist/es/collections/Form/index.js","./collections/Form/FormButton":"node_modules/semantic-ui-react/dist/es/collections/Form/FormButton.js","./collections/Form/FormCheckbox":"node_modules/semantic-ui-react/dist/es/collections/Form/FormCheckbox.js","./collections/Form/FormDropdown":"node_modules/semantic-ui-react/dist/es/collections/Form/FormDropdown.js","./collections/Form/FormField":"node_modules/semantic-ui-react/dist/es/collections/Form/FormField.js","./collections/Form/FormGroup":"node_modules/semantic-ui-react/dist/es/collections/Form/FormGroup.js","./collections/Form/FormInput":"node_modules/semantic-ui-react/dist/es/collections/Form/FormInput.js","./collections/Form/FormRadio":"node_modules/semantic-ui-react/dist/es/collections/Form/FormRadio.js","./collections/Form/FormSelect":"node_modules/semantic-ui-react/dist/es/collections/Form/FormSelect.js","./collections/Form/FormTextArea":"node_modules/semantic-ui-react/dist/es/collections/Form/FormTextArea.js","./collections/Grid":"node_modules/semantic-ui-react/dist/es/collections/Grid/index.js","./collections/Grid/GridColumn":"node_modules/semantic-ui-react/dist/es/collections/Grid/GridColumn.js","./collections/Grid/GridRow":"node_modules/semantic-ui-react/dist/es/collections/Grid/GridRow.js","./collections/Menu":"node_modules/semantic-ui-react/dist/es/collections/Menu/index.js","./collections/Menu/MenuHeader":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuHeader.js","./collections/Menu/MenuItem":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuItem.js","./collections/Menu/MenuMenu":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuMenu.js","./collections/Message":"node_modules/semantic-ui-react/dist/es/collections/Message/index.js","./collections/Message/MessageContent":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageContent.js","./collections/Message/MessageHeader":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageHeader.js","./collections/Message/MessageItem":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageItem.js","./collections/Message/MessageList":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageList.js","./collections/Table":"node_modules/semantic-ui-react/dist/es/collections/Table/index.js","./collections/Table/TableBody":"node_modules/semantic-ui-react/dist/es/collections/Table/TableBody.js","./collections/Table/TableCell":"node_modules/semantic-ui-react/dist/es/collections/Table/TableCell.js","./collections/Table/TableFooter":"node_modules/semantic-ui-react/dist/es/collections/Table/TableFooter.js","./collections/Table/TableHeader":"node_modules/semantic-ui-react/dist/es/collections/Table/TableHeader.js","./collections/Table/TableHeaderCell":"node_modules/semantic-ui-react/dist/es/collections/Table/TableHeaderCell.js","./collections/Table/TableRow":"node_modules/semantic-ui-react/dist/es/collections/Table/TableRow.js","./elements/Button/Button":"node_modules/semantic-ui-react/dist/es/elements/Button/Button.js","./elements/Button/ButtonContent":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonContent.js","./elements/Button/ButtonGroup":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonGroup.js","./elements/Button/ButtonOr":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonOr.js","./elements/Container":"node_modules/semantic-ui-react/dist/es/elements/Container/index.js","./elements/Divider":"node_modules/semantic-ui-react/dist/es/elements/Divider/index.js","./elements/Flag":"node_modules/semantic-ui-react/dist/es/elements/Flag/index.js","./elements/Header":"node_modules/semantic-ui-react/dist/es/elements/Header/index.js","./elements/Header/HeaderContent":"node_modules/semantic-ui-react/dist/es/elements/Header/HeaderContent.js","./elements/Header/HeaderSubheader":"node_modules/semantic-ui-react/dist/es/elements/Header/HeaderSubheader.js","./elements/Icon":"node_modules/semantic-ui-react/dist/es/elements/Icon/index.js","./elements/Icon/IconGroup":"node_modules/semantic-ui-react/dist/es/elements/Icon/IconGroup.js","./elements/Image":"node_modules/semantic-ui-react/dist/es/elements/Image/index.js","./elements/Image/ImageGroup":"node_modules/semantic-ui-react/dist/es/elements/Image/ImageGroup.js","./elements/Input":"node_modules/semantic-ui-react/dist/es/elements/Input/index.js","./elements/Label":"node_modules/semantic-ui-react/dist/es/elements/Label/index.js","./elements/Label/LabelDetail":"node_modules/semantic-ui-react/dist/es/elements/Label/LabelDetail.js","./elements/Label/LabelGroup":"node_modules/semantic-ui-react/dist/es/elements/Label/LabelGroup.js","./elements/List":"node_modules/semantic-ui-react/dist/es/elements/List/index.js","./elements/List/ListContent":"node_modules/semantic-ui-react/dist/es/elements/List/ListContent.js","./elements/List/ListDescription":"node_modules/semantic-ui-react/dist/es/elements/List/ListDescription.js","./elements/List/ListHeader":"node_modules/semantic-ui-react/dist/es/elements/List/ListHeader.js","./elements/List/ListIcon":"node_modules/semantic-ui-react/dist/es/elements/List/ListIcon.js","./elements/List/ListItem":"node_modules/semantic-ui-react/dist/es/elements/List/ListItem.js","./elements/List/ListList":"node_modules/semantic-ui-react/dist/es/elements/List/ListList.js","./elements/Loader":"node_modules/semantic-ui-react/dist/es/elements/Loader/index.js","./elements/Placeholder":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/index.js","./elements/Placeholder/PlaceholderHeader":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderHeader.js","./elements/Placeholder/PlaceholderImage":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderImage.js","./elements/Placeholder/PlaceholderLine":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderLine.js","./elements/Placeholder/PlaceholderParagraph":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderParagraph.js","./elements/Rail":"node_modules/semantic-ui-react/dist/es/elements/Rail/index.js","./elements/Reveal":"node_modules/semantic-ui-react/dist/es/elements/Reveal/index.js","./elements/Reveal/RevealContent":"node_modules/semantic-ui-react/dist/es/elements/Reveal/RevealContent.js","./elements/Segment":"node_modules/semantic-ui-react/dist/es/elements/Segment/index.js","./elements/Segment/SegmentGroup":"node_modules/semantic-ui-react/dist/es/elements/Segment/SegmentGroup.js","./elements/Segment/SegmentInline":"node_modules/semantic-ui-react/dist/es/elements/Segment/SegmentInline.js","./elements/Step":"node_modules/semantic-ui-react/dist/es/elements/Step/index.js","./elements/Step/StepContent":"node_modules/semantic-ui-react/dist/es/elements/Step/StepContent.js","./elements/Step/StepDescription":"node_modules/semantic-ui-react/dist/es/elements/Step/StepDescription.js","./elements/Step/StepGroup":"node_modules/semantic-ui-react/dist/es/elements/Step/StepGroup.js","./elements/Step/StepTitle":"node_modules/semantic-ui-react/dist/es/elements/Step/StepTitle.js","./modules/Accordion/Accordion":"node_modules/semantic-ui-react/dist/es/modules/Accordion/Accordion.js","./modules/Accordion/AccordionAccordion":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionAccordion.js","./modules/Accordion/AccordionContent":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionContent.js","./modules/Accordion/AccordionPanel":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionPanel.js","./modules/Accordion/AccordionTitle":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionTitle.js","./modules/Checkbox":"node_modules/semantic-ui-react/dist/es/modules/Checkbox/index.js","./modules/Dimmer":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/index.js","./modules/Dimmer/DimmerDimmable":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/DimmerDimmable.js","./modules/Dimmer/DimmerInner":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/DimmerInner.js","./modules/Dropdown":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/index.js","./modules/Dropdown/DropdownDivider":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownDivider.js","./modules/Dropdown/DropdownHeader":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownHeader.js","./modules/Dropdown/DropdownItem":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownItem.js","./modules/Dropdown/DropdownMenu":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownMenu.js","./modules/Dropdown/DropdownSearchInput":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownSearchInput.js","./modules/Dropdown/DropdownText":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownText.js","./modules/Embed":"node_modules/semantic-ui-react/dist/es/modules/Embed/index.js","./modules/Modal":"node_modules/semantic-ui-react/dist/es/modules/Modal/index.js","./modules/Modal/ModalActions":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalActions.js","./modules/Modal/ModalContent":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalContent.js","./modules/Modal/ModalDescription":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalDescription.js","./modules/Modal/ModalDimmer":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalDimmer.js","./modules/Modal/ModalHeader":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalHeader.js","./modules/Popup":"node_modules/semantic-ui-react/dist/es/modules/Popup/index.js","./modules/Popup/PopupContent":"node_modules/semantic-ui-react/dist/es/modules/Popup/PopupContent.js","./modules/Popup/PopupHeader":"node_modules/semantic-ui-react/dist/es/modules/Popup/PopupHeader.js","./modules/Progress":"node_modules/semantic-ui-react/dist/es/modules/Progress/index.js","./modules/Rating":"node_modules/semantic-ui-react/dist/es/modules/Rating/index.js","./modules/Rating/RatingIcon":"node_modules/semantic-ui-react/dist/es/modules/Rating/RatingIcon.js","./modules/Search":"node_modules/semantic-ui-react/dist/es/modules/Search/index.js","./modules/Search/SearchCategory":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchCategory.js","./modules/Search/SearchResult":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchResult.js","./modules/Search/SearchResults":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchResults.js","./modules/Sidebar":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/index.js","./modules/Sidebar/SidebarPushable":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/SidebarPushable.js","./modules/Sidebar/SidebarPusher":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/SidebarPusher.js","./modules/Sticky":"node_modules/semantic-ui-react/dist/es/modules/Sticky/index.js","./modules/Tab":"node_modules/semantic-ui-react/dist/es/modules/Tab/index.js","./modules/Tab/TabPane":"node_modules/semantic-ui-react/dist/es/modules/Tab/TabPane.js","./modules/Transition":"node_modules/semantic-ui-react/dist/es/modules/Transition/index.js","./modules/Transition/TransitionGroup":"node_modules/semantic-ui-react/dist/es/modules/Transition/TransitionGroup.js","./views/Advertisement":"node_modules/semantic-ui-react/dist/es/views/Advertisement/index.js","./views/Card/Card":"node_modules/semantic-ui-react/dist/es/views/Card/Card.js","./views/Card/CardContent":"node_modules/semantic-ui-react/dist/es/views/Card/CardContent.js","./views/Card/CardDescription":"node_modules/semantic-ui-react/dist/es/views/Card/CardDescription.js","./views/Card/CardGroup":"node_modules/semantic-ui-react/dist/es/views/Card/CardGroup.js","./views/Card/CardHeader":"node_modules/semantic-ui-react/dist/es/views/Card/CardHeader.js","./views/Card/CardMeta":"node_modules/semantic-ui-react/dist/es/views/Card/CardMeta.js","./views/Comment":"node_modules/semantic-ui-react/dist/es/views/Comment/index.js","./views/Comment/CommentAction":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAction.js","./views/Comment/CommentActions":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentActions.js","./views/Comment/CommentAuthor":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAuthor.js","./views/Comment/CommentAvatar":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAvatar.js","./views/Comment/CommentContent":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentContent.js","./views/Comment/CommentGroup":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentGroup.js","./views/Comment/CommentMetadata":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentMetadata.js","./views/Comment/CommentText":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentText.js","./views/Feed":"node_modules/semantic-ui-react/dist/es/views/Feed/index.js","./views/Feed/FeedContent":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedContent.js","./views/Feed/FeedDate":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedDate.js","./views/Feed/FeedEvent":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedEvent.js","./views/Feed/FeedExtra":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedExtra.js","./views/Feed/FeedLabel":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedLabel.js","./views/Feed/FeedLike":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedLike.js","./views/Feed/FeedMeta":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedMeta.js","./views/Feed/FeedSummary":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedSummary.js","./views/Feed/FeedUser":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedUser.js","./views/Item":"node_modules/semantic-ui-react/dist/es/views/Item/index.js","./views/Item/ItemContent":"node_modules/semantic-ui-react/dist/es/views/Item/ItemContent.js","./views/Item/ItemDescription":"node_modules/semantic-ui-react/dist/es/views/Item/ItemDescription.js","./views/Item/ItemExtra":"node_modules/semantic-ui-react/dist/es/views/Item/ItemExtra.js","./views/Item/ItemGroup":"node_modules/semantic-ui-react/dist/es/views/Item/ItemGroup.js","./views/Item/ItemHeader":"node_modules/semantic-ui-react/dist/es/views/Item/ItemHeader.js","./views/Item/ItemImage":"node_modules/semantic-ui-react/dist/es/views/Item/ItemImage.js","./views/Item/ItemMeta":"node_modules/semantic-ui-react/dist/es/views/Item/ItemMeta.js","./views/Statistic":"node_modules/semantic-ui-react/dist/es/views/Statistic/index.js","./views/Statistic/StatisticGroup":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticGroup.js","./views/Statistic/StatisticLabel":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticLabel.js","./views/Statistic/StatisticValue":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticValue.js"}],"src/components/eptProperties/eptProperties.jsx":[function(require,module,exports) {
 "use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = void 0;
 
-var react_1 = __importDefault(require("react"));
+var _react = _interopRequireDefault(require("react"));
 
-var semantic_ui_react_1 = require("semantic-ui-react");
+var _semanticUiReact = require("semantic-ui-react");
 
-var EptProperties = function EptProperties(_a) {
-  var ept = _a.ept;
-  return react_1.default.createElement("div", {
-    className: 'properties'
-  }, react_1.default.createElement("h1", null, "Endpoint Template"), react_1.default.createElement(semantic_ui_react_1.Form, null, react_1.default.createElement("section", null, react_1.default.createElement(semantic_ui_react_1.Form.Input, {
-    label: 'Title'
-  })), react_1.default.createElement("section", null, react_1.default.createElement(semantic_ui_react_1.Form.TextArea, {
-    label: 'Description'
-  })), react_1.default.createElement("section", null, react_1.default.createElement(semantic_ui_react_1.Button, null, react_1.default.createElement(semantic_ui_react_1.Icon, {
-    name: "check"
-  }), " Save"), react_1.default.createElement(semantic_ui_react_1.Button, null, react_1.default.createElement(semantic_ui_react_1.Icon, {
-    name: "plus"
-  }), " New EPT"))));
+var _reactRedux = require("react-redux");
+
+var _actions = require("../../store/actions");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+var EptProperties = /*#__PURE__*/function (_React$Component) {
+  _inherits(EptProperties, _React$Component);
+
+  var _super = _createSuper(EptProperties);
+
+  function EptProperties() {
+    _classCallCheck(this, EptProperties);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(EptProperties, [{
+    key: "updateProperties",
+    value: function updateProperties(title, description) {
+      this.props.setEptProperties(title, description);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this = this;
+
+      var _this$props$activeEpt = this.props.activeEpt,
+          title = _this$props$activeEpt.title,
+          description = _this$props$activeEpt.description;
+      return /*#__PURE__*/_react.default.createElement("div", {
+        className: "properties"
+      }, /*#__PURE__*/_react.default.createElement("h1", null, "Endpoint Template"), /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form, null, /*#__PURE__*/_react.default.createElement("section", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Input, {
+        label: "Title",
+        value: title,
+        onChange: function onChange(event) {
+          return _this.updateProperties(event.target.value, description);
+        }
+      })), /*#__PURE__*/_react.default.createElement("section", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.TextArea, {
+        label: "Description",
+        value: description,
+        onChange: function onChange(event) {
+          return _this.updateProperties(title, event.target.value);
+        }
+      })), /*#__PURE__*/_react.default.createElement("section", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Button, {
+        onClick: function onClick() {
+          return _this.props.saveEpt(_this.props.activeEpt);
+        }
+      }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Icon, {
+        name: "check"
+      }), " Save"), /*#__PURE__*/_react.default.createElement(_semanticUiReact.Button, {
+        onClick: function onClick() {
+          return _this.props.resetActiveEpt();
+        }
+      }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Icon, {
+        name: "plus"
+      }), " New EPT"))));
+    }
+  }]);
+
+  return EptProperties;
+}(_react.default.Component);
+
+var mapStateToProps = function mapStateToProps(state) {
+  return {
+    activeEpt: state.activeEpt
+  };
 };
 
-exports.default = EptProperties;
-},{"react":"node_modules/react/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js"}],"src/components/canvas/canvas.tsx":[function(require,module,exports) {
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    setEptProperties: function setEptProperties(title, description) {
+      return dispatch((0, _actions.eptSetProperties)(title, description));
+    },
+    saveEpt: function saveEpt(ept) {
+      return dispatch((0, _actions.catalogueEptSave)(ept));
+    },
+    resetActiveEpt: function resetActiveEpt() {
+      return dispatch((0, _actions.activeEptReset)());
+    }
+  };
+};
+
+var EptPropertiesConnected = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(EptProperties);
+var _default = EptPropertiesConnected;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts"}],"src/components/canvas/canvas.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -75588,7 +75847,10 @@ var emptyEpt = {
   inputTypes: null,
   outputTypes: null,
   inputIsFlexible: true,
-  outputIsFlexible: true
+  outputIsFlexible: true,
+  epts: {},
+  links: {},
+  parameters: {}
 };
 
 var Ept = function Ept(_a) {
@@ -75927,167 +76189,137 @@ function () {
 }();
 
 exports.Positioner = Positioner;
-},{"./settings":"src/settings.js","./utils":"src/utils.ts"}],"data/test.js":[function(require,module,exports) {
+},{"./settings":"src/settings.js","./utils":"src/utils.ts"}],"src/components/catalogue/catalogue.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.primitives = void 0;
-var primitives = [{
-  'title': 'Subinterface',
-  'tags': [],
-  'type': 'primitive',
-  'parameters': {
-    'security_zone': {
-      'values': ['default', 'system'],
-      'value': 'system'
-    },
-    'vlan_id': {
-      'type': 'number',
-      'value': 100
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _reactRedux = require("react-redux");
+
+var _actions = require("../../store/actions");
+
+var _positioner = require("../../positioner");
+
+var _utils = require("../../utils");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+var Catalogue = /*#__PURE__*/function (_React$Component) {
+  _inherits(Catalogue, _React$Component);
+
+  var _super = _createSuper(Catalogue);
+
+  function Catalogue() {
+    _classCallCheck(this, Catalogue);
+
+    return _super.apply(this, arguments);
+  }
+
+  _createClass(Catalogue, [{
+    key: "render",
+    value: function render() {
+      var _this = this;
+
+      var _this$props$activeEpt = this.props.activeEpt,
+          epts = _this$props$activeEpt.epts,
+          links = _this$props$activeEpt.links,
+          id = _this$props$activeEpt.id;
+      return /*#__PURE__*/_react.default.createElement("div", {
+        className: "catalogue"
+      }, /*#__PURE__*/_react.default.createElement("h1", null, "Catalogue"), /*#__PURE__*/_react.default.createElement("ul", null, this.props.catalogue.map(function (ept, index) {
+        var isActive = ept.id === id;
+        var isPrimitive = ept.type === 'primitive';
+        return /*#__PURE__*/_react.default.createElement("li", {
+          key: index
+        }, /*#__PURE__*/_react.default.createElement("h5", null, ept.title), !isActive && /*#__PURE__*/_react.default.createElement("button", {
+          className: "link",
+          onClick: function onClick() {
+            return _this.injectEpt(ept);
+          }
+        }, "Use"), !isPrimitive && /*#__PURE__*/_react.default.createElement("button", {
+          className: "link",
+          onClick: function onClick() {
+            return _this.props.viewEpt(ept);
+          }
+        }, "View"));
+      })));
     }
-  },
-  'inputTypes': ['interface'],
-  'outputTypes': ['subinterface']
-}, {
-  'title': 'Attach VLAN',
-  'tags': [],
-  'type': 'primitive',
-  'parameters': {
-    'vlan_id': {
-      'type': 'number'
-    },
-    'tagged/untagged': {
-      'values': ['tagged', 'untagged']
-    }
-  },
-  'inputTypes': ['interface'],
-  'outputTypes': null
-}, {
-  'title': 'Address type',
-  'tags': [],
-  'type': 'primitive',
-  'parameters': {
-    'IPv4': {
-      'values': ['none', 'unnumbered']
-    },
-    'IPv6': {
-      'values': ['default']
-    }
-  },
-  'inputTypes': ['interface', 'subinterface'],
-  'outputTypes': ['routable interface']
-}, {
-  'title': 'BGP unnumbered',
-  'tags': [],
-  'type': 'primitive',
-  'parameters': {
-    'timeout': {
-      'type': 'number'
-    }
-  },
-  'inputTypes': ['routable interface'],
-  'outputTypes': ['routing session']
-}, {
-  'title': 'Routing policy',
-  'tags': [],
-  'type': 'primitive',
-  'parameters': {
-    'import/export': {
-      'type': 'number'
-    }
-  },
-  'inputTypes': ['routing session'],
-  'outputTypes': ['routing policy']
-} // {
-// 	'title': 'Freetype',
-// 	'tags': [],
-// 	'type': 'primitive',
-// 	'parameters': {
-// 		'import/export': ''
-// 	},
-// 	'inputTypes': null,
-// 	'inputIsFlexible': true,
-// 	'outputTypes': null,
-// 	'outputIsFlexible': true,
-// },
-];
-exports.primitives = primitives;
-},{}],"src/components/catalogue/catalogue.tsx":[function(require,module,exports) {
-"use strict";
+  }, {
+    key: "injectEpt",
+    value: function injectEpt(ept) {
+      var _this$props$activeEpt2 = this.props.activeEpt,
+          epts = _this$props$activeEpt2.epts,
+          links = _this$props$activeEpt2.links,
+          id = _this$props$activeEpt2.id;
+      var newEpt = Object.assign({}, ept, {
+        id: (0, _utils.generateId)()
+      });
+      var connectionEpt = new _positioner.Positioner(epts, links, newEpt).position();
+      this.props.onAddClick(newEpt);
 
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var react_1 = __importDefault(require("react"));
-
-var react_redux_1 = require("react-redux");
-
-var actions_1 = require("../../store/actions");
-
-var positioner_1 = require("../../positioner");
-
-var utils_1 = require("../../utils");
-
-var test_1 = require("../../../data/test");
-
-var Catalogue = function Catalogue(_a) {
-  var activeEpt = _a.activeEpt,
-      onAddClick = _a.onAddClick,
-      addLink = _a.addLink,
-      applicationPointPosition = _a.applicationPointPosition;
-  var epts = activeEpt.epts,
-      links = activeEpt.links;
-  return react_1.default.createElement("div", {
-    className: "catalogue"
-  }, react_1.default.createElement("h1", null, "Catalogue"), react_1.default.createElement("ul", null, test_1.primitives.map(function (ept, index) {
-    return react_1.default.createElement("li", {
-      key: index
-    }, react_1.default.createElement("h5", null, ept.title), react_1.default.createElement("button", {
-      className: "link",
-      onClick: function onClick() {
-        var newEpt = Object.assign({}, ept, {
-          id: utils_1.generateId()
-        });
-        var connectionEpt = new positioner_1.Positioner(epts, links, newEpt, applicationPointPosition).position();
-        onAddClick(newEpt);
-
-        if (connectionEpt) {
-          addLink(connectionEpt.id, newEpt.id);
-        }
+      if (connectionEpt) {
+        this.props.addLink(connectionEpt.id, newEpt.id);
       }
-    }, "Use"));
-  })));
-};
+    }
+  }]);
+
+  return Catalogue;
+}(_react.default.Component);
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    activeEpt: state.activeEpt
+    activeEpt: state.activeEpt,
+    catalogue: state.catalogue
   };
 };
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     onAddClick: function onAddClick(ept) {
-      dispatch(actions_1.eptAdd(ept));
+      dispatch((0, _actions.eptAdd)(ept));
     },
     addLink: function addLink(from, to) {
-      dispatch(actions_1.linkAdd(from, to));
+      dispatch((0, _actions.linkAdd)(from, to));
+    },
+    viewEpt: function viewEpt(ept) {
+      dispatch((0, _actions.activeEptSet)(ept));
     }
   };
 };
 
-var CatalogueConnected = react_redux_1.connect(mapStateToProps, mapDispatchToProps)(Catalogue);
-exports.default = CatalogueConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../positioner":"src/positioner.ts","../../utils":"src/utils.ts","../../../data/test":"data/test.js"}],"src/components/parameters/parameter.jsx":[function(require,module,exports) {
+var CatalogueConnected = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Catalogue);
+var _default = CatalogueConnected;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../positioner":"src/positioner.ts","../../utils":"src/utils.ts"}],"src/components/parameters/parameter.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76309,6 +76541,13 @@ var EptParameters = /*#__PURE__*/function (_React$Component) {
       });
     }
   }, {
+    key: "toggleCollapsed",
+    value: function toggleCollapsed() {
+      this.setState({
+        isCollapsed: !this.state.isCollapsed
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this2 = this;
@@ -76317,9 +76556,7 @@ var EptParameters = /*#__PURE__*/function (_React$Component) {
       var id = ept.id;
       return /*#__PURE__*/_react.default.createElement("ul", null, /*#__PURE__*/_react.default.createElement("h5", {
         onClick: function onClick() {
-          return _this2.setState({
-            isCollapsed: !_this2.state.isCollapsed
-          });
+          return _this2.toggleCollapsed();
         }
       }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Icon, {
         name: 'triangle ' + (this.state.isCollapsed ? 'right' : 'down')
@@ -76553,7 +76790,7 @@ react_dom_1.default.render(react_1.default.createElement(react_redux_1.Provider,
   width: settings_1.canvasWidth,
   height: settings_1.canvasHeight
 }, react_1.default.createElement(visualizer_1.default, null)))), document.getElementById('content'));
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/settings":"src/settings.js","./src/components/eptProperties/eptProperties":"src/components/eptProperties/eptProperties.tsx","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.tsx","./src/components/parameters/parameters":"src/components/parameters/parameters.jsx","semantic-ui-css/semantic.min.css":"node_modules/semantic-ui-css/semantic.min.css","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","redux":"node_modules/redux/es/redux.js","react-redux":"node_modules/react-redux/es/index.js","./src/store/reducers":"src/store/reducers.ts","./src/settings":"src/settings.js","./src/components/eptProperties/eptProperties":"src/components/eptProperties/eptProperties.jsx","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.jsx","./src/components/parameters/parameters":"src/components/parameters/parameters.jsx","semantic-ui-css/semantic.min.css":"node_modules/semantic-ui-css/semantic.min.css","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -76581,7 +76818,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61432" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58202" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

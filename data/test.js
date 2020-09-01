@@ -1,5 +1,6 @@
 export const primitives = [
 	{
+		'id': 'ID0000001',
 		'title': 'Subinterface',
 		'tags': [],
 		'type': 'primitive',
@@ -17,6 +18,7 @@ export const primitives = [
 		'outputTypes': ['subinterface'],
 	},
 	{
+		'id': 'ID0000002',
 		'title': 'Attach VLAN',
 		'tags': [],
 		'type': 'primitive',
@@ -32,6 +34,7 @@ export const primitives = [
 		'outputTypes': null,
 	},
 	{
+		'id': 'ID0000003',
 		'title': 'Address type',
 		'tags': [],
 		'type': 'primitive',
@@ -47,6 +50,7 @@ export const primitives = [
 		'outputTypes': ['routable interface'],
 	},
 	{
+		'id': 'ID0000004',
 		'title': 'BGP unnumbered',
 		'tags': [],
 		'type': 'primitive',
@@ -59,6 +63,7 @@ export const primitives = [
 		'outputTypes': ['routing session'],
 	},
 	{
+		'id': 'ID0000005',
 		'title': 'Routing policy',
 		'tags': [],
 		'type': 'primitive',
@@ -70,16 +75,4 @@ export const primitives = [
 		'inputTypes': ['routing session'],
 		'outputTypes': ['routing policy'],
 	},
-	// {
-	// 	'title': 'Freetype',
-	// 	'tags': [],
-	// 	'type': 'primitive',
-	// 	'parameters': {
-	// 		'import/export': ''
-	// 	},
-	// 	'inputTypes': null,
-	// 	'inputIsFlexible': true,
-	// 	'outputTypes': null,
-	// 	'outputIsFlexible': true,
-	// },
 ]

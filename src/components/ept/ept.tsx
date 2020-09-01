@@ -10,12 +10,12 @@ import { eptWidth, eptHeight, canvasWidth, canvasHeight } from '../../settings'
 import ConnectionPoint from '../connectionPoint/connectionPoint'
 
 export interface IEptProps {
-	data: IEpt,
-	id: string,
-	onMove: Function,
-	bringOnTop: Function,
+	data: IEpt;
+	id: string;
+	onMove: Function;
+	bringOnTop: Function;
 	deleteEpt: Function,
-	deleteEptLinks: Function,
+	deleteEptLinks: Function;
 };
 
 const emptyEpt = {
@@ -26,6 +26,9 @@ const emptyEpt = {
 	outputTypes: null,
 	inputIsFlexible: true,
 	outputIsFlexible: true,
+	epts: {},
+	links: {},
+	parameters: {}
 };
 
 const Ept = ({id, data=emptyEpt, onMove=()=>{}, bringOnTop, deleteEpt, deleteEptLinks}: IEptProps) => {
