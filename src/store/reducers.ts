@@ -78,6 +78,10 @@ const makeEmptyEpt = () => {
 	}
 };
 
+function checkIfComplete(parameters: any): boolean {
+	return !Object.values(parameters).some((parameter: any) => parameter.isMandatory && !parameter.value);
+}
+
 function activeEptReducer(state=makeEmptyEpt() as any, action) {
 	switch (action.type) {
 		case ACTIVE_EPT_SET:
@@ -138,6 +142,7 @@ function activeEptReducer(state=makeEmptyEpt() as any, action) {
 				if (parameter) {
 					parameter = Object.assign({}, parameter, {value: action.value});
 					ept2.parameters = Object.assign({}, ept2.parameters, {[action.name]: parameter});
+					ept2.isComplete = checkIfComplete(ept2.parameters);
 					state.epts = Object.assign({}, state.epts, {[action.id]: ept2})
 					return Object.assign({}, state);
 				}
@@ -180,7 +185,7 @@ function activeEptReducer(state=makeEmptyEpt() as any, action) {
 			return state;
 
 		case EPT_SET_PROPERTIES:
-			return Object.assign({}, state, {title: action.title, description: action.description});
+			return Object.assign({}, state, {id: action.id, title: action.title, description: action.description});
 
 		default:
 			return state;
@@ -201,12 +206,15 @@ const catalogueReducer = (state=primitives, action) => {
 	switch (action.type) {
 		case CATALOGUE_EPT_SAVE:
 			let ept = modifyEpt(action.ept);
-			if (ept.id) {
-				return state.map(e => e.id === ept.id ? ept : e);
-			} else {
-				ept.id = generateId();
-				return [...state, ept];
-			}
+			let found = false;
+			let result = state.map(e => {
+				if (e.id === ept.id) {
+					found = true;
+					return ept;
+				}
+				return e;
+			});
+			return found ? result : [...state, ept];
 
 		default:
 			return state;

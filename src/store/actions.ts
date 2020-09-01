@@ -50,10 +50,10 @@ export function eptSetParameter(id: string, name: string, value: any) {
 }
 
 export const EPT_SET_PROPERTIES = 'EPT_SET_PROPERTIES';
-export function eptSetProperties(title: string, description: any) {
+export function eptSetProperties(id: string, title: string, description: any) {
 	return {
 		type: EPT_SET_PROPERTIES,
-		title, description
+		id, title, description
 	};
 }
 

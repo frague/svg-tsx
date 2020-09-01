@@ -26,12 +26,13 @@ export interface IEpt {
 	type: string;
 	inputTypes: string[];
 	outputTypes?: string[];
-	epts: any,
-	links: any,
-	parameters: any,
+	epts: any;
+	links: any;
+	parameters: any;
+	isComplete: boolean;
 
 	position?: IPosition;
-	id?: string	;
+	id?: string;
 	order?: number;
 
 	inputIsFlexible: boolean;	// Obsolete

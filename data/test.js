@@ -7,13 +7,16 @@ export const primitives = [
 		'parameters': {
 			'security_zone': {
 				'values': ['default', 'system'],
-				'value': 'system'
+				'value': 'system',
+				'isMandatory': true,
 			},
 			'vlan_id': {
 				'type': 'number',
-				'value': 100
+				'value': 100,
+				'isMandatory': true,
 			}
 		},
+		'isComplete': true,
 		'inputTypes': ['interface'],
 		'outputTypes': ['subinterface'],
 	},
@@ -24,12 +27,15 @@ export const primitives = [
 		'type': 'primitive',
 		'parameters': {
 			'vlan_id': {
-				'type': 'number'
+				'type': 'number',
+				'isMandatory': true,
 			},
 			'tagged/untagged': {
-				'values': ['tagged', 'untagged']
+				'values': ['tagged', 'untagged'],
+				'isMandatory': true,
 			}
 		},
+		'isComplete': false,
 		'inputTypes': ['interface'],
 		'outputTypes': null,
 	},
@@ -40,12 +46,15 @@ export const primitives = [
 		'type': 'primitive',
 		'parameters': {
 			'IPv4': {
-				'values': ['none', 'unnumbered']
+				'values': ['none', 'unnumbered'],
+				'isMandatory': true,
 			},
 			'IPv6': {
-				'values': ['default']
+				'values': ['default'],
+				'isMandatory': true,
 			}
 		},
+		'isComplete': false,
 		'inputTypes': ['interface', 'subinterface'],
 		'outputTypes': ['routable interface'],
 	},
@@ -56,9 +65,11 @@ export const primitives = [
 		'type': 'primitive',
 		'parameters': {
 			'timeout': {
-				'type': 'number'
+				'type': 'number',
+				'isMandatory': true,
 			}
 		},
+		'isComplete': false,
 		'inputTypes': ['routable interface'],
 		'outputTypes': ['routing session'],
 	},
@@ -69,9 +80,11 @@ export const primitives = [
 		'type': 'primitive',
 		'parameters': {
 			'import/export': {
-				'type': 'number'
+				'type': 'number',
+				'isMandatory': true,
 			}
 		},
+		'isComplete': false,
 		'inputTypes': ['routing session'],
 		'outputTypes': ['routing policy'],
 	},

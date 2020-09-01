@@ -7,15 +7,10 @@ class EptParameters extends React.Component {
 		super(props);
 		
 		this.state = {
-			isCollapsed: !this.hasUnsetParameters()
+			isCollapsed: props.ept.isComplete
 		};
 	}
 	
-	hasUnsetParameters() {
-		return Object.values(this.props.ept.parameters || {})
-			.some(parameter => !parameter.value);
-	}
-
 	toggleCollapsed() {
 		this.setState({isCollapsed: !this.state.isCollapsed})
 	}

@@ -31736,9 +31736,10 @@ function eptSetParameter(id, name, value) {
 exports.eptSetParameter = eptSetParameter;
 exports.EPT_SET_PROPERTIES = 'EPT_SET_PROPERTIES';
 
-function eptSetProperties(title, description) {
+function eptSetProperties(id, title, description) {
   return {
     type: exports.EPT_SET_PROPERTIES,
+    id: id,
     title: title,
     description: description
   };
@@ -31932,13 +31933,16 @@ var primitives = [{
   'parameters': {
     'security_zone': {
       'values': ['default', 'system'],
-      'value': 'system'
+      'value': 'system',
+      'isMandatory': true
     },
     'vlan_id': {
       'type': 'number',
-      'value': 100
+      'value': 100,
+      'isMandatory': true
     }
   },
+  'isComplete': true,
   'inputTypes': ['interface'],
   'outputTypes': ['subinterface']
 }, {
@@ -31948,12 +31952,15 @@ var primitives = [{
   'type': 'primitive',
   'parameters': {
     'vlan_id': {
-      'type': 'number'
+      'type': 'number',
+      'isMandatory': true
     },
     'tagged/untagged': {
-      'values': ['tagged', 'untagged']
+      'values': ['tagged', 'untagged'],
+      'isMandatory': true
     }
   },
+  'isComplete': false,
   'inputTypes': ['interface'],
   'outputTypes': null
 }, {
@@ -31963,12 +31970,15 @@ var primitives = [{
   'type': 'primitive',
   'parameters': {
     'IPv4': {
-      'values': ['none', 'unnumbered']
+      'values': ['none', 'unnumbered'],
+      'isMandatory': true
     },
     'IPv6': {
-      'values': ['default']
+      'values': ['default'],
+      'isMandatory': true
     }
   },
+  'isComplete': false,
   'inputTypes': ['interface', 'subinterface'],
   'outputTypes': ['routable interface']
 }, {
@@ -31978,9 +31988,11 @@ var primitives = [{
   'type': 'primitive',
   'parameters': {
     'timeout': {
-      'type': 'number'
+      'type': 'number',
+      'isMandatory': true
     }
   },
+  'isComplete': false,
   'inputTypes': ['routable interface'],
   'outputTypes': ['routing session']
 }, {
@@ -31990,9 +32002,11 @@ var primitives = [{
   'type': 'primitive',
   'parameters': {
     'import/export': {
-      'type': 'number'
+      'type': 'number',
+      'isMandatory': true
     }
   },
+  'isComplete': false,
   'inputTypes': ['routing session'],
   'outputTypes': ['routing policy']
 }];
@@ -32109,6 +32123,12 @@ var makeEmptyEpt = function makeEmptyEpt() {
   };
 };
 
+function checkIfComplete(parameters) {
+  return !Object.values(parameters).some(function (parameter) {
+    return parameter.isMandatory && !parameter.value;
+  });
+}
+
 function activeEptReducer(state, action) {
   var _a, _b, _c, _d, _e, _f;
 
@@ -32190,6 +32210,7 @@ function activeEptReducer(state, action) {
             value: action.value
           });
           ept2.parameters = Object.assign({}, ept2.parameters, (_d = {}, _d[action.name] = parameter, _d));
+          ept2.isComplete = checkIfComplete(ept2.parameters);
           state.epts = Object.assign({}, state.epts, (_e = {}, _e[action.id] = ept2, _e));
           return Object.assign({}, state);
         }
@@ -32239,6 +32260,7 @@ function activeEptReducer(state, action) {
 
     case actions_1.EPT_SET_PROPERTIES:
       return Object.assign({}, state, {
+        id: action.id,
         title: action.title,
         description: action.description
       });
@@ -32268,15 +32290,16 @@ var catalogueReducer = function catalogueReducer(state, action) {
   switch (action.type) {
     case actions_1.CATALOGUE_EPT_SAVE:
       var ept_1 = modifyEpt(action.ept);
+      var found_1 = false;
+      var result = state.map(function (e) {
+        if (e.id === ept_1.id) {
+          found_1 = true;
+          return ept_1;
+        }
 
-      if (ept_1.id) {
-        return state.map(function (e) {
-          return e.id === ept_1.id ? ept_1 : e;
-        });
-      } else {
-        ept_1.id = utils_1.generateId();
-        return __spreadArrays(state, [ept_1]);
-      }
+        return e;
+      });
+      return found_1 ? result : __spreadArrays(state, [ept_1]);
 
     default:
       return state;
@@ -75141,6 +75164,8 @@ var _reactRedux = require("react-redux");
 
 var _actions = require("../../store/actions");
 
+var _utils = require("../../utils");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -75178,34 +75203,51 @@ var EptProperties = /*#__PURE__*/function (_React$Component) {
 
   _createClass(EptProperties, [{
     key: "updateProperties",
-    value: function updateProperties(title, description) {
-      this.props.setEptProperties(title, description);
+    value: function updateProperties(id, title, description) {
+      this.props.setEptProperties(id, title, description);
+    }
+  }, {
+    key: "save",
+    value: function save() {
+      var eptCopy = Object.assign({}, this.props.activeEpt);
+
+      if (!this.props.activeEpt.id) {
+        var id = (0, _utils.generateId)();
+        var _this$props$activeEpt = this.props.activeEpt,
+            title = _this$props$activeEpt.title,
+            description = _this$props$activeEpt.description;
+        this.props.setEptProperties(id, title, description);
+        eptCopy.id = id;
+      }
+
+      this.props.saveEpt(eptCopy);
     }
   }, {
     key: "render",
     value: function render() {
       var _this = this;
 
-      var _this$props$activeEpt = this.props.activeEpt,
-          title = _this$props$activeEpt.title,
-          description = _this$props$activeEpt.description;
+      var _this$props$activeEpt2 = this.props.activeEpt,
+          id = _this$props$activeEpt2.id,
+          title = _this$props$activeEpt2.title,
+          description = _this$props$activeEpt2.description;
       return /*#__PURE__*/_react.default.createElement("div", {
         className: "properties"
       }, /*#__PURE__*/_react.default.createElement("h1", null, "Endpoint Template"), /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form, null, /*#__PURE__*/_react.default.createElement("section", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Input, {
         label: "Title",
         value: title,
         onChange: function onChange(event) {
-          return _this.updateProperties(event.target.value, description);
+          return _this.updateProperties(id, event.target.value, description);
         }
       })), /*#__PURE__*/_react.default.createElement("section", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.TextArea, {
         label: "Description",
         value: description,
         onChange: function onChange(event) {
-          return _this.updateProperties(title, event.target.value);
+          return _this.updateProperties(id, title, event.target.value);
         }
       })), /*#__PURE__*/_react.default.createElement("section", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Button, {
         onClick: function onClick() {
-          return _this.props.saveEpt(_this.props.activeEpt);
+          return _this.save();
         }
       }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Icon, {
         name: "check"
@@ -75230,8 +75272,8 @@ var mapStateToProps = function mapStateToProps(state) {
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
-    setEptProperties: function setEptProperties(title, description) {
-      return dispatch((0, _actions.eptSetProperties)(title, description));
+    setEptProperties: function setEptProperties(id, title, description) {
+      return dispatch((0, _actions.eptSetProperties)(id, title, description));
     },
     saveEpt: function saveEpt(ept) {
       return dispatch((0, _actions.catalogueEptSave)(ept));
@@ -75245,7 +75287,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 var EptPropertiesConnected = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(EptProperties);
 var _default = EptPropertiesConnected;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts"}],"src/components/canvas/canvas.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../../utils":"src/utils.ts"}],"src/components/canvas/canvas.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -75834,6 +75876,8 @@ var draggable_1 = __importDefault(require("../draggable/draggable"));
 
 var settings_1 = require("../../settings");
 
+var utils_1 = require("../../utils");
+
 var connectionPoint_1 = __importDefault(require("../connectionPoint/connectionPoint"));
 
 ;
@@ -75879,6 +75923,10 @@ var Ept = function Ept(_a) {
     x: position.x + settings_1.eptWidth / 2,
     y: position.y + settings_1.eptHeight
   };
+  var classes = {
+    ept: true,
+    incomplete: !data.isComplete
+  };
   return [!isStandalone && react_1.default.createElement(draggable_1.default, {
     key: 'ept',
     position: position,
@@ -75889,7 +75937,7 @@ var Ept = function Ept(_a) {
       return _onMove(id, newPosition);
     }
   }, react_1.default.createElement("g", {
-    className: "ept"
+    className: utils_1.className(classes)
   }, react_1.default.createElement("rect", {
     className: "container"
   }), react_1.default.createElement("text", {
@@ -75938,7 +75986,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var EptConnected = react_redux_1.connect(null, mapDispatchToProps)(Ept);
 exports.default = EptConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../draggable/draggable":"src/components/draggable/draggable.tsx","../../settings":"src/settings.js","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/applicationPoint/applicationPoint.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../store/actions":"src/store/actions.ts","../draggable/draggable":"src/components/draggable/draggable.tsx","../../settings":"src/settings.js","../../utils":"src/utils.ts","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/applicationPoint/applicationPoint.tsx":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -76259,7 +76307,10 @@ var Catalogue = /*#__PURE__*/function (_React$Component) {
         var isActive = ept.id === id;
         var isPrimitive = ept.type === 'primitive';
         return /*#__PURE__*/_react.default.createElement("li", {
-          key: index
+          key: index,
+          className: (0, _utils.className)({
+            active: isActive
+          })
         }, /*#__PURE__*/_react.default.createElement("h5", null, ept.title), !isActive && /*#__PURE__*/_react.default.createElement("button", {
           className: "link",
           onClick: function onClick() {
@@ -76379,6 +76430,7 @@ var Parameter = /*#__PURE__*/function (_React$Component) {
   _createClass(Parameter, [{
     key: "onValueChange",
     value: function onValueChange(value) {
+      value = value === this.state.value ? '' : value;
       this.setState({
         value: value
       });
@@ -76528,19 +76580,12 @@ var EptParameters = /*#__PURE__*/function (_React$Component) {
 
     _this = _super.call(this, props);
     _this.state = {
-      isCollapsed: !_this.hasUnsetParameters()
+      isCollapsed: props.ept.isComplete
     };
     return _this;
   }
 
   _createClass(EptParameters, [{
-    key: "hasUnsetParameters",
-    value: function hasUnsetParameters() {
-      return Object.values(this.props.ept.parameters || {}).some(function (parameter) {
-        return !parameter.value;
-      });
-    }
-  }, {
     key: "toggleCollapsed",
     value: function toggleCollapsed() {
       this.setState({

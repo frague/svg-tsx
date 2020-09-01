@@ -442,6 +442,9 @@ button.link, button.link:active {
 .ept:hover text.action {
   display: block;
 }
+.ept.incomplete .container {
+  fill: #f55f07;
+}
 .ept .container {
   width: 200px;
   height: 40px;
@@ -511,18 +514,28 @@ button.link, button.link:active {
   stroke: #f55f07;
 }
 
-.catalogue ul, .parameters ul {
+div.catalogue ul, div.parameters ul {
   padding-left: 0;
 }
-.catalogue ul li, .parameters ul li {
+div.catalogue ul li, div.parameters ul li {
   margin-bottom: 15px;
   list-style: none;
 }
-.catalogue ul li h5, .parameters ul li h5 {
+div.catalogue ul li h5, div.parameters ul li h5 {
   margin: 0;
 }
 
-.shadow-stroke, div.parameters, div.properties, .catalogue, .parameters {
+div.catalogue li.active {
+  background-color: #a8e04f;
+  margin: -2px -8px 13px -8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+div.catalogue button.link:nth-child(n+3) {
+  margin-left: 8px;
+}
+
+.shadow-stroke, div.properties, div.catalogue, div.parameters {
   border: solid 1px #EEE;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
   border-radius: 6px;

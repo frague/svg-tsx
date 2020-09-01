@@ -6,6 +6,7 @@ import Draggable from '../draggable/draggable'
 
 import { IPosition, IEpt } from '../../interfaces'
 import { eptWidth, eptHeight, canvasWidth, canvasHeight } from '../../settings'
+import {className} from '../../utils'
 
 import ConnectionPoint from '../connectionPoint/connectionPoint'
 
@@ -43,10 +44,16 @@ const Ept = ({id, data=emptyEpt, onMove=()=>{}, bringOnTop, deleteEpt, deleteEpt
 		{x: canvasWidth / 2, y: 20} :
 		{x: position.x + eptWidth / 2, y: position.y + eptHeight};
 
+	let classes = {
+		ept: true,
+		incomplete: !data.isComplete
+	};
+
 	return [
 		!isStandalone &&
-			<Draggable key='ept' position={ position } onStartDragging={ () => bringOnTop(id) } onMove={ newPosition => onMove(id, newPosition) }>
-				<g className="ept">
+			<Draggable key='ept' position={ position } onStartDragging={ () => bringOnTop(id) }
+				onMove={ newPosition => onMove(id, newPosition) }>
+				<g className={className(classes)}>
 					<rect className="container" />
 					<text className="title">{ data.title }</text>
 					<text className="action" onClick={ event => {

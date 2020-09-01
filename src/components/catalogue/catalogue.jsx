@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import { eptAdd,linkAdd, eptBringOnTop, activeEptSet } from '../../store/actions'
 import { Positioner } from '../../positioner'
-import { generateId } from '../../utils'
+import { generateId, className } from '../../utils'
 
 class Catalogue extends React.Component {
 	render() {
@@ -17,8 +17,8 @@ class Catalogue extends React.Component {
 						let isActive = ept.id === id;
 						let isPrimitive = ept.type === 'primitive';
 
-						return <li key={ index }>
-							<h5>{ ept.title }</h5>
+						return <li key={ index } className={ className({active: isActive}) }>
+							<h5>{ept.title}</h5>
 							{ !isActive && 
 								<button className="link" onClick={ () => this.injectEpt(ept) }>Use</button>
 							}

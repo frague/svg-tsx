@@ -9,6 +9,9 @@ $yellow: #b9c84f;
 $white: #FFF;
 $magenta: #9759b5;
 
+$ept-normal: #68707b;
+$ept-hover: #4d5258;
+
 * {
 	font-family: Lato, arial, tahoma, verdana;	
 }
@@ -81,7 +84,7 @@ button.link {
 
 	&:hover {
 		.container {
-			fill: #4d5258;
+			fill: $ept-hover;
 		}
 
 		text.action {
@@ -89,10 +92,16 @@ button.link {
 		}
 	}
 
+	&.incomplete {
+		.container {
+			fill: $red;
+		}
+	}
+
 	.container {
 		width: $eptWidth;
 		height: $eptHeight;
-		fill: #68707b;
+		fill: $ept-normal;
 		stroke: $white;
 		stroke-width: 1;
 		rx: 4px;
@@ -183,7 +192,7 @@ button.link {
 	}
 }
 
-.catalogue, .parameters {
+div.catalogue, div.parameters {
 	@extend .shadow-stroke;
 
 	ul {
@@ -197,6 +206,19 @@ button.link {
 				margin: 0;
 			}
 		}
+	}
+}
+
+div.catalogue {
+	li.active {
+		background-color: $green;
+		margin: -2px -8px 13px -8px;
+    	padding: 2px 8px;
+    	border-radius: 4px;
+	}
+
+	button.link:nth-child(n + 3) {
+		margin-left: 8px;
 	}
 }
 

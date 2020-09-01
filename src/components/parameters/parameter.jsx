@@ -13,6 +13,7 @@ class Parameter extends React.Component {
 	}
 
 	onValueChange(value) {
+		value = value === this.state.value ? '' : value;
 		this.setState({value});
 		this.props.setEptParameter(this.props.eptId, this.props.name, value);
 	}
