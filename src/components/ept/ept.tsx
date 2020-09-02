@@ -29,7 +29,8 @@ const emptyEpt = {
 	outputIsFlexible: true,
 	epts: {},
 	links: {},
-	parameters: {}
+	parameters: {},
+	isComplete: true
 };
 
 const Ept = ({id, data=emptyEpt, onMove=()=>{}, bringOnTop, deleteEpt, deleteEptLinks}: IEptProps) => {
@@ -76,7 +77,7 @@ const Ept = ({id, data=emptyEpt, onMove=()=>{}, bringOnTop, deleteEpt, deleteEpt
 const mapDispatchToProps = dispatch => {
   return {
     onMove: (id: string, position: IPosition) => {
-      dispatch(eptMove(id, position))
+      	dispatch(eptMove(id, position))
     },
     bringOnTop: (id: string)  => {
     	dispatch(eptBringOnTop(id))

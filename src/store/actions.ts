@@ -8,7 +8,6 @@ export function eptAdd(ept: IEpt) {
 	};
 }
 
-
 export const EPT_MOVE = 'EPT_MOVE';
 export function eptMove(id: string, position: IPosition) {
 	return {

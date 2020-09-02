@@ -1,24 +1,19 @@
-import { combineReducers } from 'redux'
+import {combineReducers} from 'redux'
 
-import { EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP, EPT_SET_ACCEPTED_TYPES, EPT_SET_PARAMETER,
+import {EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP, EPT_SET_ACCEPTED_TYPES, EPT_SET_PARAMETER,
 	LINK_ADD, LINK_MOVE, LINK_REMOVE, EPT_LINKS_REMOVE, EPT_SET_PROPERTIES,
 	CONNECTION_CANDIDATE_SEARCH, CONNECTION_CANDIDATE_REGISTER, CONNECTION_CANDIDATE_RESET,
 	ACTIVE_EPT_SET, ACTIVE_EPT_RESET,
 	CATALOGUE_EPT_SAVE, 
 } from './actions'
 
-import { IPosition, IEpt, ILink } from '../interfaces'
-import { canvasWidth } from '../settings'
-import { generateId } from '../utils'
+import {IPosition, IEpt, ILink} from '../interfaces'
+import {canvasWidth} from '../settings'
+import {generateId} from '../utils'
 
-import { primitives } from '../../data/test'
+import {primitives} from '../../data/test'
+import {Positioner} from '../positioner'
 
-
-function instantiateAndPosition(ept: IEpt) {
-	ept.position = ept.position || {x: 100, y: 80};
-	ept.order = 0;
-	return ept;
-}
 
 function bringEptOnTop(epts: any, id: string) {
 	let newOrder = 1 + Math.max(...Object.values(epts).map((ept: IEpt) => +ept.order || 0));
@@ -82,6 +77,28 @@ function checkIfComplete(parameters: any): boolean {
 	return !Object.values(parameters).some((parameter: any) => parameter.isMandatory && !parameter.value);
 }
 
+function instantiatePositionAndLink(ept: IEpt, epts, links): [IEpt, IEpt] {
+	let newEpt = Object.assign({}, ept, {
+		id: generateId(),
+		order: 0
+	});
+	return [newEpt, new Positioner(epts, links, newEpt).position()];
+}
+
+function addEpt(ept, state) {
+	let [newEpt, connectionEpt] = instantiatePositionAndLink(ept, state.epts, state.links);
+	state.epts = bringEptOnTop(Object.assign({}, state.epts, {[newEpt.id]: newEpt}), newEpt.id);
+	if (connectionEpt) {
+		let link = {
+			id: generateId(),
+			from: connectionEpt.id,
+			to: newEpt.id
+		}
+		state.links = Object.assign({}, state.links, {[link.id]: link});
+	}
+	return state;
+}
+
 function activeEptReducer(state=makeEmptyEpt() as any, action) {
 	switch (action.type) {
 		case ACTIVE_EPT_SET:
@@ -98,8 +115,14 @@ function activeEptReducer(state=makeEmptyEpt() as any, action) {
 
 		// EPTs
 		case EPT_ADD:
-			let newEpt = instantiateAndPosition(action.ept);
-			state.epts = bringEptOnTop(Object.assign({}, state.epts, {[newEpt.id]: newEpt}), newEpt.id);
+			let newEpt = action.ept;
+			if (newEpt.type === 'primitive') {
+				state = addEpt(newEpt, state);
+			} else {
+				Object.values(newEpt.epts).forEach(e => {
+					if (e.id) state = addEpt(e, state);
+				});
+			}
 			return Object.assign({}, state);
 
 		case EPT_MOVE:

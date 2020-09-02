@@ -32011,7 +32011,123 @@ var primitives = [{
   'outputTypes': ['routing policy']
 }];
 exports.primitives = primitives;
-},{}],"src/store/reducers.ts":[function(require,module,exports) {
+},{}],"src/positioner.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Positioner = void 0;
+
+var settings_1 = require("./settings");
+
+var utils_1 = require("./utils");
+
+var Positioner =
+/** @class */
+function () {
+  function Positioner(epts, links, ept) {
+    var _this = this;
+
+    this.ept = ept;
+    this.connectionsCount = {};
+    this.positions = [];
+    var inputTypes = ept.inputTypes;
+    this.starts = Object.entries(epts).filter(function (_a) {
+      var id = _a[0],
+          ept = _a[1];
+      if (id) _this.positions.push(ept.position);
+      var _b = ept,
+          outputTypes = _b.outputTypes,
+          outputIsFlexible = _b.outputIsFlexible;
+      return !outputTypes && outputIsFlexible || utils_1.findIntersection([inputTypes, outputTypes]);
+    }).map(function (_a) {
+      var id = _a[0],
+          ept = _a[1];
+      _this.connectionsCount[id] = _this._countConnections(id, links);
+      return ept;
+    }).sort(function (a, b) {
+      var _a = [_this.connectionsCount[a.id], _this.connectionsCount[b.id]],
+          countA = _a[0],
+          countB = _a[1];
+
+      if (countA === countB) {
+        return a.id < b.id ? -1 : 1;
+      }
+
+      return countA < countB ? -1 : 1;
+    });
+  }
+
+  Positioner.prototype._countConnections = function (id, links) {
+    return Object.values(links).filter(function (link) {
+      return link.from === id;
+    }).length;
+  };
+
+  Positioner.prototype.addLink = function () {
+    if (this.starts && this.starts.length) {
+      return this.starts[0];
+    }
+
+    return;
+  };
+
+  Positioner.prototype._isPositionOverlapping = function (position) {
+    return this.positions.some(function (_a) {
+      var x = _a.x,
+          y = _a.y;
+      return Math.abs(x - position.x) < settings_1.eptWidth && Math.abs(y - position.y) < settings_1.eptHeight;
+    });
+  };
+
+  Positioner.prototype._tryPlacingTo = function (position) {
+    if (!this._isPositionOverlapping(position)) {
+      this.ept.position = position;
+      return true;
+    }
+
+    return false;
+  };
+
+  Positioner.prototype.position = function () {
+    var middle = settings_1.canvasWidth / 2 - settings_1.eptWidth / 2;
+    var basePosition;
+    var connectedTo = this.addLink();
+
+    if (connectedTo !== undefined && connectedTo.id) {
+      basePosition = {
+        x: connectedTo.position.x,
+        y: connectedTo.position.y + settings_1.eptHeight + 30
+      };
+    } else {
+      // let maxY = Math.max(...this.positions.map(p => p.y), 20);
+      basePosition = {
+        x: middle,
+        y: 80
+      };
+    }
+
+    for (var ky = 0; ky < 6; ky++) {
+      for (var kx = 0; kx < 300; kx += 27) {
+        if (this._tryPlacingTo({
+          x: basePosition.x + kx,
+          y: basePosition.y + (settings_1.eptHeight + 30) * ky
+        }) || this._tryPlacingTo({
+          x: basePosition.x - kx,
+          y: basePosition.y + (settings_1.eptHeight + 30) * ky
+        })) return connectedTo;
+      }
+    }
+
+    return connectedTo;
+  };
+
+  return Positioner;
+}();
+
+exports.Positioner = Positioner;
+},{"./settings":"src/settings.js","./utils":"src/utils.ts"}],"src/store/reducers.ts":[function(require,module,exports) {
 "use strict";
 
 var __spreadArrays = this && this.__spreadArrays || function () {
@@ -32042,14 +32158,7 @@ var utils_1 = require("../utils");
 
 var test_1 = require("../../data/test");
 
-function instantiateAndPosition(ept) {
-  ept.position = ept.position || {
-    x: 100,
-    y: 80
-  };
-  ept.order = 0;
-  return ept;
-}
+var positioner_1 = require("../positioner");
 
 function bringEptOnTop(epts, id) {
   var newOrder = 1 + Math.max.apply(Math, Object.values(epts).map(function (ept) {
@@ -32129,8 +32238,37 @@ function checkIfComplete(parameters) {
   });
 }
 
+function instantiatePositionAndLink(ept, epts, links) {
+  var newEpt = Object.assign({}, ept, {
+    id: utils_1.generateId(),
+    order: 0
+  });
+  return [newEpt, new positioner_1.Positioner(epts, links, newEpt).position()];
+}
+
+function addEpt(ept, state) {
+  var _a, _b;
+
+  var _c = instantiatePositionAndLink(ept, state.epts, state.links),
+      newEpt = _c[0],
+      connectionEpt = _c[1];
+
+  state.epts = bringEptOnTop(Object.assign({}, state.epts, (_a = {}, _a[newEpt.id] = newEpt, _a)), newEpt.id);
+
+  if (connectionEpt) {
+    var link = {
+      id: utils_1.generateId(),
+      from: connectionEpt.id,
+      to: newEpt.id
+    };
+    state.links = Object.assign({}, state.links, (_b = {}, _b[link.id] = link, _b));
+  }
+
+  return state;
+}
+
 function activeEptReducer(state, action) {
-  var _a, _b, _c, _d, _e, _f;
+  var _a, _b, _c, _d, _e;
 
   if (state === void 0) {
     state = makeEmptyEpt();
@@ -32138,10 +32276,10 @@ function activeEptReducer(state, action) {
 
   switch (action.type) {
     case actions_1.ACTIVE_EPT_SET:
-      var _g = action.ept,
-          epts = _g.epts,
-          links = _g.links,
-          parameters = _g.parameters;
+      var _f = action.ept,
+          epts = _f.epts,
+          links = _f.links,
+          parameters = _f.parameters;
       var result = Object.assign({}, action.ept, {
         epts: Object.assign({}, epts),
         links: Object.assign({}, links),
@@ -32154,8 +32292,16 @@ function activeEptReducer(state, action) {
     // EPTs
 
     case actions_1.EPT_ADD:
-      var newEpt = instantiateAndPosition(action.ept);
-      state.epts = bringEptOnTop(Object.assign({}, state.epts, (_a = {}, _a[newEpt.id] = newEpt, _a)), newEpt.id);
+      var newEpt = action.ept;
+
+      if (newEpt.type === 'primitive') {
+        state = addEpt(newEpt, state);
+      } else {
+        Object.values(newEpt.epts).forEach(function (e) {
+          if (e.id) state = addEpt(e, state);
+        });
+      }
+
       return Object.assign({}, state);
 
     case actions_1.EPT_MOVE:
@@ -32165,7 +32311,7 @@ function activeEptReducer(state, action) {
         ept = Object.assign({}, ept, {
           position: action.position
         });
-        state.epts = Object.assign({}, state.epts, (_b = {}, _b[action.id] = ept, _b));
+        state.epts = Object.assign({}, state.epts, (_a = {}, _a[action.id] = ept, _a));
         return Object.assign({}, state);
       }
 
@@ -32194,7 +32340,7 @@ function activeEptReducer(state, action) {
       if (state.epts.hasOwnProperty(action.id)) {
         var ept1 = Object.assign({}, state.epts[action.id]);
         ept1[action.isInput ? 'inputTypes' : 'outputTypes'] = action.types;
-        state.epts = Object.assign({}, state.epts, (_c = {}, _c[action.id] = ept1, _c));
+        state.epts = Object.assign({}, state.epts, (_b = {}, _b[action.id] = ept1, _b));
         return Object.assign({}, state);
       }
 
@@ -32209,9 +32355,9 @@ function activeEptReducer(state, action) {
           parameter = Object.assign({}, parameter, {
             value: action.value
           });
-          ept2.parameters = Object.assign({}, ept2.parameters, (_d = {}, _d[action.name] = parameter, _d));
+          ept2.parameters = Object.assign({}, ept2.parameters, (_c = {}, _c[action.name] = parameter, _c));
           ept2.isComplete = checkIfComplete(ept2.parameters);
-          state.epts = Object.assign({}, state.epts, (_e = {}, _e[action.id] = ept2, _e));
+          state.epts = Object.assign({}, state.epts, (_d = {}, _d[action.id] = ept2, _d));
           return Object.assign({}, state);
         }
       }
@@ -32225,7 +32371,7 @@ function activeEptReducer(state, action) {
         from: action.from,
         to: action.to
       };
-      state.links = Object.assign({}, state.links, (_f = {}, _f[link.id] = link, _f));
+      state.links = Object.assign({}, state.links, (_e = {}, _e[link.id] = link, _e));
       return Object.assign({}, state);
 
     case actions_1.LINK_REMOVE:
@@ -32312,7 +32458,7 @@ var appReducer = redux_1.combineReducers({
   catalogue: catalogueReducer
 });
 exports.default = appReducer;
-},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts","../settings":"src/settings.js","../utils":"src/utils.ts","../../data/test":"data/test.js"}],"node_modules/@babel/runtime/helpers/esm/inheritsLoose.js":[function(require,module,exports) {
+},{"redux":"node_modules/redux/es/redux.js","./actions":"src/store/actions.ts","../settings":"src/settings.js","../utils":"src/utils.ts","../../data/test":"data/test.js","../positioner":"src/positioner.ts"}],"node_modules/@babel/runtime/helpers/esm/inheritsLoose.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -75894,7 +76040,8 @@ var emptyEpt = {
   outputIsFlexible: true,
   epts: {},
   links: {},
-  parameters: {}
+  parameters: {},
+  isComplete: true
 };
 
 var Ept = function Ept(_a) {
@@ -76121,123 +76268,7 @@ var mapStateToProps = function mapStateToProps(state) {
 
 var VisualizerConnected = react_redux_1.connect(mapStateToProps)(Visualizer);
 exports.default = VisualizerConnected;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../settings":"src/settings.js","../ept/ept":"src/components/ept/ept.tsx","../applicationPoint/applicationPoint":"src/components/applicationPoint/applicationPoint.tsx","../link/link":"src/components/link/link.tsx"}],"src/positioner.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Positioner = void 0;
-
-var settings_1 = require("./settings");
-
-var utils_1 = require("./utils");
-
-var Positioner =
-/** @class */
-function () {
-  function Positioner(epts, links, ept) {
-    var _this = this;
-
-    this.ept = ept;
-    this.connectionsCount = {};
-    this.positions = [];
-    var inputTypes = ept.inputTypes;
-    this.starts = Object.entries(epts).filter(function (_a) {
-      var id = _a[0],
-          ept = _a[1];
-      if (id) _this.positions.push(ept.position);
-      var _b = ept,
-          outputTypes = _b.outputTypes,
-          outputIsFlexible = _b.outputIsFlexible;
-      return !outputTypes && outputIsFlexible || utils_1.findIntersection([inputTypes, outputTypes]);
-    }).map(function (_a) {
-      var id = _a[0],
-          ept = _a[1];
-      _this.connectionsCount[id] = _this._countConnections(id, links);
-      return ept;
-    }).sort(function (a, b) {
-      var _a = [_this.connectionsCount[a.id], _this.connectionsCount[b.id]],
-          countA = _a[0],
-          countB = _a[1];
-
-      if (countA === countB) {
-        return a.id < b.id ? -1 : 1;
-      }
-
-      return countA < countB ? -1 : 1;
-    });
-  }
-
-  Positioner.prototype._countConnections = function (id, links) {
-    return Object.values(links).filter(function (link) {
-      return link.from === id;
-    }).length;
-  };
-
-  Positioner.prototype.addLink = function () {
-    if (this.starts && this.starts.length) {
-      return this.starts[0];
-    }
-
-    return;
-  };
-
-  Positioner.prototype._isPositionOverlapping = function (position) {
-    return this.positions.some(function (_a) {
-      var x = _a.x,
-          y = _a.y;
-      return Math.abs(x - position.x) < settings_1.eptWidth && Math.abs(y - position.y) < settings_1.eptHeight;
-    });
-  };
-
-  Positioner.prototype._tryPlacingTo = function (position) {
-    if (!this._isPositionOverlapping(position)) {
-      this.ept.position = position;
-      return true;
-    }
-
-    return false;
-  };
-
-  Positioner.prototype.position = function () {
-    var middle = settings_1.canvasWidth / 2 - settings_1.eptWidth / 2;
-    var basePosition;
-    var connectedTo = this.addLink();
-
-    if (connectedTo !== undefined && connectedTo.id) {
-      basePosition = {
-        x: connectedTo.position.x,
-        y: connectedTo.position.y + settings_1.eptHeight + 30
-      };
-    } else {
-      // let maxY = Math.max(...this.positions.map(p => p.y), 20);
-      basePosition = {
-        x: middle,
-        y: 80
-      };
-    }
-
-    for (var ky = 0; ky < 6; ky++) {
-      for (var kx = 0; kx < 300; kx += 27) {
-        if (this._tryPlacingTo({
-          x: basePosition.x + kx,
-          y: basePosition.y + (settings_1.eptHeight + 30) * ky
-        }) || this._tryPlacingTo({
-          x: basePosition.x - kx,
-          y: basePosition.y + (settings_1.eptHeight + 30) * ky
-        })) return connectedTo;
-      }
-    }
-
-    return connectedTo;
-  };
-
-  return Positioner;
-}();
-
-exports.Positioner = Positioner;
-},{"./settings":"src/settings.js","./utils":"src/utils.ts"}],"src/components/catalogue/catalogue.jsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","../../settings":"src/settings.js","../ept/ept":"src/components/ept/ept.tsx","../applicationPoint/applicationPoint":"src/components/applicationPoint/applicationPoint.tsx","../link/link":"src/components/link/link.tsx"}],"src/components/catalogue/catalogue.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -76314,7 +76345,7 @@ var Catalogue = /*#__PURE__*/function (_React$Component) {
         }, /*#__PURE__*/_react.default.createElement("h5", null, ept.title), !isActive && /*#__PURE__*/_react.default.createElement("button", {
           className: "link",
           onClick: function onClick() {
-            return _this.injectEpt(ept);
+            return _this.props.onAddClick(ept);
           }
         }, "Use"), !isPrimitive && /*#__PURE__*/_react.default.createElement("button", {
           className: "link",
@@ -76323,23 +76354,6 @@ var Catalogue = /*#__PURE__*/function (_React$Component) {
           }
         }, "View"));
       })));
-    }
-  }, {
-    key: "injectEpt",
-    value: function injectEpt(ept) {
-      var _this$props$activeEpt2 = this.props.activeEpt,
-          epts = _this$props$activeEpt2.epts,
-          links = _this$props$activeEpt2.links,
-          id = _this$props$activeEpt2.id;
-      var newEpt = Object.assign({}, ept, {
-        id: (0, _utils.generateId)()
-      });
-      var connectionEpt = new _positioner.Positioner(epts, links, newEpt).position();
-      this.props.onAddClick(newEpt);
-
-      if (connectionEpt) {
-        this.props.addLink(connectionEpt.id, newEpt.id);
-      }
     }
   }]);
 

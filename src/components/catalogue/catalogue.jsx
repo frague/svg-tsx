@@ -20,7 +20,7 @@ class Catalogue extends React.Component {
 						return <li key={ index } className={ className({active: isActive}) }>
 							<h5>{ept.title}</h5>
 							{ !isActive && 
-								<button className="link" onClick={ () => this.injectEpt(ept) }>Use</button>
+								<button className="link" onClick={ () => this.props.onAddClick(ept) }>Use</button>
 							}
 							{ !isPrimitive && 
 								<button className="link" onClick={ () => this.props.viewEpt(ept) }>View</button>
@@ -32,17 +32,6 @@ class Catalogue extends React.Component {
 			</ul>
 		</div>
 	}
-
-	injectEpt(ept) {
-		let { epts, links, id } = this.props.activeEpt;
-		let newEpt = Object.assign({}, ept, {id: generateId()})
-		let connectionEpt = new Positioner(epts, links, newEpt).position();
-		this.props.onAddClick(newEpt);
-
-		if (connectionEpt) {
-			this.props.addLink(connectionEpt.id, newEpt.id);
-		}
-	} 
 }
 
 const mapStateToProps = state => {
