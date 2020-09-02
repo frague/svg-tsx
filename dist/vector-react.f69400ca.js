@@ -76340,7 +76340,8 @@ var Catalogue = /*#__PURE__*/function (_React$Component) {
         return /*#__PURE__*/_react.default.createElement("li", {
           key: index,
           className: (0, _utils.className)({
-            active: isActive
+            active: isActive,
+            primitive: isPrimitive
           })
         }, /*#__PURE__*/_react.default.createElement("h5", null, ept.title), !isActive && /*#__PURE__*/_react.default.createElement("button", {
           className: "link",

@@ -531,6 +531,9 @@ div.catalogue li.active {
   padding: 2px 8px;
   border-radius: 4px;
 }
+div.catalogue li.primitive {
+  color: #4d5258;
+}
 div.catalogue button.link:nth-child(n+3) {
   margin-left: 8px;
 }

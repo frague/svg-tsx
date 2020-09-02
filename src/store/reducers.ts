@@ -1,4 +1,4 @@
-import {combineReducers} from 'redux'
+// import {combineReducers} from 'redux'
 
 import {EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP, EPT_SET_ACCEPTED_TYPES, EPT_SET_PARAMETER,
 	LINK_ADD, LINK_MOVE, LINK_REMOVE, EPT_LINKS_REMOVE, EPT_SET_PROPERTIES,
@@ -244,10 +244,10 @@ const catalogueReducer = (state=primitives, action) => {
 	}
 };
 
-const appReducer = combineReducers({
+const appReducer = {
 	connectionSearched: connectionCandidateReducer,
 	activeEpt: activeEptReducer,
 	catalogue: catalogueReducer,
-});
+};
 
 export default appReducer;

@@ -210,11 +210,16 @@ div.catalogue, div.parameters {
 }
 
 div.catalogue {
-	li.active {
-		background-color: $green;
-		margin: -2px -8px 13px -8px;
-    	padding: 2px 8px;
-    	border-radius: 4px;
+	li {
+		&.active {
+			background-color: $green;
+			margin: -2px -8px 13px -8px;
+	    	padding: 2px 8px;
+	    	border-radius: 4px;
+		}
+		&.primitive {
+			color: $ept-hover;
+		}
 	}
 
 	button.link:nth-child(n + 3) {
