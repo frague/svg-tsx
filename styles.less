@@ -1,16 +1,4 @@
-@import "./variables.scss";
-
-$green: #a8e04f;
-$seagreen: #458e99;
-$red: #f55f07;
-$orange: #e0773f;
-$blue: #0f7cbb;
-$yellow: #b9c84f;
-$white: #FFF;
-$magenta: #9759b5;
-
-$ept-normal: #68707b;
-$ept-hover: #4d5258;
+@import (reference) "./variables.less";
 
 * {
 	font-family: Lato, arial, tahoma, verdana;	
@@ -54,7 +42,7 @@ button.link {
 	border: 0;
 	display: inline;
 	cursor: pointer;
-	color: $blue;
+	color: @blue;
 	
 	&, &:active {
 		outline: none;
@@ -84,7 +72,7 @@ button.link {
 
 	&:hover {
 		.container {
-			fill: $ept-hover;
+			fill: @ept-hover;
 		}
 
 		text.action {
@@ -94,15 +82,15 @@ button.link {
 
 	&.incomplete {
 		.container {
-			fill: $red;
+			fill: @red;
 		}
 	}
 
 	.container {
-		width: $eptWidth;
-		height: $eptHeight;
-		fill: $ept-normal;
-		stroke: $white;
+		width: @eptWidth;
+		height: @eptHeight;
+		fill: @ept-normal;
+		stroke: @white;
 		stroke-width: 1;
 		rx: 4px;
 		ry: 4px;
@@ -111,17 +99,17 @@ button.link {
 	text {
 		&.title {
 			font-size: 12px;
-			transform: translate($eptWidth / 2, 4px + $eptHeight / 2);
+			transform: translate(@eptWidth / 2, 4px + @eptHeight / 2);
 			width: 100px;
-			clip-path: inset(0 calc(100% - #{$eptWidth - 20px}) 0 0);
-			fill: $white;
+			clip-path: inset(0 calc(100% - @eptWidth - 20px) 0 0);
+			fill: @white;
 			text-anchor: middle;
 		}
 
 		&.action {
-			transform: translate($eptWidth - 14px, 16px);
+			transform: translate(@eptWidth - 14px, 16px);
 			font-size: 18px;
-			fill: $white;
+			fill: @white;
 			display: none;
 		}
 	}
@@ -129,9 +117,9 @@ button.link {
 
 .connection-point {
 	circle {
-		r: $connectionPointRadius;
+		r: @connectionPointRadius;
 		stroke-width: 1;
-		stroke: $white;
+		stroke: @white;
 
 	}
 
@@ -170,14 +158,14 @@ button.link {
 
 	&.approached {
 		circle {
-			stroke: $orange;
+			stroke: @orange;
 			stroke-width: 3px;
 		}
 	}
 }
 
 .linker {
-	r: $connectionPointRadius - 3;
+	r: @connectionPointRadius - 3;
 	stroke-width: 0;
 	fill: rgba(255, 255, 255, 0.5);
 }
@@ -188,13 +176,13 @@ button.link {
 	stroke-width: 2px;
 
 	&:hover {
-		stroke: $red;
+		stroke: @red;
 	}
 }
 
 div.catalogue, div.parameters {
-	@extend .shadow-stroke;
-
+  .shadow-stroke();
+  
 	ul {
 		padding-left: 0;
 
@@ -205,20 +193,20 @@ div.catalogue, div.parameters {
 			h5 {
 				margin: 0;
 			}
-		}
-	}
+  	}
+  }
 }
 
 div.catalogue {
 	li {
 		&.active {
-			background-color: $green;
+			background-color: @green;
 			margin: -2px -8px 13px -8px;
 	    	padding: 2px 8px;
 	    	border-radius: 4px;
 		}
 		&.primitive {
-			color: $ept-hover;
+			color: @ept-hover;
 		}
 	}
 
@@ -236,7 +224,7 @@ div.catalogue {
 }
 
 div.properties {
-	@extend .shadow-stroke;
+	.shadow-stroke();
 
 	form {
 		display: flex;
@@ -264,7 +252,7 @@ div.properties {
 }
 
 div.parameters {
-	@extend .shadow-stroke;
+	.shadow-stroke();
 
 	h5 {
 		cursor: pointer;
@@ -273,7 +261,7 @@ div.parameters {
 	li {
 		&.mandatory label:after {
 			content: "*";
-			color: $red;
+			color: @red;
 			margin-left: 2px;
 		}
 
@@ -294,8 +282,8 @@ div.parameters {
 					cursor: pointer;
 
 					&.selected {
-						background-color: $blue;
-						color: $white;
+						background-color: @blue;
+						color: @white;
 					}
 				}
 			}

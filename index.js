@@ -10,7 +10,7 @@ import Catalogue from './src/components/catalogue/catalogue'
 import Parameters from './src/components/parameters/parameters'
 
 import 'semantic-ui-css/semantic.min.css'
-import './styles.scss';
+import './styles.less';
 
 ReactDOM.render(
 	<div>
