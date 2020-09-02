@@ -76386,6 +76386,8 @@ var _semanticUiReact = require("semantic-ui-react");
 
 var _actions = require("../../store/actions");
 
+var _utils = require("../../utils");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -76455,8 +76457,12 @@ var Parameter = /*#__PURE__*/function (_React$Component) {
       var _this2 = this;
 
       var parameter = this.props.data;
+      var classes = {
+        'checkbox': true,
+        'mandatory': parameter.isMandatory
+      };
       return /*#__PURE__*/_react.default.createElement("li", {
-        className: "checkbox"
+        className: (0, _utils.className)(classes)
       }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Checkbox, {
         label: this.props.name,
         value: parameter.value,
@@ -76471,8 +76477,12 @@ var Parameter = /*#__PURE__*/function (_React$Component) {
       var _this3 = this;
 
       var parameter = this.props.data;
+      var classes = {
+        'enum': true,
+        'mandatory': parameter.isMandatory
+      };
       return /*#__PURE__*/_react.default.createElement("li", {
-        className: "enum"
+        className: (0, _utils.className)(classes)
       }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Input, {
         type: "hidden",
         label: this.props.name,
@@ -76493,7 +76503,12 @@ var Parameter = /*#__PURE__*/function (_React$Component) {
       var _this4 = this;
 
       var parameter = this.props.data;
-      return /*#__PURE__*/_react.default.createElement("li", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Input, {
+      var classes = {
+        'mandatory': parameter.isMandatory
+      };
+      return /*#__PURE__*/_react.default.createElement("li", {
+        className: (0, _utils.className)(classes)
+      }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Input, {
         label: this.props.name,
         type: parameter.type,
         value: this.state.value,
@@ -76518,7 +76533,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 var ParameterConnected = (0, _reactRedux.connect)(null, mapDispatchToProps)(Parameter);
 var _default = ParameterConnected;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","../../store/actions":"src/store/actions.ts"}],"src/components/parameters/eptParameters.jsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-redux":"node_modules/react-redux/es/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","../../store/actions":"src/store/actions.ts","../../utils":"src/utils.ts"}],"src/components/parameters/eptParameters.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

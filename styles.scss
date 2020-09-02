@@ -265,25 +265,33 @@ div.parameters {
 		cursor: pointer;
 	}
 
-	.enum {
-		.field {
-			margin-bottom: 0;
-			height: 26px;
+	li {
+		&.mandatory label:after {
+			content: "*";
+			color: $red;
+			margin-left: 2px;
 		}
-		ul {
-			padding-left: 0;
 
-			li {
-				display: inline-block;
-				border: solid 1px #CCC;
-				padding: 4px 6px;
-				margin: 0 4px 4px 0;
-				border-radius: 4px;
-				cursor: pointer;
+		&.enum {
+			.field {
+				margin-bottom: 0;
+				height: 26px;
+			}
+			ul {
+				padding-left: 0;
 
-				&.selected {
-					background-color: $blue;
-					color: $white;
+				li {
+					display: inline-block;
+					border: solid 1px #CCC;
+					padding: 4px 6px;
+					margin: 0 4px 4px 0;
+					border-radius: 4px;
+					cursor: pointer;
+
+					&.selected {
+						background-color: $blue;
+						color: $white;
+					}
 				}
 			}
 		}

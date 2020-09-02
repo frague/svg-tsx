@@ -1,7 +1,8 @@
 import React from 'react'
-import { connect } from 'react-redux'
-import { Form } from 'semantic-ui-react'
-import { eptSetParameter } from '../../store/actions'
+import {connect} from 'react-redux'
+import {Form} from 'semantic-ui-react'
+import {eptSetParameter} from '../../store/actions'
+import {className} from '../../utils'
 
 class Parameter extends React.Component {
 	constructor(props) {
@@ -30,7 +31,11 @@ class Parameter extends React.Component {
 
 	renderCheckbox() {
 		let parameter = this.props.data;
-		return <li className="checkbox">
+		let classes = {
+			'checkbox': true,
+			'mandatory': parameter.isMandatory
+		};
+		return <li className={className(classes)}>
 			<Form.Checkbox label={ this.props.name } value={ parameter.value }
 				onChange={ event => this.onValueChange(event.tartget.value) } />
 		</li>;
@@ -38,7 +43,11 @@ class Parameter extends React.Component {
 
 	renderEnum() {
 		let parameter = this.props.data;
-		return <li className='enum'>
+		let classes = {
+			'enum': true,
+			'mandatory': parameter.isMandatory
+		};
+		return <li className={className(classes)}>
 			<Form.Input type="hidden" label={ this.props.name } value={ this.state.value } />
 			<ul>
 				{ parameter.values.map((value, index) =>
@@ -53,7 +62,10 @@ class Parameter extends React.Component {
 
 	renderInput() {
 		let parameter = this.props.data;
-		return <li>
+		let classes = {
+			'mandatory': parameter.isMandatory
+		};
+		return <li className={className(classes)}>
 			<Form.Input label={ this.props.name }
 				type={ parameter.type }
 				value={ this.state.value }

@@ -562,14 +562,19 @@ div.properties form section:nth-child(3) {
 div.parameters h5 {
   cursor: pointer;
 }
-div.parameters .enum .field {
+div.parameters li.mandatory label:after {
+  content: "*";
+  color: #f55f07;
+  margin-left: 2px;
+}
+div.parameters li.enum .field {
   margin-bottom: 0;
   height: 26px;
 }
-div.parameters .enum ul {
+div.parameters li.enum ul {
   padding-left: 0;
 }
-div.parameters .enum ul li {
+div.parameters li.enum ul li {
   display: inline-block;
   border: solid 1px #CCC;
   padding: 4px 6px;
@@ -577,7 +582,7 @@ div.parameters .enum ul li {
   border-radius: 4px;
   cursor: pointer;
 }
-div.parameters .enum ul li.selected {
+div.parameters li.enum ul li.selected {
   background-color: #0f7cbb;
   color: #FFF;
 }
