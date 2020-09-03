@@ -6,6 +6,7 @@ import {className, findIntersection} from '../../utils'
 // 	connectionCandidateSearch, connectionCandidateRegister, connectionCandidateReset,
 // 	linkAdd, eptSetAcceptedTypes
 // } from '../../store/actions'
+import activeEpt from '../../store/store'
 
 import Draggable from '../draggable/draggable'
 import Link from '../link/link'
@@ -62,10 +63,64 @@ class ConnectionPoint extends React.Component {
 		};
 	}
 
+	componentDidUpdate() {
+		if (isPotentialMatch && candidate !== payload) {
+			// If connection candidate is searched in close proximity
+			// register myself as a connection candidate
+			candidateRegister(payload);
+		}
+
+		if (!this.state.isDragging) {
+			if (this.state.isDragging === null) {
+				// Triggers when linker is dropped
+				this.setState({
+					isDragging: false,	// Stops dragging
+					myPosition: {x: position.x, y: position.y} // Renews own position to the initial state
+				});
+
+				if (candidate !== undefined) {
+					// If dropped onto the connection candidate, create the link
+					// to it in accordance with the isInput
+					isInput ? addLink(candidate, payload) : addLink(payload, candidate);
+				}
+				// Stop searching for the connection candidate
+				candidateReset();
+			} else {
+				// When no linker is dragged, is's position must be preserved
+				// the same as the initial one
+				this.setState({
+					myPosition: position
+				});
+			}
+		}
+
+		if (isAnyAccepted && !payload) {
+			// If point accepts any type it must change its type after connection
+			if (hasConnections) {
+				let intersectedTypes = findIntersection(connectionsTypes);
+				// If there are connections and 
+				if (intersectedTypes) {
+					if (intersectedTypes.join(', ') !== typesLabel) {
+						// the set differs from the currently registered -
+						// register it in EPT
+						eptSetTypes(payload, intersectedTypes, isInput);
+					}
+				} else if (typesLabel !== 'any') {
+					// If there are connections but all of them are 'any'
+					// reset type to 'any' as well
+					eptSetTypes(payload, null, isInput);
+				}
+			} else if (types !== null) {
+				// If no connections - reset to null to accept all types
+				eptSetTypes(payload, null, isInput);
+			}
+		}
+	}
+
 	render() {
 		let {position, isInput, types=null, isMultiple=false, payload=undefined, isAnyAccepted=false,
 		connectionSearched, candidateSearch, candidateReset, candidateRegister, eptSetTypes,
-		addLink, activeEpt} = this.props; 
+		addLink} = this.props; 
 		let { epts, links } = activeEpt;
 
 		let target = {
@@ -103,59 +158,6 @@ class ConnectionPoint extends React.Component {
 
 		let typesLabel = (types && types.length) ? types.join(', ') : (isAnyAccepted ? 'any' : '');
 
-		// useEffect(() => {
-			if (isPotentialMatch && candidate !== payload) {
-				// If connection candidate is searched in close proximity
-				// register myself as a connection candidate
-				candidateRegister(payload);
-			}
-
-			if (!this.state.isDragging) {
-				if (this.state.isDragging === null) {
-					// Triggers when linker is dropped
-					this.setState({
-						isDragging: false,	// Stops dragging
-						myPosition: {x: position.x, y: position.y} // Renews own position to the initial state
-					});
-
-					if (candidate !== undefined) {
-						// If dropped onto the connection candidate, create the link
-						// to it in accordance with the isInput
-						isInput ? addLink(candidate, payload) : addLink(payload, candidate);
-					}
-					// Stop searching for the connection candidate
-					candidateReset();
-				} else {
-					// When no linker is dragged, is's position must be preserved
-					// the same as the initial one
-					this.setState({
-						myPosition: position
-					});
-				}
-			}
-
-			if (isAnyAccepted && !payload) {
-				// If point accepts any type it must change its type after connection
-				if (hasConnections) {
-					let intersectedTypes = findIntersection(connectionsTypes);
-					// If there are connections and 
-					if (intersectedTypes) {
-						if (intersectedTypes.join(', ') !== typesLabel) {
-							// the set differs from the currently registered -
-							// register it in EPT
-							eptSetTypes(payload, intersectedTypes, isInput);
-						}
-					} else if (typesLabel !== 'any') {
-						// If there are connections but all of them are 'any'
-						// reset type to 'any' as well
-						eptSetTypes(payload, null, isInput);
-					}
-				} else if (types !== null) {
-					// If no connections - reset to null to accept all types
-					eptSetTypes(payload, null, isInput);
-				}
-			}
-		// });
 
 		let classNames = className({
 			'connection-point': true,

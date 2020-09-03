@@ -24,15 +24,16 @@ class Draggable extends React.Component {
 		};
 	}
 
-	render({position={x: 0, y: 0}, children, isRelative=false, 
-	onStartDragging=()=>{}, onMove=position=>{}, onDrop=()=>{}}) {
+	render() {
 		// let [, setDragging] = useState(false);
 		// let [, setMousePosition] = useState();
 		// let [, setPreviousPosition] = useState();
 		// let [, setInitialOffset] = useState();
 
+		let {position={x: 0, y: 0}, children, isRelative=false, onStartDragging, onMove, onDrop} = this.props;
+
 		// useEffect(() => {
-			if (isDragging) {
+			if (this.state.isDragging) {
 				let offset = {x: mousePosition.x - previousPosition.x, y: mousePosition.y - previousPosition.y};
 				if (offset.x || offset.y) {
 					if (isRelative) {
@@ -47,7 +48,7 @@ class Draggable extends React.Component {
 
 		let {x, y} = position;
 
-		return <g className={ 'draggable' + (isDragging ? ' drag' : '') }
+		return <g className={ 'draggable' + (this.state.isDragging ? ' drag' : '') }
 			transform={ `translate(${x},${y})` }
 			onMouseDown={ event => {
 				event.stopPropagation();

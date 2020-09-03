@@ -7,7 +7,7 @@ import {EPT_ADD, EPT_MOVE, EPT_REMOVE, EPT_BRING_ON_TOP, EPT_SET_ACCEPTED_TYPES,
 	CATALOGUE_EPT_SAVE, 
 } from './actions'
 
-import {IPosition, IEpt, ILink} from '../interfaces'
+// import {IPosition, IEpt, ILink} from '../interfaces'
 import {canvasWidth} from '../settings'
 import {generateId} from '../utils'
 

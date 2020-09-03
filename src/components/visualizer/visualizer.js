@@ -1,9 +1,8 @@
 import React from 'react'
-
 // import { eptAdd, eptRemove } from '../../store/actions'
-
 // import { IPosition, IEpt, ILink } from '../../interfaces'
 import {eptWidth, eptHeight, canvasWidth, canvasHeight} from '../../settings'
+import activeEpt from '../../store/store'
 
 import Ept from '../ept/ept'
 import ApplicationPoint from '../applicationPoint/applicationPoint'
@@ -31,7 +30,6 @@ const getPosition = (id, epts, isInput) => {
 
 class Visualizer extends React.Component {
 	render() {
-		let {activeEpt} = this.props;
 		let {epts, links} = activeEpt || {epts: {}, links: {}};
 
 		return [
