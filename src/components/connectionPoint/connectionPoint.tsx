@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { connect, dispatch } from 'react-redux'
+// import { connect, dispatch } from 'react-redux'
 
 import { IPosition } from '../../interfaces'
 import { connectionPointRadius, proximity } from '../../settings'
 import { className, findIntersection } from '../../utils'
-import { 
-	connectionCandidateSearch, connectionCandidateRegister, connectionCandidateReset,
-	linkAdd, eptSetAcceptedTypes
-} from '../../store/actions'
+// import { 
+// 	connectionCandidateSearch, connectionCandidateRegister, connectionCandidateReset,
+// 	linkAdd, eptSetAcceptedTypes
+// } from '../../store/actions'
+
+import {useStore} from '../../store/useStore'
+import {useObserver} from 'mobx-react-lite'
 
 import Draggable from '../draggable/draggable'
 import Link from '../link/link'
@@ -62,7 +65,8 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 	connectionSearched, candidateSearch, candidateReset, candidateRegister, eptSetTypes,
 	addLink, activeEpt
 }: IConnectionPointProps) => {
-	let { epts, links } = activeEpt;
+	const store = useStore();
+	let { epts, links } = store.activeEpt;
 
 	let [isDragging, setDragging] = useState(false);
 	let [offset, setOffset] = useState({x: 0, y: 0});
@@ -135,16 +139,16 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 					if (intersectedTypes.join(', ') !== typesLabel) {
 						// the set differs from the currently registered -
 						// register it in EPT
-						eptSetTypes(payload, intersectedTypes, isInput);
+						store.activeEpt.setAcceptedTypes(payload, intersectedTypes, isInput);
 					}
 				} else if (typesLabel !== 'any') {
 					// If there are connections but all of them are 'any'
 					// reset type to 'any' as well
-					eptSetTypes(payload, null, isInput);
+					store.activeEpt.setAcceptedTypes(payload, null, isInput);
 				}
 			} else if (types !== null) {
 				// If no connections - reset to null to accept all types
-				eptSetTypes(payload, null, isInput);
+				store.activeEpt.setAcceptedTypes(payload, null, isInput);
 			}
 		}
 	});
@@ -190,34 +194,34 @@ const ConnectionPoint = ({position, isInput, types=null, isMultiple=false, paylo
 	]
 }
 
-const mapStateToProps = state => {
-  return {
-    connectionSearched: state.connectionSearched,
-    activeEpt: state.activeEpt,
-  }
-}
+// const mapStateToProps = state => {
+//   return {
+//     connectionSearched: state.connectionSearched,
+//     activeEpt: state.activeEpt,
+//   }
+// }
 
-const mapDispatchToProps = dispatch => {
-	return {
-		candidateSearch: (isInput: boolean, types: string[], position: IPosition, 
-			payload: string, isAnyAccepted: boolean, hasConnections: boolean) => {
-			dispatch(connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted, hasConnections))
-		},
-		candidateReset: () => {
-			dispatch(connectionCandidateReset())
-		},
-		candidateRegister: (candidate) => {
-			dispatch(connectionCandidateRegister(candidate))
-		},
-		addLink: (from: string, to: string) => {
-			dispatch(linkAdd(from, to))
-		},
-		eptSetTypes: (id: string, types: string[]|string, isInput: boolean) => {
-			dispatch(eptSetAcceptedTypes(id, types, isInput))
-		}
-	}
-}
+// const mapDispatchToProps = dispatch => {
+// 	return {
+// 		candidateSearch: (isInput: boolean, types: string[], position: IPosition, 
+// 			payload: string, isAnyAccepted: boolean, hasConnections: boolean) => {
+// 			dispatch(connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted, hasConnections))
+// 		},
+// 		candidateReset: () => {
+// 			dispatch(connectionCandidateReset())
+// 		},
+// 		candidateRegister: (candidate) => {
+// 			dispatch(connectionCandidateRegister(candidate))
+// 		},
+// 		addLink: (from: string, to: string) => {
+// 			dispatch(linkAdd(from, to))
+// 		},
+// 		eptSetTypes: (id: string, types: string[]|string, isInput: boolean) => {
+// 			dispatch(eptSetAcceptedTypes(id, types, isInput))
+// 		}
+// 	}
+// }
 
-const ConnectionPointConnected = connect(mapStateToProps, mapDispatchToProps)(ConnectionPoint)
+// const ConnectionPointConnected = connect(mapStateToProps, mapDispatchToProps)(ConnectionPoint)
 
-export default ConnectionPointConnected;
+export default ConnectionPoint;

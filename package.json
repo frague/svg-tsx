@@ -10,11 +10,18 @@
   "author": "Nick Bogdanov",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.11.5",
+    "@babel/plugin-proposal-decorators": "^7.10.5",
+    "@babel/plugin-transform-object-assign": "^7.10.4",
+    "@babel/plugin-transform-runtime": "^7.11.5",
+    "@babel/preset-react": "^7.10.4",
     "parcel-bundler": "^1.12.4",
     "sass": "^1.26.10",
     "typescript": "^3.9.7"
   },
   "dependencies": {
+    "mobx": "5.13.0",
+    "mobx-react": "6.1.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.1",

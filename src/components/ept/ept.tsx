@@ -1,23 +1,15 @@
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { eptMove, eptBringOnTop, eptRemove, eptLinksRemove } from '../../store/actions'
+import {observer} from 'mobx-react'
+import {useStore} from '../../store/useStore'
+// import { eptMove, eptBringOnTop, eptRemove, eptLinksRemove } from '../../store/actions'
 
 import Draggable from '../draggable/draggable'
 
-import { IPosition, IEpt } from '../../interfaces'
-import { eptWidth, eptHeight, canvasWidth, canvasHeight } from '../../settings'
+import {IPosition, IEpt} from '../../interfaces'
+import {eptWidth, eptHeight, canvasWidth, canvasHeight} from '../../settings'
 import {className} from '../../utils'
 
 import ConnectionPoint from '../connectionPoint/connectionPoint'
-
-export interface IEptProps {
-	data: IEpt;
-	id: string;
-	onMove: Function;
-	bringOnTop: Function;
-	deleteEpt: Function,
-	deleteEptLinks: Function;
-};
 
 const emptyEpt = {
 	title: 'Undefined',
@@ -33,9 +25,12 @@ const emptyEpt = {
 	isComplete: true
 };
 
-const Ept = ({id, data=emptyEpt, onMove=()=>{}, bringOnTop, deleteEpt, deleteEptLinks}: IEptProps) => {
+const Ept = observer(({id, data=emptyEpt, onMove=()=>{}, bringOnTop, deleteEpt, deleteEptLinks}) => {
+	let store = useStore();
+	let me = store.activeEpt.epts[id];
+
 	let isStandalone = !id;
-	let position: IPosition = data.position;
+	let position = data.position;
 
 	let inPosition = isStandalone ?
 		{x: canvasWidth / 2, y: canvasHeight - 20} :
@@ -52,8 +47,8 @@ const Ept = ({id, data=emptyEpt, onMove=()=>{}, bringOnTop, deleteEpt, deleteEpt
 
 	return [
 		!isStandalone &&
-			<Draggable key='ept' position={ position } onStartDragging={ () => bringOnTop(id) }
-				onMove={ newPosition => onMove(id, newPosition) }>
+			<Draggable key='ept' position={position} onStartDragging={() => store.activeEpt.bringEptOnTop(id)}
+				onMove={newPosition => me.position = newPosition}>
 				<g className={className(classes)}>
 					<rect className="container" />
 					<text className="title">{ data.title }</text>
@@ -72,25 +67,25 @@ const Ept = ({id, data=emptyEpt, onMove=()=>{}, bringOnTop, deleteEpt, deleteEpt
 				position={ outPosition } types={ data.outputTypes }
 				payload={ id } isAnyAccepted={ data.outputIsFlexible } />
 	]
-}
+});
 
-const mapDispatchToProps = dispatch => {
-  return {
-    onMove: (id: string, position: IPosition) => {
-      	dispatch(eptMove(id, position))
-    },
-    bringOnTop: (id: string)  => {
-    	dispatch(eptBringOnTop(id))
-    },
-    deleteEpt: (id: string) => {
-    	dispatch(eptRemove(id))
-    },
-    deleteEptLinks: (id: string) => {
-    	dispatch(eptLinksRemove(id))
-    }
-  }
-}
+// const mapDispatchToProps = dispatch => {
+//   return {
+//     onMove: (id: string, position: IPosition) => {
+//       	dispatch(eptMove(id, position))
+//     },
+//     bringOnTop: (id: string)  => {
+//     	dispatch(eptBringOnTop(id))
+//     },
+//     deleteEpt: (id: string) => {
+//     	dispatch(eptRemove(id))
+//     },
+//     deleteEptLinks: (id: string) => {
+//     	dispatch(eptLinksRemove(id))
+//     }
+//   }
+// }
 
-const EptConnected = connect(null, mapDispatchToProps)(Ept)
+// const EptConnected = connect(null, mapDispatchToProps)(Ept)
 
-export default EptConnected;
+export default Ept;

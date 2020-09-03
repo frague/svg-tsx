@@ -1,7 +1,10 @@
 import React from 'react'
 
-import { connect } from 'react-redux'
-import { eptAdd, eptRemove } from '../../store/actions'
+// import { connect } from 'react-redux'
+// import { eptAdd, eptRemove } from '../../store/actions'
+
+import {useStore} from '../../store/useStore'
+import {observer} from 'mobx-react'
 
 import { IPosition, IEpt, ILink } from '../../interfaces'
 import { eptWidth, eptHeight, canvasWidth, canvasHeight } from '../../settings'
@@ -29,8 +32,10 @@ const getPosition = (id, epts, isInput): IPosition => {
 	return {x: ept.position.x + eptWidth / 2, y: ept.position.y + (isInput ? 0 : eptHeight)};
 };
 
-const Visualizer = ({activeEpt}: IVisualizerProps) => {
-	let { epts, links } = activeEpt;
+const Visualizer = observer((props) => {
+	const store = useStore();
+	let { epts, links } = store.activeEpt;
+	
 	return [
 		...Object.entries(links)
 			.map(([id, link]) =>
@@ -44,14 +49,14 @@ const Visualizer = ({activeEpt}: IVisualizerProps) => {
 					<ApplicationPoint key="ap" data={ data } />
 			),
 	];
-}
+})
 
-const mapStateToProps = state => {
-  return {
-    activeEpt: state.activeEpt,
-  }
-}
+// const mapStateToProps = state => {
+//   return {
+//     activeEpt: state.activeEpt,
+//   }
+// }
 
-const VisualizerConnected = connect(mapStateToProps)(Visualizer)
+// const VisualizerConnected = connect(mapStateToProps)(Visualizer)
 
-export default VisualizerConnected;
+export default Visualizer;

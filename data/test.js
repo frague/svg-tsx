@@ -16,7 +16,6 @@ export const primitives = [
 				'isMandatory': true,
 			}
 		},
-		'isComplete': true,
 		'inputTypes': ['interface'],
 		'outputTypes': ['subinterface'],
 	},
@@ -35,7 +34,6 @@ export const primitives = [
 				'isMandatory': true,
 			}
 		},
-		'isComplete': false,
 		'inputTypes': ['interface'],
 		'outputTypes': null,
 	},
@@ -54,7 +52,6 @@ export const primitives = [
 				'isMandatory': true,
 			}
 		},
-		'isComplete': false,
 		'inputTypes': ['interface', 'subinterface'],
 		'outputTypes': ['routable interface'],
 	},
@@ -69,7 +66,6 @@ export const primitives = [
 				'isMandatory': true,
 			}
 		},
-		'isComplete': false,
 		'inputTypes': ['routable interface'],
 		'outputTypes': ['routing session'],
 	},
@@ -84,7 +80,6 @@ export const primitives = [
 				'isMandatory': true,
 			}
 		},
-		'isComplete': false,
 		'inputTypes': ['routing session'],
 		'outputTypes': ['routing policy'],
 	},

@@ -1,72 +1,81 @@
 import React from 'react'
 import {Form, Button, Icon} from 'semantic-ui-react'
-import {connect} from 'react-redux'
-import {eptSetProperties, catalogueEptSave, activeEptReset} from '../../store/actions'
+// import {eptSetProperties, catalogueEptSave, activeEptReset} from '../../store/actions'
 import {generateId} from '../../utils'
+import {action} from 'mobx'
+import {observer} from 'mobx-react'
+import {useStore} from '../../store/useStore'
+import {Ept} from '../../store/store'
 
-class EptProperties extends React.Component {
+const EptProperties = observer((props) => {
 
-	updateProperties(id, title, description) {
-		this.props.setEptProperties(id, title, description);
-	}
-
-	save() {
-		let eptCopy = Object.assign({}, this.props.activeEpt);
-		if (!this.props.activeEpt.id) {
-			let id = generateId();
-			let {title, description} = this.props.activeEpt;
-			this.props.setEptProperties(id, title, description);
-			eptCopy.id = id;
+	const store = useStore();
+	let {id, title, description} = store.activeEpt;
+	
+	const save = () => {
+		if (!id) {
+			store.activeEpt.id = generateId();
 		}
-		this.props.saveEpt(eptCopy);
-	}
-
-	render() {
-		let {id, title, description} = this.props.activeEpt;
-		return <div className='properties'>
-			<h1>Endpoint Template</h1>
-			<Form>
-				<section>
-					<Form.Input label='Title' value={title}
-						onChange={event => this.updateProperties(id, event.target.value, description)} />
-				</section>
-				<section>
-					<Form.TextArea label='Description' value={description}
-						onChange={ event => this.updateProperties(id, title, event.target.value) }  />
-				</section>
-				<section>
-					<Button onClick={() => this.save()}>
-						<Icon name="check" /> Save 
-					</Button>
-					<Button onClick={() => this.props.resetActiveEpt()}>
-						<Icon name="plus" /> New EPT 
-					</Button>
-				</section>
-			</Form>
-		</div>
-	}
-}
-
-const mapStateToProps = state => {
-	return {
-		activeEpt: state.activeEpt
-	}
-};
-
-const mapDispatchToProps = dispatch => {
-	return {
-		setEptProperties: (id, title, description) => {
-			return dispatch(eptSetProperties(id, title, description));
-		},
-		saveEpt: (ept) => {
-			return dispatch(catalogueEptSave(ept));
-		},
-		resetActiveEpt: () => {
-			return dispatch(activeEptReset())
+		let met = false;
+		store.catalogue = store.catalogue.map(ept => {
+			if (ept.id === id) {
+				met = true;
+				return store.activeEpt;
+			}
+			return ept;
+		});
+		if (!met) {
+			store.catalogue.push(new Ept(store.activeEpt));
 		}
 	}
-}
 
-const EptPropertiesConnected = connect(mapStateToProps, mapDispatchToProps)(EptProperties);
+	const reset = () => {
+		store.activeEpt = new Ept();
+	}
 
-export default EptPropertiesConnected;
+	return <div className='properties'>
+		<h1>Endpoint Template</h1>
+		<Form>
+			<section>
+				<Form.Input label='Title' value={title}
+					onChange={event => store.activeEpt.title = event.target.value} />
+			</section>
+			<section>
+				<Form.TextArea label='Description' value={description}
+					onChange={event => store.activeEpt.description = event.target.value}  />
+			</section>
+			<section>
+				<Button onClick={() => save()}>
+					<Icon name="check" /> Save 
+				</Button>
+				<Button onClick={() => reset()}>
+					<Icon name="plus" /> New EPT 
+				</Button>
+			</section>
+		</Form>
+	</div>
+});
+
+// const mapStateToProps = state => {
+// 	return {
+// 		activeEpt: state.activeEpt
+// 	}
+// };
+
+// const mapDispatchToProps = dispatch => {
+// 	return {
+// 		setEptProperties: (id, title, description) => {
+// 			return dispatch(eptSetProperties(id, title, description));
+// 		},
+// 		saveEpt: (ept) => {
+// 			return dispatch(catalogueEptSave(ept));
+// 		},
+// 		resetActiveEpt: () => {
+// 			return dispatch(activeEptReset())
+// 		}
+// 	}
+// }
+
+// const EptPropertiesConnected = connect(mapStateToProps, mapDispatchToProps)(EptProperties);
+
+export default EptProperties;

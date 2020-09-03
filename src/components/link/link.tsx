@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { linkRemove } from '../../store/actions'
+// import { connect } from 'react-redux'
+// import { linkRemove } from '../../store/actions'
 
 import Draggable from '../draggable/draggable'
 
@@ -45,12 +45,12 @@ const Link = ({id, from, to, removeLink}: ILinkProps) => {
 	></path>
 }
 
-let mapDispatchToProps = dispatch => {
-	return {
-		removeLink: (id: string) => dispatch(linkRemove(id))
-	}
-};
+// let mapDispatchToProps = dispatch => {
+// 	return {
+// 		removeLink: (id: string) => dispatch(linkRemove(id))
+// 	}
+// };
 
-let LinkConnected = connect(null, mapDispatchToProps)(Link);
+// let LinkConnected = connect(null, mapDispatchToProps)(Link);
 
-export default LinkConnected;
+export default Link;

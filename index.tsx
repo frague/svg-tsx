@@ -1,28 +1,28 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { createStore } from 'redux'
-import { Provider } from 'react-redux'
-import appReducer from './src/store/reducers'
+// import { createStore } from 'redux'
+// import appReducer from './src/store/reducers'
 
-import { canvasWidth, canvasHeight } from './src/settings'
+import {canvasWidth, canvasHeight} from './src/settings'
+import EptBuilderStore from './src/store/store'
+import {StoreProvider} from './src/store/useStore'
 
-import EptProperties from './src/components/eptProperties/eptProperties'
 import Canvas from './src/components/canvas/canvas'
 import Visualizer from './src/components/visualizer/visualizer'
 import Catalogue from './src/components/catalogue/catalogue'
 import Parameters from './src/components/parameters/parameters'
+import EptProperties from './src/components/eptProperties/eptProperties'
 
 import 'semantic-ui-css/semantic.min.css'
 import './styles.scss';
 
-const store = createStore(appReducer);
 
 const half = canvasWidth / 2;
 
 ReactDOM.render(
-	<Provider store={ store }>
-		<EptProperties ept={ {title: 'Test'} }  />
+	<StoreProvider value={EptBuilderStore}>
+		<EptProperties />
 		<div className="builder">
 			<Catalogue />
 			<Parameters />
@@ -30,6 +30,6 @@ ReactDOM.render(
 				<Visualizer />
 			</Canvas>
 		</div>
-	</Provider>,
+	</StoreProvider>,
 	document.getElementById('content')
 );
