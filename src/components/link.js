@@ -29,7 +29,7 @@ const Link = ({id, from, to}) => {
 	const store = useStore();
 
 	let hy = (to.y - from.y) / 2;
-	return <path className="link" d={calcPath(from, to)} markerEnd="url(#arrow-marker)"
+	return <path className="link" d={calcPath(from, to)}
 		onClick={() => store.activeEpt.removeLink(id)}
 	></path>
 }

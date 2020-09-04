@@ -9,6 +9,9 @@ const Canvas = ({width, height, children}) => {
 			<marker id="arrow-marker" markerHeight="5" markerWidth="5" orient="auto" refX="2.5" refY="2.5">
 				<use href="#arrow" transform="rotate(180 2.5 2.5) scale(1,1)"></use>
 			</marker>
+			<marker id="arrow-marker-hover" markerHeight="5" markerWidth="5" orient="auto" refX="2.5" refY="2.5">
+				<use href="#arrow" transform="rotate(180 2.5 2.5) scale(1,1)"></use>
+			</marker>
 		</defs>
 		{children}
 	</svg>

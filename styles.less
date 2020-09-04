@@ -27,8 +27,6 @@ div.builder {
 }
 
 svg {
-	background-color: #FEFEFE;
-
 	text {
 		font-family: Lato, arial, tahoma, verdana;
 		font-size: 14px;
@@ -57,12 +55,12 @@ button.link {
 
 	 	.ept {
 	 		.container {
-	 			fill: rgba(200, 200, 200, 0.8);
+	 			fill: @ept-dragged;
 	 		}
 	 	}
 
 	 	.linker {
-	 		fill: #68707b;
+	 		fill: @linker-dragged;
 	 	}
  	}
 }
@@ -125,12 +123,12 @@ button.link {
 
 	text {
 		font-size: 9px;
-		fill: #828ea2;
+		fill: @cp-label;
 	}
 
 	&.in {
 		circle {
-			fill: #5cb459;
+			fill: @cp-in;
 		}
 
 		text {
@@ -141,7 +139,7 @@ button.link {
 
 	&.out {
 		circle {
-			fill: #4590e4;
+			fill: @cp-out;
 		}
 
 		text {
@@ -152,7 +150,6 @@ button.link {
 	&.standalone {
 		text {
 			text-anchor: start !important;
-			// transform: translate(15px, 15px);
 		}
 	}
 
@@ -167,16 +164,19 @@ button.link {
 .linker {
 	r: @connectionPointRadius - 3;
 	stroke-width: 0;
-	fill: rgba(255, 255, 255, 0.5);
+	fill: @linker;
 }
 
 .link {
 	fill: none;
-	stroke: #E3E3E3;
+	stroke: @link;
 	stroke-width: 2px;
 
+	marker-end: url("#arrow-marker");
+
 	&:hover {
-		stroke: @red;
+		stroke: @link-hover;
+		marker-end: url("#arrow-marker-hover");
 	}
 }
 
@@ -211,8 +211,8 @@ div.catalogue {
 }
 
 .shadow-stroke {
-	border: solid 1px #EEE;
-	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+	border: solid 1px @shadow-border;
+	box-shadow: 0 0 3px @shadow-stroke;
 	border-radius: 6px;
 	padding: 15px;
 	margin: 15px;
@@ -270,7 +270,7 @@ div.parameters {
 
 				li {
 					display: inline-block;
-					border: solid 1px #CCC;
+					border: solid 1px @parameter-enum-border;
 					padding: 4px 6px;
 					margin: 0 4px 4px 0;
 					border-radius: 4px;
@@ -292,12 +292,18 @@ path#arrow {
 	stroke-linecap: round;
 }
 
-marker#arrow-marker {
+marker {
 	use {
-		transform: translate(5px, 5px) rotate(180deg) scale(1,1);
-
+		// transform: translate(5px, 5px) rotate(180deg) scale(1,1);
 		stroke-width: 1.0000;
-		fill: #E3E3E3;
 		stroke: none;
+	}
+
+	&#arrow-marker use {
+		fill: @link;
+	}
+
+	&#arrow-marker-hover use {
+		fill: @link-hover;
 	}
 }

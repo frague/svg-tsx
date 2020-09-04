@@ -390,9 +390,6 @@ div.builder {
   display: flex;
   flex-direction: row;
 }
-svg {
-  background-color: #FEFEFE;
-}
 svg text {
   font-family: Lato, arial, tahoma, verdana;
   font-size: 14px;
@@ -495,9 +492,11 @@ button.link:active {
   fill: none;
   stroke: #E3E3E3;
   stroke-width: 2px;
+  marker-end: url("#arrow-marker");
 }
 .link:hover {
   stroke: #f55f07;
+  marker-end: url("#arrow-marker-hover");
 }
 div.catalogue,
 div.parameters {
@@ -591,11 +590,15 @@ div.parameters li.enum ul li.selected {
 path#arrow {
   stroke-linecap: round;
 }
-marker#arrow-marker use {
-  transform: translate(5px, 5px) rotate(180deg) scale(1, 1);
+marker use {
   stroke-width: 1;
-  fill: #E3E3E3;
   stroke: none;
+}
+marker#arrow-marker use {
+  fill: #E3E3E3;
+}
+marker#arrow-marker-hover use {
+  fill: #f55f07;
 }
 
 

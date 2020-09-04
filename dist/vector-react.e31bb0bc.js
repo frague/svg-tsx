@@ -34441,6 +34441,16 @@ var Canvas = function Canvas(_ref) {
   }, /*#__PURE__*/_react.default.createElement("use", {
     href: "#arrow",
     transform: "rotate(180 2.5 2.5) scale(1,1)"
+  })), /*#__PURE__*/_react.default.createElement("marker", {
+    id: "arrow-marker-hover",
+    markerHeight: "5",
+    markerWidth: "5",
+    orient: "auto",
+    refX: "2.5",
+    refY: "2.5"
+  }, /*#__PURE__*/_react.default.createElement("use", {
+    href: "#arrow",
+    transform: "rotate(180 2.5 2.5) scale(1,1)"
   }))), children);
 };
 
@@ -79588,7 +79598,6 @@ var Link = function Link(_ref) {
   return /*#__PURE__*/_react.default.createElement("path", {
     className: "link",
     d: calcPath(from, to),
-    markerEnd: "url(#arrow-marker)",
     onClick: function onClick() {
       return store.activeEpt.removeLink(id);
     }
