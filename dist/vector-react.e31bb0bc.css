@@ -521,8 +521,8 @@ div.parameters ul li h5 {
 }
 div.catalogue li.active {
   background-color: #a8e04f;
-  margin: -2px -8px 13px -8px;
-  padding: 2px 8px;
+  margin: -6px -8px 9px -8px;
+  padding: 6px 8px;
   border-radius: 4px;
 }
 div.catalogue button.link:nth-child(n + 3) {
