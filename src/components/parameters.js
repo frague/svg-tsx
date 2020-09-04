@@ -12,7 +12,7 @@ const Parameters = observer((props) => {
 		<Form>
 		{Object.values(store.activeEpt.epts)
 			.filter(ept => ept.id && ept.parameters && Object.keys(ept.parameters).length > 0)
-			.map((ept, index) => <EptParameters key={index} ept={ept} />)
+			.map(ept => <EptParameters key={ept.id} ept={ept} />)
 		}
 		</Form>
 	</div>

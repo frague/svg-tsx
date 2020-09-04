@@ -12,7 +12,7 @@ import Visualizer from './src/components/visualizer'
 import EptProperties from './src/components/eptProperties'
 
 import 'semantic-ui-css/semantic.min.css'
-import './styles.scss';
+import './styles.less';
 
 const half = canvasWidth / 2;
 

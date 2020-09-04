@@ -1,0 +1,303 @@
+@import "./variables.less";
+
+* {
+	font-family: Lato, arial, tahoma, verdana;	
+}
+
+div#content {
+	display: flex;
+	flex-direction: column;
+
+	svg {
+		flex: 0 0 800px;
+	}
+
+	.catalogue {
+		flex: 0 0 200px;
+	}
+
+	.parameters {
+		flex: 0 0 250px;
+	}
+}
+
+div.builder {
+	display: flex;
+	flex-direction: row;
+}
+
+svg {
+	background-color: #FEFEFE;
+
+	text {
+		font-family: Lato, arial, tahoma, verdana;
+		font-size: 14px;
+	}
+}
+
+button.link {
+	background-color: transparent;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	display: inline;
+	cursor: pointer;
+	color: @blue;
+	
+	&, &:active {
+		outline: none;
+	}
+}
+
+.draggable {
+	cursor: pointer;
+ 	
+ 	&.drag {
+ 		cursor: move;
+
+	 	.ept {
+	 		.container {
+	 			fill: rgba(200, 200, 200, 0.8);
+	 		}
+	 	}
+
+	 	.linker {
+	 		fill: #68707b;
+	 	}
+ 	}
+}
+
+.ept {
+	stroke-width: 0;
+
+	&:hover {
+		.container {
+			fill: @ept-hover;
+		}
+
+		text.action {
+			display: block;
+		}
+	}
+
+	&.incomplete {
+		.container {
+			fill: @red;
+		}
+	}
+
+	.container {
+		width: @eptWidth;
+		height: @eptHeight;
+		fill: @ept-normal;
+		stroke: @white;
+		stroke-width: 1;
+		rx: 4px;
+		ry: 4px;
+	}
+
+	text {
+		&.title {
+			font-size: 12px;
+			transform: translate(@eptWidth / 2, 4px + @eptHeight / 2);
+			width: 100px;
+			clip-path: inset(0 calc(100% - @eptWidth - 20px) 0 0);
+			fill: @white;
+			text-anchor: middle;
+		}
+
+		&.action {
+			transform: translate(@eptWidth - 14px, 16px);
+			font-size: 18px;
+			fill: @white;
+			display: none;
+		}
+	}
+}
+
+.connection-point {
+	circle {
+		r: @connectionPointRadius;
+		stroke-width: 1;
+		stroke: @white;
+
+	}
+
+	text {
+		font-size: 9px;
+		fill: #828ea2;
+	}
+
+	&.in {
+		circle {
+			fill: #5cb459;
+		}
+
+		text {
+			transform: translate(-15px, -4px);
+			text-anchor: end;
+		}
+	}
+
+	&.out {
+		circle {
+			fill: #4590e4;
+		}
+
+		text {
+			transform: translate(15px, 10px);
+		}
+	}
+
+	&.standalone {
+		text {
+			text-anchor: start !important;
+			// transform: translate(15px, 15px);
+		}
+	}
+
+	&.approached {
+		circle {
+			stroke: @orange;
+			stroke-width: 3px;
+		}
+	}
+}
+
+.linker {
+	r: @connectionPointRadius - 3;
+	stroke-width: 0;
+	fill: rgba(255, 255, 255, 0.5);
+}
+
+.link {
+	fill: none;
+	stroke: #E3E3E3;
+	stroke-width: 2px;
+
+	&:hover {
+		stroke: @red;
+	}
+}
+
+div.catalogue, div.parameters {
+	.shadow-stroke();
+
+	ul {
+		padding-left: 0;
+
+		li {
+			margin-bottom: 15px;
+			list-style: none;
+
+			h5 {
+				margin: 0;
+			}
+		}
+	}
+}
+
+div.catalogue {
+	li.active {
+		background-color: @green;
+		margin: -2px -8px 13px -8px;
+    	padding: 2px 8px;
+    	border-radius: 4px;
+	}
+
+	button.link:nth-child(n + 3) {
+		margin-left: 8px;
+	}
+}
+
+.shadow-stroke {
+	border: solid 1px #EEE;
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+	border-radius: 6px;
+	padding: 15px;
+	margin: 15px;
+}
+
+div.properties {
+	.shadow-stroke();
+
+	form {
+		display: flex;
+
+		section {
+			&:nth-child(1) {
+				// Title
+				flex: 2 1;
+			}
+
+			&:nth-child(2) {
+				// Description
+				flex: 3 1;
+				padding: 0 20px;
+			}
+
+			&:nth-child(3) {
+				// Buttons
+				flex: 0 0 222px;
+				padding-top: 23px;
+				text-align: center;
+			}
+		}
+	}
+}
+
+div.parameters {
+	@extend .shadow-stroke;
+
+	h5 {
+		cursor: pointer;
+	}
+
+	li {
+		&.mandatory label:after {
+			content: "*";
+			color: @red;
+			margin-left: 2px;
+		}
+
+		&.enum {
+			.field {
+				margin-bottom: 0;
+				height: 26px;
+			}
+			ul {
+				padding-left: 0;
+
+				li {
+					display: inline-block;
+					border: solid 1px #CCC;
+					padding: 4px 6px;
+					margin: 0 4px 4px 0;
+					border-radius: 4px;
+					cursor: pointer;
+
+					&.selected {
+						background-color: @blue;
+						color: @white;
+					}
+				}
+			}
+		}
+	}
+}
+
+
+// Definitions
+path#arrow {
+	stroke-linecap: round;
+}
+
+marker#arrow-marker {
+	use {
+		transform: translate(5px, 5px) rotate(180deg) scale(1,1);
+
+		stroke-width: 1.0000;
+		fill: #E3E3E3;
+		stroke: none;
+	}
+}

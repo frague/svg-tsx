@@ -69,27 +69,28 @@ export class Ept {
         }
     }
 
-    clone() {
+    clone(data={}) {
         let {id, title, description, type, inputTypes, inputIsFlexible, 
             outputTypes, outputIsFlexible, position, epts, links, parameters} = toJS(this);
 
-        return new Ept({
-            id, title, description, type, inputTypes, inputIsFlexible,
-            outputTypes, outputIsFlexible,
-            epts: Object.values(epts).reduce((result, ept) => {
-                result[ept.id] = new Ept(ept);
-                return result;
-            }, {}),
-            links: Object.values(links).reduce((result, link) => {
-                let newLink = new Link(link);
-                result[newLink.id] = newLink;
-                return result;
-            }, {}),
-            parameters: Object.entries(parameters).reduce((result, [name, data]) => {
-                result.name = Object.assign({}, data);
-                return result;
-            }, {})
-        });
+        return new Ept(Object.assign({
+                id, title, description, type, inputTypes, inputIsFlexible,
+                outputTypes, outputIsFlexible,
+                epts: Object.values(epts).reduce((result, ept) => {
+                    result[ept.id] = new Ept(ept);
+                    return result;
+                }, {}),
+                links: Object.values(links).reduce((result, link) => {
+                    let newLink = new Link(link);
+                    result[newLink.id] = newLink;
+                    return result;
+                }, {}),
+                parameters: Object.entries(parameters).reduce((result, [name, data]) => {
+                    result[name] = Object.assign({}, data);
+                    return result;
+                }, {})
+            }, data
+        ));
     }
 
     constructor(data={}) {
@@ -130,10 +131,10 @@ class ActiveEptStore extends Ept {
 
     @action
     addEpt(ept) {
-        let newEpt = new Ept(Object.assign({}, ept, {
+        let newEpt = ept.clone({
             id: generateId(),
             order: 0
-        }));
+        });
         this.bringEptOnTop(newEpt);
         this.epts[newEpt.id] = newEpt;
 
