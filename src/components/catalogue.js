@@ -1,8 +1,7 @@
 import React from 'react'
 import {observer} from 'mobx-react'
 import {useStore} from '../store/useStore'
-
-import {className} from '../utils'
+import cx from 'classnames'
 import {Ept} from '../store/store'
 
 const Catalogue = observer((props) => {
@@ -15,7 +14,7 @@ const Catalogue = observer((props) => {
 			{epts.map((ept, index) => {
 				let isActive = ept.id === id;
 
-				return <li key={index} className={className({active: isActive})}>
+				return <li key={index} className={cx({active: isActive})}>
 					<h5>{ept.title}</h5>
 					{!isActive && 
 						<button className="link" onClick={() => store.activeEpt.useEpt(ept)}>Use</button>

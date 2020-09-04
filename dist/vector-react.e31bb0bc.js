@@ -33555,7 +33555,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.generateId = generateId;
-exports.className = className;
 exports.findIntersection = findIntersection;
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -33574,21 +33573,6 @@ function generateId() {
   return 'ID' + ('000000' + Math.round(99999 * Math.random())).substr(-5);
 }
 
-function className(names) {
-  return Object.entries(names).filter(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        name = _ref2[0],
-        condition = _ref2[1];
-
-    return !!condition;
-  }).map(function (_ref3) {
-    var _ref4 = _slicedToArray(_ref3, 1),
-        name = _ref4[0];
-
-    return name;
-  }).join(' ');
-}
-
 function findIntersection(source) {
   var sets = source.length;
   var counts = source.reduce(function (result, subset) {
@@ -33598,15 +33582,15 @@ function findIntersection(source) {
     });
     return result;
   }, {});
-  var intersection = Object.entries(counts).filter(function (_ref5) {
-    var _ref6 = _slicedToArray(_ref5, 2),
-        name = _ref6[0],
-        count = _ref6[1];
+  var intersection = Object.entries(counts).filter(function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2),
+        name = _ref2[0],
+        count = _ref2[1];
 
     return count === sets;
-  }).map(function (_ref7) {
-    var _ref8 = _slicedToArray(_ref7, 1),
-        name = _ref8[0];
+  }).map(function (_ref3) {
+    var _ref4 = _slicedToArray(_ref3, 1),
+        name = _ref4[0];
 
     return name;
   }).sort();
@@ -35352,7 +35336,62 @@ if (!_mobx.observable) throw new Error("mobx-react requires mobx to be available
 "function" == typeof _reactDom.unstable_batchedUpdates && (0, _mobx.configure)({
   reactionScheduler: _reactDom.unstable_batchedUpdates
 });
-},{"react-dom":"node_modules/react-dom/index.js","mobx-react-lite":"node_modules/mobx-react-lite/dist/index.module.js","react":"node_modules/react/index.js","mobx":"node_modules/mobx/lib/mobx.module.js"}],"src/components/catalogue.js":[function(require,module,exports) {
+},{"react-dom":"node_modules/react-dom/index.js","mobx-react-lite":"node_modules/mobx-react-lite/dist/index.module.js","react":"node_modules/react/index.js","mobx":"node_modules/mobx/lib/mobx.module.js"}],"node_modules/classnames/index.js":[function(require,module,exports) {
+var define;
+/*!
+  Copyright (c) 2017 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+/* global define */
+
+(function () {
+	'use strict';
+
+	var hasOwn = {}.hasOwnProperty;
+
+	function classNames () {
+		var classes = [];
+
+		for (var i = 0; i < arguments.length; i++) {
+			var arg = arguments[i];
+			if (!arg) continue;
+
+			var argType = typeof arg;
+
+			if (argType === 'string' || argType === 'number') {
+				classes.push(arg);
+			} else if (Array.isArray(arg) && arg.length) {
+				var inner = classNames.apply(null, arg);
+				if (inner) {
+					classes.push(inner);
+				}
+			} else if (argType === 'object') {
+				for (var key in arg) {
+					if (hasOwn.call(arg, key) && arg[key]) {
+						classes.push(key);
+					}
+				}
+			}
+		}
+
+		return classes.join(' ');
+	}
+
+	if (typeof module !== 'undefined' && module.exports) {
+		classNames.default = classNames;
+		module.exports = classNames;
+	} else if (typeof define === 'function' && typeof define.amd === 'object' && define.amd) {
+		// register as 'classnames', consistent with npm package name
+		define('classnames', [], function () {
+			return classNames;
+		});
+	} else {
+		window.classNames = classNames;
+	}
+}());
+
+},{}],"src/components/catalogue.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -35366,7 +35405,7 @@ var _mobxReact = require("mobx-react");
 
 var _useStore = require("../store/useStore");
 
-var _utils = require("../utils");
+var _classnames = _interopRequireDefault(require("classnames"));
 
 var _store = require("../store/store");
 
@@ -35382,7 +35421,7 @@ var Catalogue = (0, _mobxReact.observer)(function (props) {
     var isActive = ept.id === id;
     return /*#__PURE__*/_react.default.createElement("li", {
       key: index,
-      className: (0, _utils.className)({
+      className: (0, _classnames.default)({
         active: isActive
       })
     }, /*#__PURE__*/_react.default.createElement("h5", null, ept.title), !isActive && /*#__PURE__*/_react.default.createElement("button", {
@@ -35400,7 +35439,7 @@ var Catalogue = (0, _mobxReact.observer)(function (props) {
 });
 var _default = Catalogue;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../store/useStore":"src/store/useStore.js","../utils":"src/utils.js","../store/store":"src/store/store.js"}],"node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../store/useStore":"src/store/useStore.js","classnames":"node_modules/classnames/index.js","../store/store":"src/store/store.js"}],"node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79160,7 +79199,9 @@ var _semanticUiReact = require("semantic-ui-react");
 
 var _useStore = require("../store/useStore");
 
-var _utils = require("../utils.js");
+var _classnames = _interopRequireDefault(require("classnames"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -79192,7 +79233,7 @@ var CheckboxParameter = (0, _mobxReact.observer)(function (_ref2) {
       data = _ref2.data,
       value = _ref2.value,
       _onChange2 = _ref2.onChange;
-  var classes = (0, _utils.className)({
+  var classes = (0, _classnames.default)({
     'checkbox': true,
     'mandatory': data.isMandatory
   });
@@ -79211,7 +79252,7 @@ var EnumParameter = (0, _mobxReact.observer)(function (_ref3) {
       data = _ref3.data,
       value = _ref3.value,
       onChange = _ref3.onChange;
-  var classes = (0, _utils.className)({
+  var classes = (0, _classnames.default)({
     'enum': true,
     'mandatory': data.isMandatory
   });
@@ -79236,7 +79277,7 @@ var InputParameter = (0, _mobxReact.observer)(function (_ref4) {
       data = _ref4.data,
       value = _ref4.value,
       _onChange3 = _ref4.onChange;
-  var classes = (0, _utils.className)({
+  var classes = (0, _classnames.default)({
     'mandatory': data.isMandatory
   });
   return /*#__PURE__*/_react.default.createElement("li", {
@@ -79252,7 +79293,7 @@ var InputParameter = (0, _mobxReact.observer)(function (_ref4) {
 });
 var _default = Parameter;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","../store/useStore":"src/store/useStore.js","../utils.js":"src/utils.js"}],"src/components/eptParameters.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","../store/useStore":"src/store/useStore.js","classnames":"node_modules/classnames/index.js"}],"src/components/eptParameters.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79364,7 +79405,9 @@ exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _utils = require("../utils");
+var _classnames = _interopRequireDefault(require("classnames"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -79453,7 +79496,7 @@ var Draggable = function Draggable(_ref) {
   });
   var x = position.x,
       y = position.y;
-  var classes = (0, _utils.className)({
+  var classes = (0, _classnames.default)({
     draggable: true,
     drag: isDragging
   });
@@ -79496,7 +79539,7 @@ var Draggable = function Draggable(_ref) {
 
 var _default = Draggable;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","../utils":"src/utils.js"}],"src/components/link.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","classnames":"node_modules/classnames/index.js"}],"src/components/link.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79565,6 +79608,8 @@ exports.default = void 0;
 var _react = _interopRequireWildcard(require("react"));
 
 var _mobxReact = require("mobx-react");
+
+var _classnames = _interopRequireDefault(require("classnames"));
 
 var _useStore = require("../store/useStore");
 
@@ -79761,7 +79806,7 @@ var ConnectionPoint = (0, _mobxReact.observer)(function (_ref2) {
       }
     }
   });
-  var classes = (0, _utils.className)({
+  var classes = (0, _classnames.default)({
     'connection-point': true,
     'in': isInput,
     'out': !isInput,
@@ -79819,7 +79864,7 @@ var ConnectionPoint = (0, _mobxReact.observer)(function (_ref2) {
 });
 var _default = ConnectionPoint;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../store/useStore":"src/store/useStore.js","../settings":"src/settings.js","../utils":"src/utils.js","./draggable":"src/components/draggable.js","./link":"src/components/link.js"}],"src/components/ept.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","classnames":"node_modules/classnames/index.js","../store/useStore":"src/store/useStore.js","../settings":"src/settings.js","../utils":"src/utils.js","./draggable":"src/components/draggable.js","./link":"src/components/link.js"}],"src/components/ept.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79837,7 +79882,7 @@ var _draggable = _interopRequireDefault(require("./draggable"));
 
 var _settings = require("../settings");
 
-var _utils = require("../utils");
+var _classnames = _interopRequireDefault(require("classnames"));
 
 var _connectionPoint = _interopRequireDefault(require("./connectionPoint"));
 
@@ -79885,7 +79930,7 @@ var Ept = (0, _mobxReact.observer)(function (_ref) {
     x: position.x + _settings.eptWidth / 2,
     y: position.y + _settings.eptHeight
   };
-  var classes = (0, _utils.className)({
+  var classes = (0, _classnames.default)({
     ept: true,
     incomplete: !data.isComplete
   });
@@ -79929,7 +79974,7 @@ var Ept = (0, _mobxReact.observer)(function (_ref) {
 });
 var _default = Ept;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../store/useStore":"src/store/useStore.js","./draggable":"src/components/draggable.js","../settings":"src/settings.js","../utils":"src/utils.js","./connectionPoint":"src/components/connectionPoint.js"}],"src/components/applicationPoint.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../store/useStore":"src/store/useStore.js","./draggable":"src/components/draggable.js","../settings":"src/settings.js","classnames":"node_modules/classnames/index.js","./connectionPoint":"src/components/connectionPoint.js"}],"src/components/applicationPoint.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80265,7 +80310,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57348" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61374" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

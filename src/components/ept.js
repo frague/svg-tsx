@@ -5,7 +5,7 @@ import {useStore} from '../store/useStore'
 import Draggable from './draggable'
 
 import {eptWidth, eptHeight, canvasWidth, canvasHeight} from '../settings'
-import {className} from '../utils'
+import cx from 'classnames'
 
 import ConnectionPoint from './connectionPoint'
 
@@ -39,7 +39,7 @@ const Ept = observer(({id, data}) => {
 		{x: canvasWidth / 2, y: 20} :
 		{x: position.x + eptWidth / 2, y: position.y + eptHeight};
 
-	let classes = className({
+	let classes = cx({
 		ept: true,
 		incomplete: !data.isComplete
 	});

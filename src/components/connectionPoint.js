@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react'
 import {observer} from 'mobx-react'
+import cx from 'classnames'
 import {useStore} from '../store/useStore'
 import {connectionPointRadius, proximity} from '../settings'
-import {className, findIntersection} from '../utils'
+import {findIntersection} from '../utils'
 import Draggable from './draggable'
 import Link from './link'
 
@@ -128,7 +129,7 @@ const ConnectionPoint = observer(({position, isInput, types=null, isMultiple=fal
 		}
 	});
 
-	let classes = className({
+	let classes = cx({
 		'connection-point': true,
 		'in': isInput,
 		'out': !isInput,

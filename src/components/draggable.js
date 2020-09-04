@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import {className} from '../utils'
+import cx from 'classnames'
 
 const Draggable = ({position={x: 0, y: 0}, children, isRelative=false, 
 	onStartDragging=()=>{}, onMove=(position)=>{}, onDrop=()=>{}}) => {
@@ -24,11 +24,10 @@ const Draggable = ({position={x: 0, y: 0}, children, isRelative=false,
 	});
 
 	let {x, y} = position;
-	let classes = className({
+	let classes = cx({
 		draggable: true,
 		drag: isDragging
 	});
-
 	return <g className={classes} transform={`translate(${x},${y})`}
 		onMouseDown={event => {
 			event.stopPropagation();
