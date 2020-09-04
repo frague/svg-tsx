@@ -1,18 +1,10 @@
 import React, {useState, useEffect} from 'react'
-
-// import {IPosition} from '../../interfaces'
-import {connectionPointRadius, proximity} from '../../settings'
-import {className, findIntersection} from '../../utils'
-// import { 
-// 	connectionCandidateSearch, connectionCandidateRegister, connectionCandidateReset,
-// 	linkAdd, eptSetAcceptedTypes
-// } from '../../store/actions'
-
-import {useStore} from '../../store/useStore'
 import {observer} from 'mobx-react'
-
-import Draggable from '../draggable/draggable'
-import Link from '../link/link'
+import {useStore} from '../store/useStore'
+import {connectionPointRadius, proximity} from '../settings'
+import {className, findIntersection} from '../utils'
+import Draggable from './draggable'
+import Link from './link'
 
 function startDragging(event, setDragging, setOffset) {
 	setOffset({x: event.clientX, y: event.clientY});
@@ -136,7 +128,7 @@ const ConnectionPoint = observer(({position, isInput, types=null, isMultiple=fal
 		}
 	});
 
-	let classNames = className({
+	let classes = className({
 		'connection-point': true,
 		'in': isInput,
 		'out': !isInput,
@@ -144,25 +136,24 @@ const ConnectionPoint = observer(({position, isInput, types=null, isMultiple=fal
 		'standalone': !payload
 	});
 
-
 	return [
-		<g key='connection-point' transform={ `translate(${position.x},${position.y})` } className={ classNames }>
-			<circle radius={ connectionPointRadius } />
-			<text>{ typesLabel }</text>
+		<g key="connection-point" transform={`translate(${position.x},${position.y})`} className={classes}>
+			<circle radius={connectionPointRadius} />
+			<text>{typesLabel}</text>
 		</g>,
 
 		(isMultiple || !hasConnections) && [
 			// Don't show dragger for single-connection points already connected
-			<Draggable key='linker' position={ myPosition } isRelative={ false }
-				onStartDragging={ event => startDragging(event, setDragging, setOffset) }
-				onMove={ mousePosition => {
+			<Draggable key="linker" position={myPosition} isRelative={false}
+				onStartDragging={event => startDragging(event, setDragging, setOffset)}
+				onMove={mousePosition => {
 					// When linker is being dragged:
 					// * update search criteria (including current position)
 					connection.startSearching({isInput, types, position: mousePosition, payload, isAnyAccepted, hasConnections});
 					// * update linker position according to the mouse
 					setMyPosition({x: mousePosition.x, y: mousePosition.y});
 				}}
-				onDrop={ () => setDragging(null) }
+				onDrop={() => setDragging(null)}
 			>
 				<circle className="linker"></circle>
 			</Draggable>,
@@ -170,41 +161,10 @@ const ConnectionPoint = observer(({position, isInput, types=null, isMultiple=fal
 			isDragging &&
 				// When linker is being dragged a temporary link to in must be shown
 				(isInput ? 
-					<Link key='link' to={ position } from={ myPosition } /> :
-					<Link key='link' from={ position } to={ myPosition } />)
-
+					<Link key="link" to={position} from={myPosition} /> :
+					<Link key="link" from={position} to={myPosition} />)
 		]
 	]
 })
-
-// const mapStateToProps = state => {
-//   return {
-//     connectionSearched: state.connectionSearched,
-//     activeEpt: state.activeEpt,
-//   }
-// }
-
-// const mapDispatchToProps = dispatch => {
-// 	return {
-// 		candidateSearch: (isInput: boolean, types: string[], position: IPosition, 
-// 			payload: string, isAnyAccepted: boolean, hasConnections: boolean) => {
-// 			dispatch(connectionCandidateSearch(isInput, types, position, payload, isAnyAccepted, hasConnections))
-// 		},
-// 		candidateReset: () => {
-// 			dispatch(connectionCandidateReset())
-// 		},
-// 		candidateRegister: (candidate) => {
-// 			dispatch(connectionCandidateRegister(candidate))
-// 		},
-// 		addLink: (from: string, to: string) => {
-// 			dispatch(linkAdd(from, to))
-// 		},
-// 		eptSetTypes: (id: string, types: string[]|string, isInput: boolean) => {
-// 			dispatch(eptSetAcceptedTypes(id, types, isInput))
-// 		}
-// 	}
-// }
-
-// const ConnectionPointConnected = connect(mapStateToProps, mapDispatchToProps)(ConnectionPoint)
 
 export default ConnectionPoint;

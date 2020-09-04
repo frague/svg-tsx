@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
-import {useStore} from '../../store/useStore'
-import {connectionPointRadius} from '../../settings'
+import {useStore} from '../store/useStore'
+import {connectionPointRadius} from '../settings'
 
 function calcPath(from, to) {
 	let {x, y} = from;

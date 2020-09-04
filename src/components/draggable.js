@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import {className} from '../../utils'
+import {className} from '../utils'
 
 const Draggable = ({position={x: 0, y: 0}, children, isRelative=false, 
 	onStartDragging=()=>{}, onMove=(position)=>{}, onDrop=()=>{}}) => {
@@ -30,7 +30,7 @@ const Draggable = ({position={x: 0, y: 0}, children, isRelative=false,
 	});
 
 	return <g className={classes} transform={`translate(${x},${y})`}
-		onMouseDown={ event => {
+		onMouseDown={event => {
 			event.stopPropagation();
 			setDragging(true);
 			onStartDragging(event);
@@ -41,18 +41,18 @@ const Draggable = ({position={x: 0, y: 0}, children, isRelative=false,
 			setPreviousPosition(clickPosition);
 
 			let canvas = document.getElementById('canvas');
-			canvas.onmousemove = event => {
+			canvas.onmousemove = (event) => {
 				event.preventDefault();
 				setMousePosition({x: event.clientX, y: event.clientY});
 			}
-			canvas.onmouseup = event => {
+			canvas.onmouseup = (event) => {
 				canvas.onmouseup = undefined;
 				canvas.onmousemove = undefined;
 				setDragging(false);
 				onDrop();
 			}
 		}}
-	>{ children }</g>
+	>{children}</g>
 };
 
 export default Draggable;

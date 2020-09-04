@@ -5,11 +5,11 @@ import {canvasWidth, canvasHeight} from './src/settings'
 import EptBuilderStore from './src/store/store'
 import {StoreProvider} from './src/store/useStore'
 
-import Canvas from './src/components/canvas/canvas'
-import Visualizer from './src/components/visualizer/visualizer'
-import Catalogue from './src/components/catalogue/catalogue'
-import Parameters from './src/components/parameters/parameters'
-import EptProperties from './src/components/eptProperties/eptProperties'
+import Canvas from './src/components/canvas'
+import Catalogue from './src/components/catalogue'
+import Parameters from './src/components/parameters'
+import Visualizer from './src/components/visualizer'
+import EptProperties from './src/components/eptProperties'
 
 import 'semantic-ui-css/semantic.min.css'
 import './styles.scss';

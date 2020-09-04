@@ -12,13 +12,13 @@ const applicationPoint = {
     id: ''
 };
 
-class Parameter {
-    type = '';
-    defaultValue = '';
-    values = [];
-    isMandatory = false;
-    @observable value = '';
-}
+// class Parameter {
+//     type = '';
+//     defaultValue = '';
+//     values = [];
+//     isMandatory = false;
+//     @observable value = '';
+// }
 
 const emptyEpt = {
     id: '',
@@ -75,7 +75,7 @@ export class Ept {
 
         return new Ept({
             id, title, description, type, inputTypes, inputIsFlexible,
-            outputTypes, outputIsFlexible, parameters,
+            outputTypes, outputIsFlexible,
             epts: Object.values(epts).reduce((result, ept) => {
                 result[ept.id] = new Ept(ept);
                 return result;
@@ -83,6 +83,10 @@ export class Ept {
             links: Object.values(links).reduce((result, link) => {
                 let newLink = new Link(link);
                 result[newLink.id] = newLink;
+                return result;
+            }, {}),
+            parameters: Object.entries(parameters).reduce((result, [name, data]) => {
+                result.name = Object.assign({}, data);
                 return result;
             }, {})
         });

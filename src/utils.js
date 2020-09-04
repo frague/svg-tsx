@@ -1,12 +1,12 @@
-export function generateId(): string {
+export function generateId() {
 	return 'ID' + ('000000' + Math.round(99999 * Math.random())).substr(-5);
 }
 
-export function className(names: any): string {
+export function className(names) {
 	return Object.entries(names).filter(([name, condition]) => !!condition).map(([name]) => name).join(' ');
 }
 
-export function findIntersection(source: string[][]): string[] {
+export function findIntersection(source) {
 	let sets = source.length;
 	let counts = source.reduce((result, subset) => {
 		(subset || []).forEach(type => {

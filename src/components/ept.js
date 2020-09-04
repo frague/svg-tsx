@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import {observer} from 'mobx-react'
-import {useStore} from '../../store/useStore'
+import {useStore} from '../store/useStore'
 
-import Draggable from '../draggable/draggable'
+import Draggable from './draggable'
 
-import {eptWidth, eptHeight, canvasWidth, canvasHeight} from '../../settings'
-import {className} from '../../utils'
+import {eptWidth, eptHeight, canvasWidth, canvasHeight} from '../settings'
+import {className} from '../utils'
 
-import ConnectionPoint from '../connectionPoint/connectionPoint'
+import ConnectionPoint from './connectionPoint'
 
 const emptyEpt = {
 	title: 'Undefined',
@@ -46,7 +46,7 @@ const Ept = observer(({id, data}) => {
 
 	return [
 		!isStandalone &&
-			<Draggable key='ept' position={position} onStartDragging={() => activeEpt.bringEptOnTop(id)}
+			<Draggable key="ept" position={position} onStartDragging={() => activeEpt.bringEptOnTop(id)}
 				onMove={newPosition => me.position = newPosition}>
 				<g className={classes}>
 					<rect className="container" />
@@ -55,10 +55,10 @@ const Ept = observer(({id, data}) => {
 				</g>
 			</Draggable>,
 		(!isStandalone && (data.inputTypes || data.inputIsFlexible)) &&
-			<ConnectionPoint key='in' isInput={true} position={inPosition} types={data.inputTypes}
+			<ConnectionPoint key="in" isInput={true} position={inPosition} types={data.inputTypes}
 				payload={id} isMultiple={isStandalone} isAnyAccepted={data.inputIsFlexible} />,
 		(data.outputTypes || data.outputIsFlexible) &&
-			<ConnectionPoint key='out' isInput={false} isMultiple={true} position={outPosition}
+			<ConnectionPoint key="out" isInput={false} isMultiple={true} position={outPosition}
 				types={data.outputTypes} payload={id} isAnyAccepted={data.outputIsFlexible} />
 	]
 });

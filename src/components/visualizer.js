@@ -1,10 +1,10 @@
 import React from 'react'
 import {observer} from 'mobx-react'
-import {useStore} from '../../store/useStore'
-import {eptWidth, eptHeight, canvasWidth, canvasHeight} from '../../settings'
-import Ept from '../ept/ept'
-import Link from '../link/link'
-import ApplicationPoint from '../applicationPoint/applicationPoint'
+import {useStore} from '../store/useStore'
+import {eptWidth, eptHeight, canvasWidth, canvasHeight} from '../settings'
+import Ept from './ept'
+import Link from './link'
+import ApplicationPoint from './applicationPoint'
 
 const eptOrder = ([, ept1], [, ept2]) => ept1.order < ept2.order ? -1 : 1;
 

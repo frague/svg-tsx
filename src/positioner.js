@@ -1,5 +1,4 @@
 import { eptWidth, eptHeight, canvasWidth, canvasHeight } from './settings'
-import { IEpt, IPosition } from './interfaces'
 import { findIntersection } from './utils'
 
 export class Positioner {

@@ -1,9 +1,9 @@
 import React from 'react'
 import {observer} from 'mobx-react'
-import {useStore} from '../../store/useStore'
+import {useStore} from '../store/useStore'
 
-import {className} from '../../utils'
-import {Ept} from '../../store/store'
+import {className} from '../utils'
+import {Ept} from '../store/store'
 
 const Catalogue = observer((props) => {
 	const store = useStore();

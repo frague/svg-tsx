@@ -1,19 +1,17 @@
 import React, {useState} from 'react'
 import {observer} from 'mobx-react'
-import {useStore} from '../../store/useStore'
 import {Form} from 'semantic-ui-react'
-import {className} from '../../utils'
+import {useStore} from '../store/useStore'
+import {className} from '../utils.js'
 
-const Parameter = ({name, data, onChange}) => {
-	let [value, setValue] = useState(data.defaultValue || '');
+const Parameter = observer(({name, data, onChange}) => {
 
 	const childrenProps = {
 		name,
-		value,
+		value: data.value || data.defaultValue || '',
 		data,
 		onChange: (value) => {
 			onChange(name, value);
-			setValue(value);
 		}
 	};
 
@@ -23,7 +21,7 @@ const Parameter = ({name, data, onChange}) => {
 		return <EnumParameter {...childrenProps} />;
 	}
 	return <InputParameter {...childrenProps} />;
-}
+})
 
 const CheckboxParameter = observer(({name, data, value, onChange}) => {
 	let classes = className({
@@ -48,7 +46,7 @@ const EnumParameter = observer(({name, data, value, onChange}) => {
 				<li key={index} 
 					className={data.value === value ? 'selected' : ''}
 					onClick={() => onChange(data.value === value ? '' : value)}
-				>{ value }</li>)
+				>{value}</li>)
 			}
 		</ul>
 	</li>;

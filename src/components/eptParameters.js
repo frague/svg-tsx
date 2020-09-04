@@ -1,14 +1,14 @@
 import React, {useState} from 'react'
+import {observer} from 'mobx-react'
 import {Icon} from 'semantic-ui-react'
 import Parameter from './parameter'
-import {observer} from 'mobx-react'
 
-const EptParameters = ({ept}) => {
+const EptParameters = observer(({ept}) => {
 	let [isCollapsed, setCollapsed] = useState(ept.isComplete);
 	let onChange = (name, value) => ept.setParameter(name, value);
 
 	return <ul>
-		<h5 onClick={ () => setCollapsed(!isCollapsed) }>
+		<h5 onClick={() => setCollapsed(!isCollapsed)}>
 			<Icon name={'triangle ' + (isCollapsed ? 'right' : 'down')} />{ept.title}
 		</h5>
 		{!isCollapsed && 
@@ -20,6 +20,6 @@ const EptParameters = ({ept}) => {
 			</ul>
 		}
 	</ul>
-}
+})
 
 export default EptParameters;
