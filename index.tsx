@@ -1,9 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-// import { createStore } from 'redux'
-// import appReducer from './src/store/reducers'
-
 import {canvasWidth, canvasHeight} from './src/settings'
 import EptBuilderStore from './src/store/store'
 import {StoreProvider} from './src/store/useStore'
@@ -17,7 +14,6 @@ import EptProperties from './src/components/eptProperties/eptProperties'
 import 'semantic-ui-css/semantic.min.css'
 import './styles.scss';
 
-
 const half = canvasWidth / 2;
 
 ReactDOM.render(
@@ -26,7 +22,7 @@ ReactDOM.render(
 		<div className="builder">
 			<Catalogue />
 			<Parameters />
-			<Canvas width={ canvasWidth } height={ canvasHeight }>
+			<Canvas width={canvasWidth} height={canvasHeight}>
 				<Visualizer />
 			</Canvas>
 		</div>

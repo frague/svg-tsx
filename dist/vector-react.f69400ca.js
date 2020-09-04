@@ -33684,7 +33684,21 @@ var primitives = [{
   'outputTypes': ['routing policy']
 }];
 exports.primitives = primitives;
-},{}],"src/positioner.ts":[function(require,module,exports) {
+},{}],"src/interfaces.tsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.parameterType = void 0;
+var parameterType;
+
+(function (parameterType) {
+  parameterType[parameterType["number"] = 0] = "number";
+  parameterType[parameterType["boolean"] = 1] = "boolean";
+  parameterType[parameterType["string"] = 2] = "string";
+})(parameterType = exports.parameterType || (exports.parameterType = {}));
+},{}],"src/positioner.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33692,115 +33706,151 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Positioner = void 0;
 
-var settings_1 = require("./settings");
+var _settings = require("./settings");
 
-var utils_1 = require("./utils");
+var _interfaces = require("./interfaces");
 
-var Positioner =
-/** @class */
-function () {
+var _utils = require("./utils");
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var Positioner = /*#__PURE__*/function () {
   function Positioner(epts, links, ept) {
     var _this = this;
+
+    _classCallCheck(this, Positioner);
+
+    _defineProperty(this, "epts", void 0);
+
+    _defineProperty(this, "starts", void 0);
+
+    _defineProperty(this, "positions", void 0);
+
+    _defineProperty(this, "connectionsCount", void 0);
+
+    _defineProperty(this, "ept", void 0);
 
     this.ept = ept;
     this.connectionsCount = {};
     this.positions = [];
     var inputTypes = ept.inputTypes;
-    this.starts = Object.entries(epts).filter(function (_a) {
-      var id = _a[0],
-          ept = _a[1];
+    this.starts = Object.entries(epts).filter(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2),
+          id = _ref2[0],
+          ept = _ref2[1];
+
       if (id) _this.positions.push(ept.position);
-      var _b = ept,
-          outputTypes = _b.outputTypes,
-          outputIsFlexible = _b.outputIsFlexible;
-      return !outputTypes && outputIsFlexible || utils_1.findIntersection([inputTypes, outputTypes]);
-    }).map(function (_a) {
-      var id = _a[0],
-          ept = _a[1];
+      var outputTypes = ept.outputTypes,
+          outputIsFlexible = ept.outputIsFlexible;
+      return !outputTypes && outputIsFlexible || (0, _utils.findIntersection)([inputTypes, outputTypes]);
+    }).map(function (_ref3) {
+      var _ref4 = _slicedToArray(_ref3, 2),
+          id = _ref4[0],
+          ept = _ref4[1];
+
       _this.connectionsCount[id] = _this._countConnections(id, links);
       return ept;
     }).sort(function (a, b) {
-      var _a = [_this.connectionsCount[a.id], _this.connectionsCount[b.id]],
-          countA = _a[0],
-          countB = _a[1];
-
-      if (countA === countB) {
-        return a.id < b.id ? -1 : 1;
-      }
-
+      var _ref5 = [_this.connectionsCount[a.id], _this.connectionsCount[b.id]],
+          countA = _ref5[0],
+          countB = _ref5[1];
       return countA < countB ? -1 : 1;
     });
   }
 
-  Positioner.prototype._countConnections = function (id, links) {
-    return Object.values(links).filter(function (link) {
-      return link.from === id;
-    }).length;
-  };
-
-  Positioner.prototype.addLink = function () {
-    if (this.starts && this.starts.length) {
-      return this.starts[0];
+  _createClass(Positioner, [{
+    key: "_countConnections",
+    value: function _countConnections(id, links) {
+      return Object.values(links).filter(function (link) {
+        return link.from === id;
+      }).length;
     }
-
-    return;
-  };
-
-  Positioner.prototype._isPositionOverlapping = function (position) {
-    return this.positions.some(function (_a) {
-      var x = _a.x,
-          y = _a.y;
-      return Math.abs(x - position.x) < settings_1.eptWidth && Math.abs(y - position.y) < settings_1.eptHeight;
-    });
-  };
-
-  Positioner.prototype._tryPlacingTo = function (position) {
-    if (!this._isPositionOverlapping(position)) {
-      this.ept.position = position;
-      return true;
-    }
-
-    return false;
-  };
-
-  Positioner.prototype.position = function () {
-    var middle = settings_1.canvasWidth / 2 - settings_1.eptWidth / 2;
-    var basePosition;
-    var connectedTo = this.addLink();
-
-    if (connectedTo !== undefined && connectedTo.id) {
-      basePosition = {
-        x: connectedTo.position.x,
-        y: connectedTo.position.y + settings_1.eptHeight + 30
-      };
-    } else {
-      // let maxY = Math.max(...this.positions.map(p => p.y), 20);
-      basePosition = {
-        x: middle,
-        y: 80
-      };
-    }
-
-    for (var ky = 0; ky < 6; ky++) {
-      for (var kx = 0; kx < 300; kx += 27) {
-        if (this._tryPlacingTo({
-          x: basePosition.x + kx,
-          y: basePosition.y + (settings_1.eptHeight + 30) * ky
-        }) || this._tryPlacingTo({
-          x: basePosition.x - kx,
-          y: basePosition.y + (settings_1.eptHeight + 30) * ky
-        })) return connectedTo;
+  }, {
+    key: "addLink",
+    value: function addLink() {
+      if (this.starts && this.starts.length) {
+        return this.starts[0];
       }
-    }
 
-    return connectedTo;
-  };
+      return;
+    }
+  }, {
+    key: "_isPositionOverlapping",
+    value: function _isPositionOverlapping(position) {
+      return this.positions.some(function (_ref6) {
+        var x = _ref6.x,
+            y = _ref6.y;
+        return Math.abs(x - position.x) < _settings.eptWidth && Math.abs(y - position.y) < _settings.eptHeight;
+      });
+    }
+  }, {
+    key: "_tryPlacingTo",
+    value: function _tryPlacingTo(position) {
+      if (!this._isPositionOverlapping(position)) {
+        this.ept.position = position;
+        return true;
+      }
+
+      return false;
+    }
+  }, {
+    key: "position",
+    value: function position() {
+      var middle = _settings.canvasWidth / 2 - _settings.eptWidth / 2;
+      var basePosition;
+      var connectedTo = this.addLink();
+
+      if (connectedTo !== undefined && connectedTo.id) {
+        basePosition = {
+          x: connectedTo.position.x,
+          y: connectedTo.position.y + _settings.eptHeight + 30
+        };
+      } else {
+        basePosition = {
+          x: middle,
+          y: 80
+        };
+      }
+
+      for (var ky = 0; ky < 6; ky++) {
+        for (var kx = 0; kx < 300; kx += 27) {
+          if (this._tryPlacingTo({
+            x: basePosition.x + kx,
+            y: basePosition.y + (_settings.eptHeight + 30) * ky
+          }) || this._tryPlacingTo({
+            x: basePosition.x - kx,
+            y: basePosition.y + (_settings.eptHeight + 30) * ky
+          })) return connectedTo;
+        }
+      }
+
+      return connectedTo;
+    }
+  }]);
 
   return Positioner;
 }();
 
 exports.Positioner = Positioner;
-},{"./settings":"src/settings.js","./utils":"src/utils.ts"}],"src/store/store.js":[function(require,module,exports) {
+},{"./settings":"src/settings.js","./interfaces":"src/interfaces.tsx","./utils":"src/utils.ts"}],"src/store/store.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33818,7 +33868,7 @@ var _test = require("../../data/test");
 
 var _positioner = require("../positioner");
 
-var _class, _descriptor, _temp, _class3, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _temp2, _class5, _descriptor12, _descriptor13, _temp3, _class7, _class8, _descriptor14, _descriptor15, _descriptor16, _temp4;
+var _class, _descriptor, _temp, _class3, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _descriptor12, _temp2, _class5, _descriptor13, _descriptor14, _temp3, _class7, _class8, _descriptor15, _temp4, _class10, _descriptor16, _descriptor17, _descriptor18, _temp5, _class12, _descriptor19, _descriptor20, _descriptor21, _temp6;
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -33892,6 +33942,26 @@ var Parameter = (_class = (_temp = function Parameter() {
     return '';
   }
 })), _class);
+var emptyEpt = {
+  id: '',
+  title: 'The New EPT',
+  description: '',
+  order: 0,
+  type: 'custom',
+  inputTypes: null,
+  inputIsFlexible: false,
+  outputTypes: null,
+  outputIsFlexible: false,
+  position: {
+    x: 0,
+    y: 0
+  },
+  epts: {
+    '': applicationPoint
+  },
+  links: {},
+  parameters: {}
+};
 var Ept = (_class3 = (_temp2 = /*#__PURE__*/function () {
   _createClass(Ept, [{
     key: "setParameter",
@@ -33899,6 +33969,44 @@ var Ept = (_class3 = (_temp2 = /*#__PURE__*/function () {
       if (this.parameters[name]) {
         this.parameters[name].value = value;
       }
+    }
+  }, {
+    key: "clone",
+    value: function clone() {
+      var _toJS = (0, _mobx.toJS)(this),
+          id = _toJS.id,
+          title = _toJS.title,
+          description = _toJS.description,
+          type = _toJS.type,
+          inputTypes = _toJS.inputTypes,
+          inputIsFlexible = _toJS.inputIsFlexible,
+          outputTypes = _toJS.outputTypes,
+          outputIsFlexible = _toJS.outputIsFlexible,
+          position = _toJS.position,
+          epts = _toJS.epts,
+          links = _toJS.links,
+          parameters = _toJS.parameters;
+
+      return new Ept({
+        id: id,
+        title: title,
+        description: description,
+        type: type,
+        inputTypes: inputTypes,
+        inputIsFlexible: inputIsFlexible,
+        outputTypes: outputTypes,
+        outputIsFlexible: outputIsFlexible,
+        parameters: parameters,
+        epts: Object.values(epts).reduce(function (result, ept) {
+          result[ept.id] = new Ept(ept);
+          return result;
+        }, {}),
+        links: Object.values(links).reduce(function (result, link) {
+          var newLink = new Link(link);
+          result[newLink.id] = newLink;
+          return result;
+        }, {})
+      });
     }
   }, {
     key: "isComplete",
@@ -33927,25 +34035,25 @@ var Ept = (_class3 = (_temp2 = /*#__PURE__*/function () {
 
     _initializerDefineProperty(this, "order", _descriptor5, this);
 
-    _defineProperty(this, "type", 'custom');
+    _initializerDefineProperty(this, "type", _descriptor6, this);
 
-    _initializerDefineProperty(this, "inputTypes", _descriptor6, this);
+    _initializerDefineProperty(this, "inputTypes", _descriptor7, this);
 
-    _defineProperty(this, "inputIsFlexible", false);
+    _defineProperty(this, "inputIsFlexible", void 0);
 
-    _initializerDefineProperty(this, "outputTypes", _descriptor7, this);
+    _initializerDefineProperty(this, "outputTypes", _descriptor8, this);
 
-    _defineProperty(this, "outputIsFlexible", false);
+    _defineProperty(this, "outputIsFlexible", void 0);
 
-    _initializerDefineProperty(this, "position", _descriptor8, this);
+    _initializerDefineProperty(this, "position", _descriptor9, this);
 
-    _initializerDefineProperty(this, "epts", _descriptor9, this);
+    _initializerDefineProperty(this, "epts", _descriptor10, this);
 
-    _initializerDefineProperty(this, "links", _descriptor10, this);
+    _initializerDefineProperty(this, "links", _descriptor11, this);
 
-    _initializerDefineProperty(this, "parameters", _descriptor11, this);
+    _initializerDefineProperty(this, "parameters", _descriptor12, this);
 
-    Object.assign(this, data);
+    Object.assign(this, emptyEpt, data);
   }
 
   return Ept;
@@ -33953,99 +34061,88 @@ var Ept = (_class3 = (_temp2 = /*#__PURE__*/function () {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return '';
-  }
+  initializer: null
 }), _descriptor3 = _applyDecoratedDescriptor(_class3.prototype, "title", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return 'The New EPT';
-  }
+  initializer: null
 }), _descriptor4 = _applyDecoratedDescriptor(_class3.prototype, "description", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return '';
-  }
+  initializer: null
 }), _descriptor5 = _applyDecoratedDescriptor(_class3.prototype, "order", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return 0;
-  }
-}), _descriptor6 = _applyDecoratedDescriptor(_class3.prototype, "inputTypes", [_mobx.observable], {
+  initializer: null
+}), _descriptor6 = _applyDecoratedDescriptor(_class3.prototype, "type", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return null;
-  }
-}), _descriptor7 = _applyDecoratedDescriptor(_class3.prototype, "outputTypes", [_mobx.observable], {
+  initializer: null
+}), _descriptor7 = _applyDecoratedDescriptor(_class3.prototype, "inputTypes", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return null;
-  }
-}), _descriptor8 = _applyDecoratedDescriptor(_class3.prototype, "position", [_mobx.observable], {
+  initializer: null
+}), _descriptor8 = _applyDecoratedDescriptor(_class3.prototype, "outputTypes", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return {
-      x: 0,
-      y: 0
-    };
-  }
-}), _descriptor9 = _applyDecoratedDescriptor(_class3.prototype, "epts", [_mobx.observable], {
+  initializer: null
+}), _descriptor9 = _applyDecoratedDescriptor(_class3.prototype, "position", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return {
-      '': applicationPoint
-    };
-  }
-}), _descriptor10 = _applyDecoratedDescriptor(_class3.prototype, "links", [_mobx.observable], {
+  initializer: null
+}), _descriptor10 = _applyDecoratedDescriptor(_class3.prototype, "epts", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return {};
-  }
-}), _descriptor11 = _applyDecoratedDescriptor(_class3.prototype, "parameters", [_mobx.observable], {
+  initializer: null
+}), _descriptor11 = _applyDecoratedDescriptor(_class3.prototype, "links", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
-  initializer: function initializer() {
-    return {};
-  }
+  initializer: null
+}), _descriptor12 = _applyDecoratedDescriptor(_class3.prototype, "parameters", [_mobx.observable], {
+  configurable: true,
+  enumerable: true,
+  writable: true,
+  initializer: null
 }), _applyDecoratedDescriptor(_class3.prototype, "isComplete", [_mobx.computed], Object.getOwnPropertyDescriptor(_class3.prototype, "isComplete"), _class3.prototype), _applyDecoratedDescriptor(_class3.prototype, "isPrimitive", [_mobx.computed], Object.getOwnPropertyDescriptor(_class3.prototype, "isPrimitive"), _class3.prototype), _applyDecoratedDescriptor(_class3.prototype, "setParameter", [_mobx.action], Object.getOwnPropertyDescriptor(_class3.prototype, "setParameter"), _class3.prototype)), _class3);
 exports.Ept = Ept;
-var Link = (_class5 = (_temp3 = function Link() {
-  var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+var Link = (_class5 = (_temp3 = /*#__PURE__*/function () {
+  _createClass(Link, [{
+    key: "id",
+    get: function get() {
+      return "".concat(this.from, "-").concat(this.to);
+    }
+  }]);
 
-  _classCallCheck(this, Link);
+  function Link() {
+    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-  _defineProperty(this, "id", '');
+    _classCallCheck(this, Link);
 
-  _initializerDefineProperty(this, "from", _descriptor12, this);
+    _initializerDefineProperty(this, "from", _descriptor13, this);
 
-  _initializerDefineProperty(this, "to", _descriptor13, this);
+    _initializerDefineProperty(this, "to", _descriptor14, this);
 
-  Object.assign(this, data);
-}, _temp3), (_descriptor12 = _applyDecoratedDescriptor(_class5.prototype, "from", [_mobx.observable], {
+    Object.assign(this, data);
+  }
+
+  return Link;
+}(), _temp3), (_descriptor13 = _applyDecoratedDescriptor(_class5.prototype, "from", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
   initializer: function initializer() {
     return null;
   }
-}), _descriptor13 = _applyDecoratedDescriptor(_class5.prototype, "to", [_mobx.observable], {
+}), _descriptor14 = _applyDecoratedDescriptor(_class5.prototype, "to", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
@@ -34061,14 +34158,22 @@ var ActiveEptStore = (_class7 = /*#__PURE__*/function (_Ept) {
   function ActiveEptStore(rootStore) {
     var _this;
 
+    var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
     _classCallCheck(this, ActiveEptStore);
 
     _this = _super.call(this);
     _this.rootStore = rootStore;
+    Object.assign(_assertThisInitialized(_this), data);
     return _this;
   }
 
   _createClass(ActiveEptStore, [{
+    key: "reset",
+    value: function reset() {
+      Object.assign(this, emptyEpt);
+    }
+  }, {
     key: "bringEptOnTop",
     value: function bringEptOnTop(id) {
       if (!this.epts[id]) return;
@@ -34088,25 +34193,45 @@ var ActiveEptStore = (_class7 = /*#__PURE__*/function (_Ept) {
       var connectionEpt = new _positioner.Positioner(this.epts, this.links, newEpt).position();
 
       if (connectionEpt) {
-        var link = new Link({
-          id: (0, _utils.generateId)(),
-          from: connectionEpt.id,
-          to: newEpt.id
-        });
-        this.links[link.id] = link;
+        this.addLink(connectionEpt.id, newEpt.id);
       }
+    }
+  }, {
+    key: "addLink",
+    value: function addLink(fromId, toId) {
+      var link = new Link({
+        from: fromId,
+        to: toId
+      });
+      this.links[link.id] = link;
+    }
+  }, {
+    key: "removeLink",
+    value: function removeLink(id) {
+      delete this.links[id];
+    }
+  }, {
+    key: "removeEpt",
+    value: function removeEpt(id) {
+      var _this2 = this;
+
+      Object.values(this.links).forEach(function (link) {
+        if (link.from === id || link.to === id) {
+          delete _this2.links[link.id];
+        }
+      });
+      delete this.epts[id];
     }
   }, {
     key: "useEpt",
     value: function useEpt(ept) {
-      var _this2 = this;
+      var _this3 = this;
 
       if (ept.isPrimitive) {
         this.addEpt(ept);
       } else {
-        console.log(this, ept);
         Object.values(ept.epts).forEach(function (e) {
-          return e.id && _this2.addEpt(e);
+          return e.id && _this3.addEpt(e);
         });
       }
     }
@@ -34120,43 +34245,157 @@ var ActiveEptStore = (_class7 = /*#__PURE__*/function (_Ept) {
   }]);
 
   return ActiveEptStore;
-}(Ept), (_applyDecoratedDescriptor(_class7.prototype, "bringEptOnTop", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "bringEptOnTop"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "addEpt", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "addEpt"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "useEpt", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "useEpt"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "setAcceptedTypes", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "setAcceptedTypes"), _class7.prototype)), _class7);
-var EptBuilderStore = (_class8 = (_temp4 = function EptBuilderStore() {
+}(Ept), (_applyDecoratedDescriptor(_class7.prototype, "reset", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "reset"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "bringEptOnTop", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "bringEptOnTop"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "addEpt", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "addEpt"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "addLink", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "addLink"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "removeLink", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "removeLink"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "removeEpt", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "removeEpt"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "useEpt", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "useEpt"), _class7.prototype), _applyDecoratedDescriptor(_class7.prototype, "setAcceptedTypes", [_mobx.action], Object.getOwnPropertyDescriptor(_class7.prototype, "setAcceptedTypes"), _class7.prototype)), _class7);
+var CatalogueStore = (_class8 = (_temp4 = /*#__PURE__*/function () {
+  _createClass(CatalogueStore, [{
+    key: "save",
+    value: function save() {
+      var activeEpt = this.rootStore.activeEpt;
+
+      if (!activeEpt.id) {
+        activeEpt.id = (0, _utils.generateId)();
+      }
+
+      var clonedEpt = activeEpt.clone();
+      var index = this.epts.findIndex(function (ept) {
+        return ept.id === clonedEpt.id;
+      });
+
+      if (index < 0) {
+        this.epts.push(new Ept(clonedEpt));
+      } else {
+        this.epts[index] = clonedEpt;
+      }
+    }
+  }, {
+    key: "activate",
+    value: function activate(ept) {
+      Object.assign(this.rootStore.activeEpt, ept.clone());
+    }
+  }]);
+
+  function CatalogueStore(rootStore) {
+    var epts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+    _classCallCheck(this, CatalogueStore);
+
+    _initializerDefineProperty(this, "epts", _descriptor15, this);
+
+    this.epts = epts;
+    this.rootStore = rootStore;
+  }
+
+  return CatalogueStore;
+}(), _temp4), (_descriptor15 = _applyDecoratedDescriptor(_class8.prototype, "epts", [_mobx.observable], {
+  configurable: true,
+  enumerable: true,
+  writable: true,
+  initializer: function initializer() {
+    return [];
+  }
+}), _applyDecoratedDescriptor(_class8.prototype, "save", [_mobx.action], Object.getOwnPropertyDescriptor(_class8.prototype, "save"), _class8.prototype), _applyDecoratedDescriptor(_class8.prototype, "activate", [_mobx.action], Object.getOwnPropertyDescriptor(_class8.prototype, "activate"), _class8.prototype)), _class8);
+var ConnectionCandidateStore = (_class10 = (_temp5 = /*#__PURE__*/function () {
+  _createClass(ConnectionCandidateStore, [{
+    key: "startSearching",
+    value: function startSearching(conditions) {
+      Object.assign(this, conditions, {
+        isSearched: true
+      });
+    }
+  }, {
+    key: "stopSearching",
+    value: function stopSearching() {
+      Object.assign(this, {
+        isSearched: false,
+        candidate: undefined
+      });
+    }
+  }, {
+    key: "registerCandidate",
+    value: function registerCandidate(candidate) {
+      this.candidate = candidate;
+    }
+  }]);
+
+  function ConnectionCandidateStore(rootStore) {
+    _classCallCheck(this, ConnectionCandidateStore);
+
+    _initializerDefineProperty(this, "isSearched", _descriptor16, this);
+
+    _initializerDefineProperty(this, "position", _descriptor17, this);
+
+    _defineProperty(this, "isInput", void 0);
+
+    _defineProperty(this, "types", void 0);
+
+    _defineProperty(this, "payload", void 0);
+
+    _defineProperty(this, "isAnyAccepted", void 0);
+
+    _defineProperty(this, "hasConnections", void 0);
+
+    _initializerDefineProperty(this, "candidate", _descriptor18, this);
+
+    this.rootStore = rootStore;
+  }
+
+  return ConnectionCandidateStore;
+}(), _temp5), (_descriptor16 = _applyDecoratedDescriptor(_class10.prototype, "isSearched", [_mobx.observable], {
+  configurable: true,
+  enumerable: true,
+  writable: true,
+  initializer: function initializer() {
+    return false;
+  }
+}), _descriptor17 = _applyDecoratedDescriptor(_class10.prototype, "position", [_mobx.observable], {
+  configurable: true,
+  enumerable: true,
+  writable: true,
+  initializer: null
+}), _descriptor18 = _applyDecoratedDescriptor(_class10.prototype, "candidate", [_mobx.observable], {
+  configurable: true,
+  enumerable: true,
+  writable: true,
+  initializer: function initializer() {
+    return undefined;
+  }
+}), _applyDecoratedDescriptor(_class10.prototype, "startSearching", [_mobx.action], Object.getOwnPropertyDescriptor(_class10.prototype, "startSearching"), _class10.prototype), _applyDecoratedDescriptor(_class10.prototype, "stopSearching", [_mobx.action], Object.getOwnPropertyDescriptor(_class10.prototype, "stopSearching"), _class10.prototype), _applyDecoratedDescriptor(_class10.prototype, "registerCandidate", [_mobx.action], Object.getOwnPropertyDescriptor(_class10.prototype, "registerCandidate"), _class10.prototype)), _class10);
+var EptBuilderStore = (_class12 = (_temp6 = function EptBuilderStore() {
   _classCallCheck(this, EptBuilderStore);
 
-  _initializerDefineProperty(this, "activeEpt", _descriptor14, this);
+  _initializerDefineProperty(this, "activeEpt", _descriptor19, this);
 
-  _initializerDefineProperty(this, "connectionSearched", _descriptor15, this);
+  _initializerDefineProperty(this, "connection", _descriptor20, this);
 
-  _initializerDefineProperty(this, "catalogue", _descriptor16, this);
+  _initializerDefineProperty(this, "catalogue", _descriptor21, this);
 
   this.activeEpt = new ActiveEptStore(this);
-  this.connectionSearched = {};
-  this.catalogue = _test.primitives.map(function (ept) {
+  this.catalogue = new CatalogueStore(this, _test.primitives.map(function (ept) {
     return new Ept(ept);
-  });
-}, _temp4), (_descriptor14 = _applyDecoratedDescriptor(_class8.prototype, "activeEpt", [_mobx.observable], {
+  }));
+  this.connection = new ConnectionCandidateStore(this);
+}, _temp6), (_descriptor19 = _applyDecoratedDescriptor(_class12.prototype, "activeEpt", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
   initializer: null
-}), _descriptor15 = _applyDecoratedDescriptor(_class8.prototype, "connectionSearched", [_mobx.observable], {
+}), _descriptor20 = _applyDecoratedDescriptor(_class12.prototype, "connection", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
   initializer: null
-}), _descriptor16 = _applyDecoratedDescriptor(_class8.prototype, "catalogue", [_mobx.observable], {
+}), _descriptor21 = _applyDecoratedDescriptor(_class12.prototype, "catalogue", [_mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
   initializer: null
-})), _class8);
+})), _class12);
 
 var _default = new EptBuilderStore(); // Schemas will go below
 
 
 exports.default = _default;
-},{"mobx":"node_modules/mobx/lib/mobx.module.js","../settings":"src/settings.js","../utils":"src/utils.ts","../../data/test":"data/test.js","../positioner":"src/positioner.ts"}],"src/store/useStore.js":[function(require,module,exports) {
+},{"mobx":"node_modules/mobx/lib/mobx.module.js","../settings":"src/settings.js","../utils":"src/utils.ts","../../data/test":"data/test.js","../positioner":"src/positioner.js"}],"src/store/useStore.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34175,52 +34414,50 @@ var useStore = function useStore() {
 };
 
 exports.useStore = useStore;
-},{"react":"node_modules/react/index.js"}],"src/components/canvas/canvas.tsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js"}],"src/components/canvas/canvas.js":[function(require,module,exports) {
 "use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = void 0;
 
-var react_1 = __importDefault(require("react"));
+var _react = _interopRequireDefault(require("react"));
 
-var Canvas = function Canvas(_a) {
-  var width = _a.width,
-      height = _a.height,
-      children = _a.children;
-  return react_1.default.createElement("svg", {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Canvas = function Canvas(_ref) {
+  var width = _ref.width,
+      height = _ref.height,
+      children = _ref.children;
+  return /*#__PURE__*/_react.default.createElement("svg", {
     height: height,
     width: width,
-    viewBox: "0 0 " + width + " " + height,
+    viewBox: "0 0 ".concat(width, " ").concat(height),
     xmlns: "http://www.w3.org/2000/svg",
     xmlnsXlink: "http://www.w3.org/1999/xlink",
     version: "1.2",
     baseProfile: "full",
     id: "canvas"
-  }, react_1.default.createElement("defs", null, react_1.default.createElement("path", {
+  }, /*#__PURE__*/_react.default.createElement("defs", null, /*#__PURE__*/_react.default.createElement("path", {
     id: "arrow",
     strokeLinecap: "round",
     d: "M5,0 0,2.5 5,5 3.5,3 3.5,2z"
-  }), react_1.default.createElement("marker", {
+  }), /*#__PURE__*/_react.default.createElement("marker", {
     id: "arrow-marker",
     markerHeight: "5",
     markerWidth: "5",
     orient: "auto",
     refX: "2.5",
     refY: "2.5"
-  }, react_1.default.createElement("use", {
+  }, /*#__PURE__*/_react.default.createElement("use", {
     href: "#arrow",
     transform: "rotate(180 2.5 2.5) scale(1,1)"
   }))), children);
 };
 
-exports.default = Canvas;
+var _default = Canvas;
+exports.default = _default;
 },{"react":"node_modules/react/index.js"}],"node_modules/mobx-react/node_modules/mobx-react-lite/dist/index.module.js":[function(require,module,exports) {
 "use strict";
 
@@ -35111,91 +35348,80 @@ if (!_mobx.observable) throw new Error("mobx-react requires mobx to be available
 "function" == typeof _reactDom.unstable_batchedUpdates && (0, _mobx.configure)({
   reactionScheduler: _reactDom.unstable_batchedUpdates
 });
-},{"react-dom":"node_modules/react-dom/index.js","mobx-react-lite":"node_modules/mobx-react/node_modules/mobx-react-lite/dist/index.module.js","react":"node_modules/react/index.js","mobx":"node_modules/mobx/lib/mobx.module.js"}],"src/components/draggable/draggable.tsx":[function(require,module,exports) {
+},{"react-dom":"node_modules/react-dom/index.js","mobx-react-lite":"node_modules/mobx-react/node_modules/mobx-react-lite/dist/index.module.js","react":"node_modules/react/index.js","mobx":"node_modules/mobx/lib/mobx.module.js"}],"src/components/draggable/draggable.js":[function(require,module,exports) {
 "use strict";
-
-var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  Object.defineProperty(o, k2, {
-    enumerable: true,
-    get: function get() {
-      return m[k];
-    }
-  });
-} : function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  o[k2] = m[k];
-});
-
-var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
-  Object.defineProperty(o, "default", {
-    enumerable: true,
-    value: v
-  });
-} : function (o, v) {
-  o["default"] = v;
-});
-
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-  }
-
-  __setModuleDefault(result, mod);
-
-  return result;
-};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = void 0;
 
-var react_1 = __importStar(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
-var Draggable = function Draggable(_a) {
-  var _b = _a.position,
-      position = _b === void 0 ? {
+var _utils = require("../../utils");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var Draggable = function Draggable(_ref) {
+  var _ref$position = _ref.position,
+      position = _ref$position === void 0 ? {
     x: 0,
     y: 0
-  } : _b,
-      children = _a.children,
-      _c = _a.isRelative,
-      isRelative = _c === void 0 ? false : _c,
-      _d = _a.onStartDragging,
-      onStartDragging = _d === void 0 ? function () {} : _d,
-      _e = _a.onMove,
-      onMove = _e === void 0 ? function (position) {} : _e,
-      _f = _a.onDrop,
-      onDrop = _f === void 0 ? function () {} : _f;
+  } : _ref$position,
+      children = _ref.children,
+      _ref$isRelative = _ref.isRelative,
+      isRelative = _ref$isRelative === void 0 ? false : _ref$isRelative,
+      _ref$onStartDragging = _ref.onStartDragging,
+      onStartDragging = _ref$onStartDragging === void 0 ? function () {} : _ref$onStartDragging,
+      _ref$onMove = _ref.onMove,
+      onMove = _ref$onMove === void 0 ? function (position) {} : _ref$onMove,
+      _ref$onDrop = _ref.onDrop,
+      onDrop = _ref$onDrop === void 0 ? function () {} : _ref$onDrop;
 
-  var _g = react_1.useState(false),
-      isDragging = _g[0],
-      setDragging = _g[1];
+  var _useState = (0, _react.useState)(false),
+      _useState2 = _slicedToArray(_useState, 2),
+      isDragging = _useState2[0],
+      setDragging = _useState2[1];
 
-  var _h = react_1.useState({
+  var _useState3 = (0, _react.useState)({
     x: 0,
     y: 0
   }),
-      mousePosition = _h[0],
-      setMousePosition = _h[1];
+      _useState4 = _slicedToArray(_useState3, 2),
+      mousePosition = _useState4[0],
+      setMousePosition = _useState4[1];
 
-  var _j = react_1.useState({
+  var _useState5 = (0, _react.useState)({
     x: 0,
     y: 0
   }),
-      previousPosition = _j[0],
-      setPreviousPosition = _j[1];
+      _useState6 = _slicedToArray(_useState5, 2),
+      previousPosition = _useState6[0],
+      setPreviousPosition = _useState6[1];
 
-  var _k = react_1.useState({
+  var _useState7 = (0, _react.useState)({
     x: 0,
     y: 0
   }),
-      initialOffset = _k[0],
-      setInitialOffset = _k[1];
+      _useState8 = _slicedToArray(_useState7, 2),
+      initialOffset = _useState8[0],
+      setInitialOffset = _useState8[1];
 
-  react_1.useEffect(function () {
+  (0, _react.useEffect)(function () {
     if (isDragging) {
       var offset = {
         x: mousePosition.x - previousPosition.x,
@@ -35221,9 +35447,13 @@ var Draggable = function Draggable(_a) {
   });
   var x = position.x,
       y = position.y;
-  return react_1.default.createElement("g", {
-    className: 'draggable' + (isDragging ? ' drag' : ''),
-    transform: "translate(" + x + "," + y + ")",
+  var classes = (0, _utils.className)({
+    draggable: true,
+    drag: isDragging
+  });
+  return /*#__PURE__*/_react.default.createElement("g", {
+    className: classes,
+    transform: "translate(".concat(x, ",").concat(y, ")"),
     onMouseDown: function onMouseDown(event) {
       event.stopPropagation();
       setDragging(true);
@@ -35258,135 +35488,105 @@ var Draggable = function Draggable(_a) {
   }, children);
 };
 
-exports.default = Draggable;
-},{"react":"node_modules/react/index.js"}],"src/components/link/link.tsx":[function(require,module,exports) {
+var _default = Draggable;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","../../utils":"src/utils.ts"}],"src/components/link/link.js":[function(require,module,exports) {
 "use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = void 0;
 
-var react_1 = __importDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
-var settings_1 = require("../../settings");
+var _useStore = require("../../store/useStore");
 
-;
+var _settings = require("../../settings");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 function calcPath(from, to) {
-  var _a;
-
   var x = from.x,
       y = from.y;
   var dx = to.x - x;
   var dy = to.y - y;
   var l = Math.sqrt(dx * dx + dy * dy);
-  var rx = dx * (l ? settings_1.connectionPointRadius / l : 1);
-  var ry = dy * (l ? settings_1.connectionPointRadius / l : 1);
+  var rx = dx * (l ? _settings.connectionPointRadius / l : 1);
+  var ry = dy * (l ? _settings.connectionPointRadius / l : 1);
   var tx = dx / 8;
   var ty = dy / 3;
-  var _b = [to.x - 2 * rx, to.y - 2 * ry],
-      sx = _b[0],
-      sy = _b[1];
+  var sx = to.x - 2 * rx,
+      sy = to.y - 2 * ry;
 
   if (dy < 0) {
-    _a = [to.x - 2 * rx, to.y + 2 * ry], sx = _a[0], sy = _a[1];
-    return "M" + (x + rx) + "," + (y - ry) + "C" + (x + 6 * tx) + "," + (y - 4 * ty) + "," + (sx - 6 * tx) + "," + (sy + 4 * ty) + "," + sx + "," + sy;
+    sx = to.x - 2 * rx;
+    sy = to.y + 2 * ry;
+    return "M".concat(x + rx, ",").concat(y - ry, "C").concat(x + 6 * tx, ",").concat(y - 4 * ty, ",").concat(sx - 6 * tx, ",").concat(sy + 4 * ty, ",").concat(sx, ",").concat(sy);
   }
 
-  return "M" + (x + rx) + "," + (y + ry) + "C" + (x + tx) + "," + (y + ty) + "," + (sx - tx) + "," + (sy - ty) + "," + sx + "," + sy;
+  return "M".concat(x + rx, ",").concat(y + ry, "C").concat(x + tx, ",").concat(y + ty, ",").concat(sx - tx, ",").concat(sy - ty, ",").concat(sx, ",").concat(sy);
 }
 
-var Link = function Link(_a) {
-  var id = _a.id,
-      from = _a.from,
-      to = _a.to,
-      removeLink = _a.removeLink;
+var Link = function Link(_ref) {
+  var id = _ref.id,
+      from = _ref.from,
+      to = _ref.to;
+  var store = (0, _useStore.useStore)();
   var hy = (to.y - from.y) / 2;
-  return react_1.default.createElement("path", {
+  return /*#__PURE__*/_react.default.createElement("path", {
     className: "link",
     d: calcPath(from, to),
     markerEnd: "url(#arrow-marker)",
     onClick: function onClick() {
-      return removeLink(id);
+      return store.activeEpt.removeLink(id);
     }
   });
-}; // let mapDispatchToProps = dispatch => {
-// 	return {
-// 		removeLink: (id: string) => dispatch(linkRemove(id))
-// 	}
-// };
-// let LinkConnected = connect(null, mapDispatchToProps)(Link);
+};
 
-
-exports.default = Link;
-},{"react":"node_modules/react/index.js","../../settings":"src/settings.js"}],"src/components/connectionPoint/connectionPoint.tsx":[function(require,module,exports) {
+var _default = Link;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","../../store/useStore":"src/store/useStore.js","../../settings":"src/settings.js"}],"src/components/connectionPoint/connectionPoint.js":[function(require,module,exports) {
 "use strict";
-
-var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  Object.defineProperty(o, k2, {
-    enumerable: true,
-    get: function get() {
-      return m[k];
-    }
-  });
-} : function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  o[k2] = m[k];
-});
-
-var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
-  Object.defineProperty(o, "default", {
-    enumerable: true,
-    value: v
-  });
-} : function (o, v) {
-  o["default"] = v;
-});
-
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-  }
-
-  __setModuleDefault(result, mod);
-
-  return result;
-};
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = void 0;
 
-var react_1 = __importStar(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
-var settings_1 = require("../../settings");
+var _settings = require("../../settings");
 
-var utils_1 = require("../../utils"); // import { 
-// 	connectionCandidateSearch, connectionCandidateRegister, connectionCandidateReset,
-// 	linkAdd, eptSetAcceptedTypes
-// } from '../../store/actions'
+var _utils = require("../../utils");
 
+var _useStore = require("../../store/useStore");
 
-var useStore_1 = require("../../store/useStore");
+var _mobxReact = require("mobx-react");
 
-var draggable_1 = __importDefault(require("../draggable/draggable"));
+var _draggable = _interopRequireDefault(require("../draggable/draggable"));
 
-var link_1 = __importDefault(require("../link/link"));
+var _link = _interopRequireDefault(require("../link/link"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function startDragging(event, setDragging, setOffset) {
   setOffset({
@@ -35401,9 +35601,9 @@ function collectConnections(payload, isInput, links, epts) {
   // * if further connections are possible (isMultiple === false)
   // * what are the accepted types if initial type is 'any'
   var connectionsTypes = [];
-  var foundConnections = Object.values(links).reduce(function (result, _a) {
-    var from = _a.from,
-        to = _a.to;
+  var foundConnections = Object.values(links).reduce(function (result, _ref) {
+    var from = _ref.from,
+        to = _ref.to;
 
     if (!isInput && from === payload) {
       result.push(to);
@@ -35424,84 +35624,88 @@ function collectConnections(payload, isInput, links, epts) {
   return [foundConnections, connectionsTypes];
 }
 
-var ConnectionPoint = function ConnectionPoint(_a) {
-  var position = _a.position,
-      isInput = _a.isInput,
-      _b = _a.types,
-      types = _b === void 0 ? null : _b,
-      _c = _a.isMultiple,
-      isMultiple = _c === void 0 ? false : _c,
-      _d = _a.payload,
-      payload = _d === void 0 ? undefined : _d,
-      _e = _a.isAnyAccepted,
-      isAnyAccepted = _e === void 0 ? false : _e,
-      connectionSearched = _a.connectionSearched,
-      candidateSearch = _a.candidateSearch,
-      candidateReset = _a.candidateReset,
-      candidateRegister = _a.candidateRegister,
-      eptSetTypes = _a.eptSetTypes,
-      addLink = _a.addLink,
-      activeEpt = _a.activeEpt;
-  var store = useStore_1.useStore();
-  var _f = store.activeEpt,
-      epts = _f.epts,
-      links = _f.links;
+var ConnectionPoint = (0, _mobxReact.observer)(function (_ref2) {
+  var position = _ref2.position,
+      isInput = _ref2.isInput,
+      _ref2$types = _ref2.types,
+      types = _ref2$types === void 0 ? null : _ref2$types,
+      _ref2$isMultiple = _ref2.isMultiple,
+      isMultiple = _ref2$isMultiple === void 0 ? false : _ref2$isMultiple,
+      _ref2$payload = _ref2.payload,
+      payload = _ref2$payload === void 0 ? undefined : _ref2$payload,
+      _ref2$isAnyAccepted = _ref2.isAnyAccepted,
+      isAnyAccepted = _ref2$isAnyAccepted === void 0 ? false : _ref2$isAnyAccepted;
+  var store = (0, _useStore.useStore)();
+  var activeEpt = store.activeEpt,
+      _store$activeEpt = store.activeEpt,
+      epts = _store$activeEpt.epts,
+      links = _store$activeEpt.links,
+      connection = store.connection;
 
-  var _g = react_1.useState(false),
-      isDragging = _g[0],
-      setDragging = _g[1];
+  var _useState = (0, _react.useState)(false),
+      _useState2 = _slicedToArray(_useState, 2),
+      isDragging = _useState2[0],
+      setDragging = _useState2[1];
 
-  var _h = react_1.useState({
+  var _useState3 = (0, _react.useState)({
     x: 0,
     y: 0
   }),
-      offset = _h[0],
-      setOffset = _h[1];
+      _useState4 = _slicedToArray(_useState3, 2),
+      offset = _useState4[0],
+      setOffset = _useState4[1];
 
-  var _j = react_1.useState({
+  var _useState5 = (0, _react.useState)({
     x: position.x,
     y: position.y
   }),
-      myPosition = _j[0],
-      setMyPosition = _j[1];
+      _useState6 = _slicedToArray(_useState5, 2),
+      myPosition = _useState6[0],
+      setMyPosition = _useState6[1];
 
   var target = {
     x: position.x - myPosition.x,
     y: position.y - myPosition.y
   };
 
-  var _k = collectConnections(payload, isInput, links, epts),
-      myConnections = _k[0],
-      connectionsTypes = _k[1];
+  var _collectConnections = collectConnections(payload, isInput, links, epts),
+      _collectConnections2 = _slicedToArray(_collectConnections, 2),
+      myConnections = _collectConnections2[0],
+      connectionsTypes = _collectConnections2[1];
 
   var hasConnections = myConnections.length > 0;
   var isPotentialMatch = false;
 
-  if (connectionSearched // Connection candidate is being searched
-  && isInput !== connectionSearched.isInput // only connect different types (in-out, out-in)
-  && payload !== connectionSearched.payload // prevent connection to itself
+  if (connection.isSearched // Connection candidate is being searched
+  && isInput !== connection.isInput // only connect different types (in-out, out-in)
+  && payload !== connection.payload // prevent connection to itself
   && (isMultiple || !hasConnections) // not connected or supports multiple connections
-  && !myConnections.includes(connectionSearched.payload) // no such connections exist already
+  && !myConnections.includes(connection.payload) // no such connections exist already
   ) {
-      var typesMatch = isInput && !types && !hasConnections || !isInput && !connectionSearched.types && !connectionSearched.hasConnections || !types && !connectionSearched.types || !types && !payload && !hasConnections || !connectionSearched.types && !connectionSearched.payload && !connectionSearched.hasConnections || types && connectionSearched.types && types.some(function (type) {
-        return connectionSearched.types.includes(type);
+      var typesMatch = isInput && !types && !hasConnections || !isInput && !connection.types && !connection.hasConnections || !types && !connection.types || !types && !payload && !hasConnections || !connection.types && !connection.payload && !connection.hasConnections || types && connection.types && types.some(function (type) {
+        return connection.types.includes(type);
       }); // acceptable types intersect
 
       if (typesMatch) {
         // Candidate is in close proximity
-        var dx = position.x - connectionSearched.position.x;
-        var dy = position.y - connectionSearched.position.y;
-        isPotentialMatch = dx || dy ? Math.sqrt(dx * dx + dy * dy) <= settings_1.proximity : true;
+        var dx = position.x - connection.position.x;
+        var dy = position.y - connection.position.y;
+        isPotentialMatch = dx || dy ? Math.sqrt(dx * dx + dy * dy) <= _settings.proximity : true;
       }
     }
 
-  var candidate = (connectionSearched || {}).candidate;
   var typesLabel = types && types.length ? types.join(', ') : isAnyAccepted ? 'any' : '';
-  react_1.useEffect(function () {
+  (0, _react.useEffect)(function () {
+    var candidate = connection.candidate;
+
     if (isPotentialMatch && candidate !== payload) {
       // If connection candidate is searched in close proximity
       // register myself as a connection candidate
-      candidateRegister(payload);
+      connection.registerCandidate(payload);
+    } else if (!isPotentialMatch && candidate === payload) {
+      // If has already been registered but left later
+      // cancel the registration
+      connection.registerCandidate(undefined);
     }
 
     if (!isDragging) {
@@ -35521,52 +35725,54 @@ var ConnectionPoint = function ConnectionPoint(_a) {
         if (candidate !== undefined) {
           // If dropped onto the connection candidate, create the link
           // to it in accordance with the isInput
-          isInput ? addLink(candidate, payload) : addLink(payload, candidate);
+          isInput ? activeEpt.addLink(candidate, payload) : activeEpt.addLink(payload, candidate);
         } // Stop searching for the connection candidate
 
 
-        candidateReset();
+        connection.stopSearching();
       }
     }
 
     if (isAnyAccepted && !payload) {
       // If point accepts any type it must change its type after connection
       if (hasConnections) {
-        var intersectedTypes = utils_1.findIntersection(connectionsTypes); // If there are connections and 
+        var intersectedTypes = (0, _utils.findIntersection)(connectionsTypes); // If there are connections and 
 
         if (intersectedTypes) {
           if (intersectedTypes.join(', ') !== typesLabel) {
             // the set differs from the currently registered -
             // register it in EPT
-            store.activeEpt.setAcceptedTypes(payload, intersectedTypes, isInput);
+            activeEpt.setAcceptedTypes(payload, intersectedTypes, isInput);
           }
         } else if (typesLabel !== 'any') {
           // If there are connections but all of them are 'any'
           // reset type to 'any' as well
-          store.activeEpt.setAcceptedTypes(payload, null, isInput);
+          activeEpt.setAcceptedTypes(payload, null, isInput);
         }
       } else if (types !== null) {
         // If no connections - reset to null to accept all types
-        store.activeEpt.setAcceptedTypes(payload, null, isInput);
+        activeEpt.setAcceptedTypes(payload, null, isInput);
       }
     }
   });
-  var classNames = utils_1.className({
+  var classNames = (0, _utils.className)({
     'connection-point': true,
     'in': isInput,
     'out': !isInput,
     'approached': isPotentialMatch,
     'standalone': !payload
   });
-  return [react_1.default.createElement("g", {
-    key: 'connection-point',
-    transform: "translate(" + position.x + "," + position.y + ")",
+  return [/*#__PURE__*/_react.default.createElement("g", {
+    key: "connection-point",
+    transform: "translate(".concat(position.x, ",").concat(position.y, ")"),
     className: classNames
-  }, react_1.default.createElement("circle", {
-    radius: settings_1.connectionPointRadius
-  }), react_1.default.createElement("text", null, typesLabel)), (isMultiple || !hasConnections) && [// Don't show dragger for single-connection points already connected
-  react_1.default.createElement(draggable_1.default, {
-    key: 'linker',
+  }, /*#__PURE__*/_react.default.createElement("circle", {
+    radius: _settings.connectionPointRadius
+  }), /*#__PURE__*/_react.default.createElement("text", null, typesLabel)), (isMultiple || !hasConnections) && [
+  /*#__PURE__*/
+  // Don't show dragger for single-connection points already connected
+  _react.default.createElement(_draggable.default, {
+    key: "linker",
     position: myPosition,
     isRelative: false,
     onStartDragging: function onStartDragging(event) {
@@ -35575,7 +35781,14 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     onMove: function onMove(mousePosition) {
       // When linker is being dragged:
       // * update search criteria (including current position)
-      candidateSearch(isInput, types, mousePosition, payload, isAnyAccepted, hasConnections); // * update linker position according to the mouse
+      connection.startSearching({
+        isInput: isInput,
+        types: types,
+        position: mousePosition,
+        payload: payload,
+        isAnyAccepted: isAnyAccepted,
+        hasConnections: hasConnections
+      }); // * update linker position according to the mouse
 
       setMyPosition({
         x: mousePosition.x,
@@ -35585,19 +35798,19 @@ var ConnectionPoint = function ConnectionPoint(_a) {
     onDrop: function onDrop() {
       return setDragging(null);
     }
-  }, react_1.default.createElement("circle", {
+  }, /*#__PURE__*/_react.default.createElement("circle", {
     className: "linker"
   })), isDragging && ( // When linker is being dragged a temporary link to in must be shown
-  isInput ? react_1.default.createElement(link_1.default, {
-    key: 'link',
+  isInput ? /*#__PURE__*/_react.default.createElement(_link.default, {
+    key: "link",
     to: position,
     from: myPosition
-  }) : react_1.default.createElement(link_1.default, {
-    key: 'link',
+  }) : /*#__PURE__*/_react.default.createElement(_link.default, {
+    key: "link",
     from: position,
     to: myPosition
   }))]];
-}; // const mapStateToProps = state => {
+}); // const mapStateToProps = state => {
 //   return {
 //     connectionSearched: state.connectionSearched,
 //     activeEpt: state.activeEpt,
@@ -35625,35 +35838,35 @@ var ConnectionPoint = function ConnectionPoint(_a) {
 // }
 // const ConnectionPointConnected = connect(mapStateToProps, mapDispatchToProps)(ConnectionPoint)
 
-
-exports.default = ConnectionPoint;
-},{"react":"node_modules/react/index.js","../../settings":"src/settings.js","../../utils":"src/utils.ts","../../store/useStore":"src/store/useStore.js","../draggable/draggable":"src/components/draggable/draggable.tsx","../link/link":"src/components/link/link.tsx"}],"src/components/ept/ept.tsx":[function(require,module,exports) {
+var _default = ConnectionPoint;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","../../settings":"src/settings.js","../../utils":"src/utils.ts","../../store/useStore":"src/store/useStore.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../draggable/draggable":"src/components/draggable/draggable.js","../link/link":"src/components/link/link.js"}],"src/components/ept/ept.js":[function(require,module,exports) {
 "use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = void 0;
 
-var react_1 = __importDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
-var mobx_react_1 = require("mobx-react");
+var _mobxReact = require("mobx-react");
 
-var useStore_1 = require("../../store/useStore"); // import { eptMove, eptBringOnTop, eptRemove, eptLinksRemove } from '../../store/actions'
+var _useStore = require("../../store/useStore");
 
+var _draggable = _interopRequireDefault(require("../draggable/draggable"));
 
-var draggable_1 = __importDefault(require("../draggable/draggable"));
+var _settings = require("../../settings");
 
-var settings_1 = require("../../settings");
+var _utils = require("../../utils");
 
-var utils_1 = require("../../utils");
+var _connectionPoint = _interopRequireDefault(require("../connectionPoint/connectionPoint"));
 
-var connectionPoint_1 = __importDefault(require("../connectionPoint/connectionPoint"));
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 var emptyEpt = {
   title: 'Undefined',
@@ -35671,68 +35884,62 @@ var emptyEpt = {
   parameters: {},
   isComplete: true
 };
-var Ept = mobx_react_1.observer(function (_a) {
-  var id = _a.id,
-      _b = _a.data,
-      data = _b === void 0 ? emptyEpt : _b,
-      _c = _a.onMove,
-      onMove = _c === void 0 ? function () {} : _c,
-      bringOnTop = _a.bringOnTop,
-      deleteEpt = _a.deleteEpt,
-      deleteEptLinks = _a.deleteEptLinks;
-  var store = useStore_1.useStore();
-  var me = store.activeEpt.epts[id];
+var Ept = (0, _mobxReact.observer)(function (_ref) {
+  var id = _ref.id,
+      data = _ref.data;
+  var store = (0, _useStore.useStore)();
+  var activeEpt = store.activeEpt;
+  var me = activeEpt.epts[id];
   var isStandalone = !id;
   var position = data.position;
   var inPosition = isStandalone ? {
-    x: settings_1.canvasWidth / 2,
-    y: settings_1.canvasHeight - 20
+    x: _settings.canvasWidth / 2,
+    y: _settings.canvasHeight - 20
   } : {
-    x: position.x + settings_1.eptWidth / 2,
+    x: position.x + _settings.eptWidth / 2,
     y: position.y
   };
   var outPosition = isStandalone ? {
-    x: settings_1.canvasWidth / 2,
+    x: _settings.canvasWidth / 2,
     y: 20
   } : {
-    x: position.x + settings_1.eptWidth / 2,
-    y: position.y + settings_1.eptHeight
+    x: position.x + _settings.eptWidth / 2,
+    y: position.y + _settings.eptHeight
   };
-  var classes = {
+  var classes = (0, _utils.className)({
     ept: true,
     incomplete: !data.isComplete
-  };
-  return [!isStandalone && react_1.default.createElement(draggable_1.default, {
-    key: 'ept',
+  });
+  return [!isStandalone && /*#__PURE__*/_react.default.createElement(_draggable.default, {
+    key: "ept",
     position: position,
     onStartDragging: function onStartDragging() {
-      return store.activeEpt.bringEptOnTop(id);
+      return activeEpt.bringEptOnTop(id);
     },
     onMove: function onMove(newPosition) {
       return me.position = newPosition;
     }
-  }, react_1.default.createElement("g", {
-    className: utils_1.className(classes)
-  }, react_1.default.createElement("rect", {
+  }, /*#__PURE__*/_react.default.createElement("g", {
+    className: classes
+  }, /*#__PURE__*/_react.default.createElement("rect", {
     className: "container"
-  }), react_1.default.createElement("text", {
+  }), /*#__PURE__*/_react.default.createElement("text", {
     className: "title"
-  }, data.title), react_1.default.createElement("text", {
+  }, data.title), /*#__PURE__*/_react.default.createElement("text", {
     className: "action",
-    onClick: function onClick(event) {
-      deleteEptLinks(id);
-      deleteEpt(id);
+    onClick: function onClick() {
+      return activeEpt.removeEpt(id);
     }
-  }, "\xD7"))), !isStandalone && (data.inputTypes || data.inputIsFlexible) && react_1.default.createElement(connectionPoint_1.default, {
-    key: 'in',
+  }, "\xD7"))), !isStandalone && (data.inputTypes || data.inputIsFlexible) && /*#__PURE__*/_react.default.createElement(_connectionPoint.default, {
+    key: "in",
     isInput: true,
     position: inPosition,
     types: data.inputTypes,
     payload: id,
     isMultiple: isStandalone,
     isAnyAccepted: data.inputIsFlexible
-  }), (data.outputTypes || data.outputIsFlexible) && react_1.default.createElement(connectionPoint_1.default, {
-    key: 'out',
+  }), (data.outputTypes || data.outputIsFlexible) && /*#__PURE__*/_react.default.createElement(_connectionPoint.default, {
+    key: "out",
     isInput: false,
     isMultiple: true,
     position: outPosition,
@@ -35740,164 +35947,10 @@ var Ept = mobx_react_1.observer(function (_a) {
     payload: id,
     isAnyAccepted: data.outputIsFlexible
   })];
-}); // const mapDispatchToProps = dispatch => {
-//   return {
-//     onMove: (id: string, position: IPosition) => {
-//       	dispatch(eptMove(id, position))
-//     },
-//     bringOnTop: (id: string)  => {
-//     	dispatch(eptBringOnTop(id))
-//     },
-//     deleteEpt: (id: string) => {
-//     	dispatch(eptRemove(id))
-//     },
-//     deleteEptLinks: (id: string) => {
-//     	dispatch(eptLinksRemove(id))
-//     }
-//   }
-// }
-// const EptConnected = connect(null, mapDispatchToProps)(Ept)
-
-exports.default = Ept;
-},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js","../draggable/draggable":"src/components/draggable/draggable.tsx","../../settings":"src/settings.js","../../utils":"src/utils.ts","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/applicationPoint/applicationPoint.tsx":[function(require,module,exports) {
-"use strict";
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
 });
-
-var react_1 = __importDefault(require("react"));
-
-var connectionPoint_1 = __importDefault(require("../connectionPoint/connectionPoint"));
-
-var ApplicationPoint = function ApplicationPoint(_a) {
-  var data = _a.data;
-  return [react_1.default.createElement(connectionPoint_1.default, {
-    key: 'cp',
-    isInput: false,
-    position: data.position,
-    types: data.outputTypes,
-    payload: '',
-    isMultiple: true,
-    isAnyAccepted: true
-  }), react_1.default.createElement("text", {
-    key: 'label',
-    x: data.position.x + 15,
-    y: data.position.y - 3
-  }, "Application Point(s)")];
-};
-
-exports.default = ApplicationPoint;
-},{"react":"node_modules/react/index.js","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.tsx"}],"src/components/visualizer/visualizer.tsx":[function(require,module,exports) {
-"use strict";
-
-var __spreadArrays = this && this.__spreadArrays || function () {
-  for (var s = 0, i = 0, il = arguments.length; i < il; i++) {
-    s += arguments[i].length;
-  }
-
-  for (var r = Array(s), k = 0, i = 0; i < il; i++) {
-    for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++) {
-      r[k] = a[j];
-    }
-  }
-
-  return r;
-};
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var react_1 = __importDefault(require("react")); // import { connect } from 'react-redux'
-// import { eptAdd, eptRemove } from '../../store/actions'
-
-
-var useStore_1 = require("../../store/useStore");
-
-var mobx_react_1 = require("mobx-react");
-
-var settings_1 = require("../../settings");
-
-var ept_1 = __importDefault(require("../ept/ept"));
-
-var applicationPoint_1 = __importDefault(require("../applicationPoint/applicationPoint"));
-
-var link_1 = __importDefault(require("../link/link"));
-
-;
-
-var eptOrder = function eptOrder(_a, _b) {
-  var ept1 = _a[1];
-  var ept2 = _b[1];
-  return ept1.order < ept2.order ? -1 : 1;
-};
-
-var getPosition = function getPosition(id, epts, isInput) {
-  var ept = epts[id];
-
-  if (!id) {
-    // Application Point
-    return ept.position;
-  }
-
-  if (!ept) return {
-    x: 0,
-    y: 0
-  };
-  return {
-    x: ept.position.x + settings_1.eptWidth / 2,
-    y: ept.position.y + (isInput ? 0 : settings_1.eptHeight)
-  };
-};
-
-var Visualizer = mobx_react_1.observer(function (props) {
-  var store = useStore_1.useStore();
-  var _a = store.activeEpt,
-      epts = _a.epts,
-      links = _a.links;
-  return __spreadArrays(Object.entries(links).map(function (_a) {
-    var id = _a[0],
-        link = _a[1];
-    return react_1.default.createElement(link_1.default, {
-      key: id,
-      id: id,
-      from: getPosition(link.from, epts, false),
-      to: getPosition(link.to, epts, true)
-    });
-  }), Object.entries(epts).sort(eptOrder).map(function (_a) {
-    var id = _a[0],
-        data = _a[1];
-    return id ? react_1.default.createElement(ept_1.default, {
-      key: id,
-      data: data,
-      id: id
-    }) : react_1.default.createElement(applicationPoint_1.default, {
-      key: "ap",
-      data: data
-    });
-  }));
-}); // const mapStateToProps = state => {
-//   return {
-//     activeEpt: state.activeEpt,
-//   }
-// }
-// const VisualizerConnected = connect(mapStateToProps)(Visualizer)
-
-exports.default = Visualizer;
-},{"react":"node_modules/react/index.js","../../store/useStore":"src/store/useStore.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../settings":"src/settings.js","../ept/ept":"src/components/ept/ept.tsx","../applicationPoint/applicationPoint":"src/components/applicationPoint/applicationPoint.tsx","../link/link":"src/components/link/link.tsx"}],"src/components/catalogue/catalogue.jsx":[function(require,module,exports) {
+var _default = Ept;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js","../draggable/draggable":"src/components/draggable/draggable.js","../../settings":"src/settings.js","../../utils":"src/utils.ts","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.js"}],"src/components/applicationPoint/applicationPoint.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -35907,11 +35960,148 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _useStore = require("../../store/useStore");
+var _mobxReact = require("mobx-react");
+
+var _connectionPoint = _interopRequireDefault(require("../connectionPoint/connectionPoint"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ApplicationPoint = (0, _mobxReact.observer)(function (_ref) {
+  var data = _ref.data;
+  return [/*#__PURE__*/_react.default.createElement(_connectionPoint.default, {
+    key: "cp",
+    isInput: false,
+    position: data.position,
+    types: data.outputTypes,
+    payload: '',
+    isMultiple: true,
+    isAnyAccepted: true
+  }), /*#__PURE__*/_react.default.createElement("text", {
+    key: "label",
+    x: data.position.x + 15,
+    y: data.position.y - 3
+  }, "Application Point(s)")];
+});
+var _default = ApplicationPoint;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../connectionPoint/connectionPoint":"src/components/connectionPoint/connectionPoint.js"}],"src/components/visualizer/visualizer.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
 
 var _mobxReact = require("mobx-react");
 
-var _positioner = require("../../positioner");
+var _useStore = require("../../store/useStore");
+
+var _settings = require("../../settings");
+
+var _ept = _interopRequireDefault(require("../ept/ept"));
+
+var _link = _interopRequireDefault(require("../link/link"));
+
+var _applicationPoint = _interopRequireDefault(require("../applicationPoint/applicationPoint"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var eptOrder = function eptOrder(_ref, _ref2) {
+  var _ref3 = _slicedToArray(_ref, 2),
+      ept1 = _ref3[1];
+
+  var _ref4 = _slicedToArray(_ref2, 2),
+      ept2 = _ref4[1];
+
+  return ept1.order < ept2.order ? -1 : 1;
+};
+
+var getPosition = function getPosition(id, epts, isInput) {
+  var ept = epts[id];
+
+  if (!id && ept) {
+    // Application Point
+    return ept.position;
+  }
+
+  if (!ept) return {
+    x: 0,
+    y: 0
+  };
+  return {
+    x: ept.position.x + _settings.eptWidth / 2,
+    y: ept.position.y + (isInput ? 0 : _settings.eptHeight)
+  };
+};
+
+var Visualizer = (0, _mobxReact.observer)(function (props) {
+  var store = (0, _useStore.useStore)();
+  var _store$activeEpt = store.activeEpt,
+      epts = _store$activeEpt.epts,
+      links = _store$activeEpt.links;
+  return [].concat(_toConsumableArray(Object.entries(links).map(function (_ref5) {
+    var _ref6 = _slicedToArray(_ref5, 2),
+        id = _ref6[0],
+        link = _ref6[1];
+
+    return /*#__PURE__*/_react.default.createElement(_link.default, {
+      key: id,
+      id: id,
+      from: getPosition(link.from, epts, false),
+      to: getPosition(link.to, epts, true)
+    });
+  })), _toConsumableArray(Object.entries(epts).sort(eptOrder).map(function (_ref7) {
+    var _ref8 = _slicedToArray(_ref7, 2),
+        id = _ref8[0],
+        data = _ref8[1];
+
+    return id ? /*#__PURE__*/_react.default.createElement(_ept.default, {
+      key: id,
+      data: data,
+      id: id
+    }) : /*#__PURE__*/_react.default.createElement(_applicationPoint.default, {
+      key: "ap",
+      data: data
+    });
+  })));
+});
+var _default = Visualizer;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js","../../settings":"src/settings.js","../ept/ept":"src/components/ept/ept.js","../link/link":"src/components/link/link.js","../applicationPoint/applicationPoint":"src/components/applicationPoint/applicationPoint.js"}],"src/components/catalogue/catalogue.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _mobxReact = require("mobx-react");
+
+var _useStore = require("../../store/useStore");
 
 var _utils = require("../../utils");
 
@@ -35921,37 +36111,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var Catalogue = (0, _mobxReact.observer)(function (props) {
   var store = (0, _useStore.useStore)();
-  var _store$activeEpt = store.activeEpt,
-      epts = _store$activeEpt.epts,
-      links = _store$activeEpt.links,
-      id = _store$activeEpt.id; // const addEpt = (ept, targetEpt) => {
-  // 	let newEpt = new Ept(Object.assign({}, ept, {
-  // 		id: generateId(),
-  // 		order: 0
-  // 	}));
-  // 	let connectionEpt = new Positioner(targetEpt.epts, targetEpt.links, newEpt).position();
-  // 	state.epts = bringEptOnTop(Object.assign({}, state.epts, {[newEpt.id]: newEpt}), newEpt.id);
-  // 	if (connectionEpt) {
-  // 		let link = {
-  // 			id: generateId(),
-  // 			from: connectionEpt.id,
-  // 			to: newEpt.id
-  // 		}
-  // 		state.links = Object.assign({}, state.links, {[link.id]: link});
-  // 	}
-  // }
-
-  var useEpt = function useEpt(ept) {
-    store.activeEpt.useEpt(ept);
-  };
-
-  var viewEpt = function viewEpt(ept) {};
-
+  var id = store.activeEpt.id,
+      epts = store.catalogue.epts;
   return /*#__PURE__*/_react.default.createElement("div", {
     className: "catalogue"
-  }, /*#__PURE__*/_react.default.createElement("h1", null, "Catalogue"), /*#__PURE__*/_react.default.createElement("ul", null, store.catalogue.map(function (ept, index) {
+  }, /*#__PURE__*/_react.default.createElement("h1", null, "Catalogue"), /*#__PURE__*/_react.default.createElement("ul", null, epts.map(function (ept, index) {
     var isActive = ept.id === id;
-    var isPrimitive = ept.type === 'primitive';
     return /*#__PURE__*/_react.default.createElement("li", {
       key: index,
       className: (0, _utils.className)({
@@ -35960,39 +36125,19 @@ var Catalogue = (0, _mobxReact.observer)(function (props) {
     }, /*#__PURE__*/_react.default.createElement("h5", null, ept.title), !isActive && /*#__PURE__*/_react.default.createElement("button", {
       className: "link",
       onClick: function onClick() {
-        return useEpt(ept);
+        return store.activeEpt.useEpt(ept);
       }
-    }, "Use"), !isPrimitive && /*#__PURE__*/_react.default.createElement("button", {
+    }, "Use"), !ept.isPrimitive && /*#__PURE__*/_react.default.createElement("button", {
       className: "link",
       onClick: function onClick() {
-        return viewEpt(ept);
+        return store.catalogue.activate(ept);
       }
     }, "View"));
   })));
-}); // const mapStateToProps = state => {
-// 	return {
-// 		activeEpt: state.activeEpt,
-// 		catalogue: state.catalogue,
-// 	}
-// };
-// const mapDispatchToProps = dispatch => {
-//   return {
-//     onAddClick: ept => {
-//       	dispatch(eptAdd(ept))
-//     },
-//     addLink: (from, to) => {
-//     	dispatch(linkAdd(from, to))
-//     },
-//     viewEpt: (ept) => {
-//     	dispatch(activeEptSet(ept));
-//     }
-//   }
-// }
-// const CatalogueConnected = connect(mapStateToProps, mapDispatchToProps)(Catalogue)
-
+});
 var _default = Catalogue;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","../../store/useStore":"src/store/useStore.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../positioner":"src/positioner.ts","../../utils":"src/utils.ts","../../store/store":"src/store/store.js"}],"node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js","../../utils":"src/utils.ts","../../store/store":"src/store/store.js"}],"node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79736,7 +79881,7 @@ var _StatisticLabel2 = _interopRequireDefault(require("./views/Statistic/Statist
 var _StatisticValue2 = _interopRequireDefault(require("./views/Statistic/StatisticValue"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"@fluentui/react-component-ref":"node_modules/@fluentui/react-component-ref/dist/es/index.js","./addons/Confirm":"node_modules/semantic-ui-react/dist/es/addons/Confirm/index.js","./addons/MountNode":"node_modules/semantic-ui-react/dist/es/addons/MountNode/index.js","./addons/Pagination":"node_modules/semantic-ui-react/dist/es/addons/Pagination/index.js","./addons/Pagination/PaginationItem":"node_modules/semantic-ui-react/dist/es/addons/Pagination/PaginationItem.js","./addons/Portal":"node_modules/semantic-ui-react/dist/es/addons/Portal/index.js","./addons/Portal/PortalInner":"node_modules/semantic-ui-react/dist/es/addons/Portal/PortalInner.js","./addons/Radio":"node_modules/semantic-ui-react/dist/es/addons/Radio/index.js","./addons/Responsive":"node_modules/semantic-ui-react/dist/es/addons/Responsive/index.js","./addons/Select":"node_modules/semantic-ui-react/dist/es/addons/Select/index.js","./addons/TextArea":"node_modules/semantic-ui-react/dist/es/addons/TextArea/index.js","./addons/TransitionablePortal":"node_modules/semantic-ui-react/dist/es/addons/TransitionablePortal/index.js","./behaviors/Visibility":"node_modules/semantic-ui-react/dist/es/behaviors/Visibility/index.js","./collections/Breadcrumb":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/index.js","./collections/Breadcrumb/BreadcrumbDivider":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/BreadcrumbDivider.js","./collections/Breadcrumb/BreadcrumbSection":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/BreadcrumbSection.js","./collections/Form":"node_modules/semantic-ui-react/dist/es/collections/Form/index.js","./collections/Form/FormButton":"node_modules/semantic-ui-react/dist/es/collections/Form/FormButton.js","./collections/Form/FormCheckbox":"node_modules/semantic-ui-react/dist/es/collections/Form/FormCheckbox.js","./collections/Form/FormDropdown":"node_modules/semantic-ui-react/dist/es/collections/Form/FormDropdown.js","./collections/Form/FormField":"node_modules/semantic-ui-react/dist/es/collections/Form/FormField.js","./collections/Form/FormGroup":"node_modules/semantic-ui-react/dist/es/collections/Form/FormGroup.js","./collections/Form/FormInput":"node_modules/semantic-ui-react/dist/es/collections/Form/FormInput.js","./collections/Form/FormRadio":"node_modules/semantic-ui-react/dist/es/collections/Form/FormRadio.js","./collections/Form/FormSelect":"node_modules/semantic-ui-react/dist/es/collections/Form/FormSelect.js","./collections/Form/FormTextArea":"node_modules/semantic-ui-react/dist/es/collections/Form/FormTextArea.js","./collections/Grid":"node_modules/semantic-ui-react/dist/es/collections/Grid/index.js","./collections/Grid/GridColumn":"node_modules/semantic-ui-react/dist/es/collections/Grid/GridColumn.js","./collections/Grid/GridRow":"node_modules/semantic-ui-react/dist/es/collections/Grid/GridRow.js","./collections/Menu":"node_modules/semantic-ui-react/dist/es/collections/Menu/index.js","./collections/Menu/MenuHeader":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuHeader.js","./collections/Menu/MenuItem":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuItem.js","./collections/Menu/MenuMenu":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuMenu.js","./collections/Message":"node_modules/semantic-ui-react/dist/es/collections/Message/index.js","./collections/Message/MessageContent":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageContent.js","./collections/Message/MessageHeader":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageHeader.js","./collections/Message/MessageItem":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageItem.js","./collections/Message/MessageList":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageList.js","./collections/Table":"node_modules/semantic-ui-react/dist/es/collections/Table/index.js","./collections/Table/TableBody":"node_modules/semantic-ui-react/dist/es/collections/Table/TableBody.js","./collections/Table/TableCell":"node_modules/semantic-ui-react/dist/es/collections/Table/TableCell.js","./collections/Table/TableFooter":"node_modules/semantic-ui-react/dist/es/collections/Table/TableFooter.js","./collections/Table/TableHeader":"node_modules/semantic-ui-react/dist/es/collections/Table/TableHeader.js","./collections/Table/TableHeaderCell":"node_modules/semantic-ui-react/dist/es/collections/Table/TableHeaderCell.js","./collections/Table/TableRow":"node_modules/semantic-ui-react/dist/es/collections/Table/TableRow.js","./elements/Button/Button":"node_modules/semantic-ui-react/dist/es/elements/Button/Button.js","./elements/Button/ButtonContent":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonContent.js","./elements/Button/ButtonGroup":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonGroup.js","./elements/Button/ButtonOr":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonOr.js","./elements/Container":"node_modules/semantic-ui-react/dist/es/elements/Container/index.js","./elements/Divider":"node_modules/semantic-ui-react/dist/es/elements/Divider/index.js","./elements/Flag":"node_modules/semantic-ui-react/dist/es/elements/Flag/index.js","./elements/Header":"node_modules/semantic-ui-react/dist/es/elements/Header/index.js","./elements/Header/HeaderContent":"node_modules/semantic-ui-react/dist/es/elements/Header/HeaderContent.js","./elements/Header/HeaderSubheader":"node_modules/semantic-ui-react/dist/es/elements/Header/HeaderSubheader.js","./elements/Icon":"node_modules/semantic-ui-react/dist/es/elements/Icon/index.js","./elements/Icon/IconGroup":"node_modules/semantic-ui-react/dist/es/elements/Icon/IconGroup.js","./elements/Image":"node_modules/semantic-ui-react/dist/es/elements/Image/index.js","./elements/Image/ImageGroup":"node_modules/semantic-ui-react/dist/es/elements/Image/ImageGroup.js","./elements/Input":"node_modules/semantic-ui-react/dist/es/elements/Input/index.js","./elements/Label":"node_modules/semantic-ui-react/dist/es/elements/Label/index.js","./elements/Label/LabelDetail":"node_modules/semantic-ui-react/dist/es/elements/Label/LabelDetail.js","./elements/Label/LabelGroup":"node_modules/semantic-ui-react/dist/es/elements/Label/LabelGroup.js","./elements/List":"node_modules/semantic-ui-react/dist/es/elements/List/index.js","./elements/List/ListContent":"node_modules/semantic-ui-react/dist/es/elements/List/ListContent.js","./elements/List/ListDescription":"node_modules/semantic-ui-react/dist/es/elements/List/ListDescription.js","./elements/List/ListHeader":"node_modules/semantic-ui-react/dist/es/elements/List/ListHeader.js","./elements/List/ListIcon":"node_modules/semantic-ui-react/dist/es/elements/List/ListIcon.js","./elements/List/ListItem":"node_modules/semantic-ui-react/dist/es/elements/List/ListItem.js","./elements/List/ListList":"node_modules/semantic-ui-react/dist/es/elements/List/ListList.js","./elements/Loader":"node_modules/semantic-ui-react/dist/es/elements/Loader/index.js","./elements/Placeholder":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/index.js","./elements/Placeholder/PlaceholderHeader":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderHeader.js","./elements/Placeholder/PlaceholderImage":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderImage.js","./elements/Placeholder/PlaceholderLine":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderLine.js","./elements/Placeholder/PlaceholderParagraph":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderParagraph.js","./elements/Rail":"node_modules/semantic-ui-react/dist/es/elements/Rail/index.js","./elements/Reveal":"node_modules/semantic-ui-react/dist/es/elements/Reveal/index.js","./elements/Reveal/RevealContent":"node_modules/semantic-ui-react/dist/es/elements/Reveal/RevealContent.js","./elements/Segment":"node_modules/semantic-ui-react/dist/es/elements/Segment/index.js","./elements/Segment/SegmentGroup":"node_modules/semantic-ui-react/dist/es/elements/Segment/SegmentGroup.js","./elements/Segment/SegmentInline":"node_modules/semantic-ui-react/dist/es/elements/Segment/SegmentInline.js","./elements/Step":"node_modules/semantic-ui-react/dist/es/elements/Step/index.js","./elements/Step/StepContent":"node_modules/semantic-ui-react/dist/es/elements/Step/StepContent.js","./elements/Step/StepDescription":"node_modules/semantic-ui-react/dist/es/elements/Step/StepDescription.js","./elements/Step/StepGroup":"node_modules/semantic-ui-react/dist/es/elements/Step/StepGroup.js","./elements/Step/StepTitle":"node_modules/semantic-ui-react/dist/es/elements/Step/StepTitle.js","./modules/Accordion/Accordion":"node_modules/semantic-ui-react/dist/es/modules/Accordion/Accordion.js","./modules/Accordion/AccordionAccordion":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionAccordion.js","./modules/Accordion/AccordionContent":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionContent.js","./modules/Accordion/AccordionPanel":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionPanel.js","./modules/Accordion/AccordionTitle":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionTitle.js","./modules/Checkbox":"node_modules/semantic-ui-react/dist/es/modules/Checkbox/index.js","./modules/Dimmer":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/index.js","./modules/Dimmer/DimmerDimmable":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/DimmerDimmable.js","./modules/Dimmer/DimmerInner":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/DimmerInner.js","./modules/Dropdown":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/index.js","./modules/Dropdown/DropdownDivider":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownDivider.js","./modules/Dropdown/DropdownHeader":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownHeader.js","./modules/Dropdown/DropdownItem":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownItem.js","./modules/Dropdown/DropdownMenu":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownMenu.js","./modules/Dropdown/DropdownSearchInput":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownSearchInput.js","./modules/Dropdown/DropdownText":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownText.js","./modules/Embed":"node_modules/semantic-ui-react/dist/es/modules/Embed/index.js","./modules/Modal":"node_modules/semantic-ui-react/dist/es/modules/Modal/index.js","./modules/Modal/ModalActions":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalActions.js","./modules/Modal/ModalContent":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalContent.js","./modules/Modal/ModalDescription":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalDescription.js","./modules/Modal/ModalDimmer":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalDimmer.js","./modules/Modal/ModalHeader":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalHeader.js","./modules/Popup":"node_modules/semantic-ui-react/dist/es/modules/Popup/index.js","./modules/Popup/PopupContent":"node_modules/semantic-ui-react/dist/es/modules/Popup/PopupContent.js","./modules/Popup/PopupHeader":"node_modules/semantic-ui-react/dist/es/modules/Popup/PopupHeader.js","./modules/Progress":"node_modules/semantic-ui-react/dist/es/modules/Progress/index.js","./modules/Rating":"node_modules/semantic-ui-react/dist/es/modules/Rating/index.js","./modules/Rating/RatingIcon":"node_modules/semantic-ui-react/dist/es/modules/Rating/RatingIcon.js","./modules/Search":"node_modules/semantic-ui-react/dist/es/modules/Search/index.js","./modules/Search/SearchCategory":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchCategory.js","./modules/Search/SearchResult":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchResult.js","./modules/Search/SearchResults":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchResults.js","./modules/Sidebar":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/index.js","./modules/Sidebar/SidebarPushable":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/SidebarPushable.js","./modules/Sidebar/SidebarPusher":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/SidebarPusher.js","./modules/Sticky":"node_modules/semantic-ui-react/dist/es/modules/Sticky/index.js","./modules/Tab":"node_modules/semantic-ui-react/dist/es/modules/Tab/index.js","./modules/Tab/TabPane":"node_modules/semantic-ui-react/dist/es/modules/Tab/TabPane.js","./modules/Transition":"node_modules/semantic-ui-react/dist/es/modules/Transition/index.js","./modules/Transition/TransitionGroup":"node_modules/semantic-ui-react/dist/es/modules/Transition/TransitionGroup.js","./views/Advertisement":"node_modules/semantic-ui-react/dist/es/views/Advertisement/index.js","./views/Card/Card":"node_modules/semantic-ui-react/dist/es/views/Card/Card.js","./views/Card/CardContent":"node_modules/semantic-ui-react/dist/es/views/Card/CardContent.js","./views/Card/CardDescription":"node_modules/semantic-ui-react/dist/es/views/Card/CardDescription.js","./views/Card/CardGroup":"node_modules/semantic-ui-react/dist/es/views/Card/CardGroup.js","./views/Card/CardHeader":"node_modules/semantic-ui-react/dist/es/views/Card/CardHeader.js","./views/Card/CardMeta":"node_modules/semantic-ui-react/dist/es/views/Card/CardMeta.js","./views/Comment":"node_modules/semantic-ui-react/dist/es/views/Comment/index.js","./views/Comment/CommentAction":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAction.js","./views/Comment/CommentActions":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentActions.js","./views/Comment/CommentAuthor":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAuthor.js","./views/Comment/CommentAvatar":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAvatar.js","./views/Comment/CommentContent":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentContent.js","./views/Comment/CommentGroup":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentGroup.js","./views/Comment/CommentMetadata":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentMetadata.js","./views/Comment/CommentText":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentText.js","./views/Feed":"node_modules/semantic-ui-react/dist/es/views/Feed/index.js","./views/Feed/FeedContent":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedContent.js","./views/Feed/FeedDate":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedDate.js","./views/Feed/FeedEvent":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedEvent.js","./views/Feed/FeedExtra":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedExtra.js","./views/Feed/FeedLabel":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedLabel.js","./views/Feed/FeedLike":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedLike.js","./views/Feed/FeedMeta":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedMeta.js","./views/Feed/FeedSummary":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedSummary.js","./views/Feed/FeedUser":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedUser.js","./views/Item":"node_modules/semantic-ui-react/dist/es/views/Item/index.js","./views/Item/ItemContent":"node_modules/semantic-ui-react/dist/es/views/Item/ItemContent.js","./views/Item/ItemDescription":"node_modules/semantic-ui-react/dist/es/views/Item/ItemDescription.js","./views/Item/ItemExtra":"node_modules/semantic-ui-react/dist/es/views/Item/ItemExtra.js","./views/Item/ItemGroup":"node_modules/semantic-ui-react/dist/es/views/Item/ItemGroup.js","./views/Item/ItemHeader":"node_modules/semantic-ui-react/dist/es/views/Item/ItemHeader.js","./views/Item/ItemImage":"node_modules/semantic-ui-react/dist/es/views/Item/ItemImage.js","./views/Item/ItemMeta":"node_modules/semantic-ui-react/dist/es/views/Item/ItemMeta.js","./views/Statistic":"node_modules/semantic-ui-react/dist/es/views/Statistic/index.js","./views/Statistic/StatisticGroup":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticGroup.js","./views/Statistic/StatisticLabel":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticLabel.js","./views/Statistic/StatisticValue":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticValue.js"}],"src/components/parameters/parameter.jsx":[function(require,module,exports) {
+},{"@fluentui/react-component-ref":"node_modules/@fluentui/react-component-ref/dist/es/index.js","./addons/Confirm":"node_modules/semantic-ui-react/dist/es/addons/Confirm/index.js","./addons/MountNode":"node_modules/semantic-ui-react/dist/es/addons/MountNode/index.js","./addons/Pagination":"node_modules/semantic-ui-react/dist/es/addons/Pagination/index.js","./addons/Pagination/PaginationItem":"node_modules/semantic-ui-react/dist/es/addons/Pagination/PaginationItem.js","./addons/Portal":"node_modules/semantic-ui-react/dist/es/addons/Portal/index.js","./addons/Portal/PortalInner":"node_modules/semantic-ui-react/dist/es/addons/Portal/PortalInner.js","./addons/Radio":"node_modules/semantic-ui-react/dist/es/addons/Radio/index.js","./addons/Responsive":"node_modules/semantic-ui-react/dist/es/addons/Responsive/index.js","./addons/Select":"node_modules/semantic-ui-react/dist/es/addons/Select/index.js","./addons/TextArea":"node_modules/semantic-ui-react/dist/es/addons/TextArea/index.js","./addons/TransitionablePortal":"node_modules/semantic-ui-react/dist/es/addons/TransitionablePortal/index.js","./behaviors/Visibility":"node_modules/semantic-ui-react/dist/es/behaviors/Visibility/index.js","./collections/Breadcrumb":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/index.js","./collections/Breadcrumb/BreadcrumbDivider":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/BreadcrumbDivider.js","./collections/Breadcrumb/BreadcrumbSection":"node_modules/semantic-ui-react/dist/es/collections/Breadcrumb/BreadcrumbSection.js","./collections/Form":"node_modules/semantic-ui-react/dist/es/collections/Form/index.js","./collections/Form/FormButton":"node_modules/semantic-ui-react/dist/es/collections/Form/FormButton.js","./collections/Form/FormCheckbox":"node_modules/semantic-ui-react/dist/es/collections/Form/FormCheckbox.js","./collections/Form/FormDropdown":"node_modules/semantic-ui-react/dist/es/collections/Form/FormDropdown.js","./collections/Form/FormField":"node_modules/semantic-ui-react/dist/es/collections/Form/FormField.js","./collections/Form/FormGroup":"node_modules/semantic-ui-react/dist/es/collections/Form/FormGroup.js","./collections/Form/FormInput":"node_modules/semantic-ui-react/dist/es/collections/Form/FormInput.js","./collections/Form/FormRadio":"node_modules/semantic-ui-react/dist/es/collections/Form/FormRadio.js","./collections/Form/FormSelect":"node_modules/semantic-ui-react/dist/es/collections/Form/FormSelect.js","./collections/Form/FormTextArea":"node_modules/semantic-ui-react/dist/es/collections/Form/FormTextArea.js","./collections/Grid":"node_modules/semantic-ui-react/dist/es/collections/Grid/index.js","./collections/Grid/GridColumn":"node_modules/semantic-ui-react/dist/es/collections/Grid/GridColumn.js","./collections/Grid/GridRow":"node_modules/semantic-ui-react/dist/es/collections/Grid/GridRow.js","./collections/Menu":"node_modules/semantic-ui-react/dist/es/collections/Menu/index.js","./collections/Menu/MenuHeader":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuHeader.js","./collections/Menu/MenuItem":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuItem.js","./collections/Menu/MenuMenu":"node_modules/semantic-ui-react/dist/es/collections/Menu/MenuMenu.js","./collections/Message":"node_modules/semantic-ui-react/dist/es/collections/Message/index.js","./collections/Message/MessageContent":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageContent.js","./collections/Message/MessageHeader":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageHeader.js","./collections/Message/MessageItem":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageItem.js","./collections/Message/MessageList":"node_modules/semantic-ui-react/dist/es/collections/Message/MessageList.js","./collections/Table":"node_modules/semantic-ui-react/dist/es/collections/Table/index.js","./collections/Table/TableBody":"node_modules/semantic-ui-react/dist/es/collections/Table/TableBody.js","./collections/Table/TableCell":"node_modules/semantic-ui-react/dist/es/collections/Table/TableCell.js","./collections/Table/TableFooter":"node_modules/semantic-ui-react/dist/es/collections/Table/TableFooter.js","./collections/Table/TableHeader":"node_modules/semantic-ui-react/dist/es/collections/Table/TableHeader.js","./collections/Table/TableHeaderCell":"node_modules/semantic-ui-react/dist/es/collections/Table/TableHeaderCell.js","./collections/Table/TableRow":"node_modules/semantic-ui-react/dist/es/collections/Table/TableRow.js","./elements/Button/Button":"node_modules/semantic-ui-react/dist/es/elements/Button/Button.js","./elements/Button/ButtonContent":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonContent.js","./elements/Button/ButtonGroup":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonGroup.js","./elements/Button/ButtonOr":"node_modules/semantic-ui-react/dist/es/elements/Button/ButtonOr.js","./elements/Container":"node_modules/semantic-ui-react/dist/es/elements/Container/index.js","./elements/Divider":"node_modules/semantic-ui-react/dist/es/elements/Divider/index.js","./elements/Flag":"node_modules/semantic-ui-react/dist/es/elements/Flag/index.js","./elements/Header":"node_modules/semantic-ui-react/dist/es/elements/Header/index.js","./elements/Header/HeaderContent":"node_modules/semantic-ui-react/dist/es/elements/Header/HeaderContent.js","./elements/Header/HeaderSubheader":"node_modules/semantic-ui-react/dist/es/elements/Header/HeaderSubheader.js","./elements/Icon":"node_modules/semantic-ui-react/dist/es/elements/Icon/index.js","./elements/Icon/IconGroup":"node_modules/semantic-ui-react/dist/es/elements/Icon/IconGroup.js","./elements/Image":"node_modules/semantic-ui-react/dist/es/elements/Image/index.js","./elements/Image/ImageGroup":"node_modules/semantic-ui-react/dist/es/elements/Image/ImageGroup.js","./elements/Input":"node_modules/semantic-ui-react/dist/es/elements/Input/index.js","./elements/Label":"node_modules/semantic-ui-react/dist/es/elements/Label/index.js","./elements/Label/LabelDetail":"node_modules/semantic-ui-react/dist/es/elements/Label/LabelDetail.js","./elements/Label/LabelGroup":"node_modules/semantic-ui-react/dist/es/elements/Label/LabelGroup.js","./elements/List":"node_modules/semantic-ui-react/dist/es/elements/List/index.js","./elements/List/ListContent":"node_modules/semantic-ui-react/dist/es/elements/List/ListContent.js","./elements/List/ListDescription":"node_modules/semantic-ui-react/dist/es/elements/List/ListDescription.js","./elements/List/ListHeader":"node_modules/semantic-ui-react/dist/es/elements/List/ListHeader.js","./elements/List/ListIcon":"node_modules/semantic-ui-react/dist/es/elements/List/ListIcon.js","./elements/List/ListItem":"node_modules/semantic-ui-react/dist/es/elements/List/ListItem.js","./elements/List/ListList":"node_modules/semantic-ui-react/dist/es/elements/List/ListList.js","./elements/Loader":"node_modules/semantic-ui-react/dist/es/elements/Loader/index.js","./elements/Placeholder":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/index.js","./elements/Placeholder/PlaceholderHeader":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderHeader.js","./elements/Placeholder/PlaceholderImage":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderImage.js","./elements/Placeholder/PlaceholderLine":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderLine.js","./elements/Placeholder/PlaceholderParagraph":"node_modules/semantic-ui-react/dist/es/elements/Placeholder/PlaceholderParagraph.js","./elements/Rail":"node_modules/semantic-ui-react/dist/es/elements/Rail/index.js","./elements/Reveal":"node_modules/semantic-ui-react/dist/es/elements/Reveal/index.js","./elements/Reveal/RevealContent":"node_modules/semantic-ui-react/dist/es/elements/Reveal/RevealContent.js","./elements/Segment":"node_modules/semantic-ui-react/dist/es/elements/Segment/index.js","./elements/Segment/SegmentGroup":"node_modules/semantic-ui-react/dist/es/elements/Segment/SegmentGroup.js","./elements/Segment/SegmentInline":"node_modules/semantic-ui-react/dist/es/elements/Segment/SegmentInline.js","./elements/Step":"node_modules/semantic-ui-react/dist/es/elements/Step/index.js","./elements/Step/StepContent":"node_modules/semantic-ui-react/dist/es/elements/Step/StepContent.js","./elements/Step/StepDescription":"node_modules/semantic-ui-react/dist/es/elements/Step/StepDescription.js","./elements/Step/StepGroup":"node_modules/semantic-ui-react/dist/es/elements/Step/StepGroup.js","./elements/Step/StepTitle":"node_modules/semantic-ui-react/dist/es/elements/Step/StepTitle.js","./modules/Accordion/Accordion":"node_modules/semantic-ui-react/dist/es/modules/Accordion/Accordion.js","./modules/Accordion/AccordionAccordion":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionAccordion.js","./modules/Accordion/AccordionContent":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionContent.js","./modules/Accordion/AccordionPanel":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionPanel.js","./modules/Accordion/AccordionTitle":"node_modules/semantic-ui-react/dist/es/modules/Accordion/AccordionTitle.js","./modules/Checkbox":"node_modules/semantic-ui-react/dist/es/modules/Checkbox/index.js","./modules/Dimmer":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/index.js","./modules/Dimmer/DimmerDimmable":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/DimmerDimmable.js","./modules/Dimmer/DimmerInner":"node_modules/semantic-ui-react/dist/es/modules/Dimmer/DimmerInner.js","./modules/Dropdown":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/index.js","./modules/Dropdown/DropdownDivider":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownDivider.js","./modules/Dropdown/DropdownHeader":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownHeader.js","./modules/Dropdown/DropdownItem":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownItem.js","./modules/Dropdown/DropdownMenu":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownMenu.js","./modules/Dropdown/DropdownSearchInput":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownSearchInput.js","./modules/Dropdown/DropdownText":"node_modules/semantic-ui-react/dist/es/modules/Dropdown/DropdownText.js","./modules/Embed":"node_modules/semantic-ui-react/dist/es/modules/Embed/index.js","./modules/Modal":"node_modules/semantic-ui-react/dist/es/modules/Modal/index.js","./modules/Modal/ModalActions":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalActions.js","./modules/Modal/ModalContent":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalContent.js","./modules/Modal/ModalDescription":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalDescription.js","./modules/Modal/ModalDimmer":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalDimmer.js","./modules/Modal/ModalHeader":"node_modules/semantic-ui-react/dist/es/modules/Modal/ModalHeader.js","./modules/Popup":"node_modules/semantic-ui-react/dist/es/modules/Popup/index.js","./modules/Popup/PopupContent":"node_modules/semantic-ui-react/dist/es/modules/Popup/PopupContent.js","./modules/Popup/PopupHeader":"node_modules/semantic-ui-react/dist/es/modules/Popup/PopupHeader.js","./modules/Progress":"node_modules/semantic-ui-react/dist/es/modules/Progress/index.js","./modules/Rating":"node_modules/semantic-ui-react/dist/es/modules/Rating/index.js","./modules/Rating/RatingIcon":"node_modules/semantic-ui-react/dist/es/modules/Rating/RatingIcon.js","./modules/Search":"node_modules/semantic-ui-react/dist/es/modules/Search/index.js","./modules/Search/SearchCategory":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchCategory.js","./modules/Search/SearchResult":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchResult.js","./modules/Search/SearchResults":"node_modules/semantic-ui-react/dist/es/modules/Search/SearchResults.js","./modules/Sidebar":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/index.js","./modules/Sidebar/SidebarPushable":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/SidebarPushable.js","./modules/Sidebar/SidebarPusher":"node_modules/semantic-ui-react/dist/es/modules/Sidebar/SidebarPusher.js","./modules/Sticky":"node_modules/semantic-ui-react/dist/es/modules/Sticky/index.js","./modules/Tab":"node_modules/semantic-ui-react/dist/es/modules/Tab/index.js","./modules/Tab/TabPane":"node_modules/semantic-ui-react/dist/es/modules/Tab/TabPane.js","./modules/Transition":"node_modules/semantic-ui-react/dist/es/modules/Transition/index.js","./modules/Transition/TransitionGroup":"node_modules/semantic-ui-react/dist/es/modules/Transition/TransitionGroup.js","./views/Advertisement":"node_modules/semantic-ui-react/dist/es/views/Advertisement/index.js","./views/Card/Card":"node_modules/semantic-ui-react/dist/es/views/Card/Card.js","./views/Card/CardContent":"node_modules/semantic-ui-react/dist/es/views/Card/CardContent.js","./views/Card/CardDescription":"node_modules/semantic-ui-react/dist/es/views/Card/CardDescription.js","./views/Card/CardGroup":"node_modules/semantic-ui-react/dist/es/views/Card/CardGroup.js","./views/Card/CardHeader":"node_modules/semantic-ui-react/dist/es/views/Card/CardHeader.js","./views/Card/CardMeta":"node_modules/semantic-ui-react/dist/es/views/Card/CardMeta.js","./views/Comment":"node_modules/semantic-ui-react/dist/es/views/Comment/index.js","./views/Comment/CommentAction":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAction.js","./views/Comment/CommentActions":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentActions.js","./views/Comment/CommentAuthor":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAuthor.js","./views/Comment/CommentAvatar":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentAvatar.js","./views/Comment/CommentContent":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentContent.js","./views/Comment/CommentGroup":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentGroup.js","./views/Comment/CommentMetadata":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentMetadata.js","./views/Comment/CommentText":"node_modules/semantic-ui-react/dist/es/views/Comment/CommentText.js","./views/Feed":"node_modules/semantic-ui-react/dist/es/views/Feed/index.js","./views/Feed/FeedContent":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedContent.js","./views/Feed/FeedDate":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedDate.js","./views/Feed/FeedEvent":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedEvent.js","./views/Feed/FeedExtra":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedExtra.js","./views/Feed/FeedLabel":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedLabel.js","./views/Feed/FeedLike":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedLike.js","./views/Feed/FeedMeta":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedMeta.js","./views/Feed/FeedSummary":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedSummary.js","./views/Feed/FeedUser":"node_modules/semantic-ui-react/dist/es/views/Feed/FeedUser.js","./views/Item":"node_modules/semantic-ui-react/dist/es/views/Item/index.js","./views/Item/ItemContent":"node_modules/semantic-ui-react/dist/es/views/Item/ItemContent.js","./views/Item/ItemDescription":"node_modules/semantic-ui-react/dist/es/views/Item/ItemDescription.js","./views/Item/ItemExtra":"node_modules/semantic-ui-react/dist/es/views/Item/ItemExtra.js","./views/Item/ItemGroup":"node_modules/semantic-ui-react/dist/es/views/Item/ItemGroup.js","./views/Item/ItemHeader":"node_modules/semantic-ui-react/dist/es/views/Item/ItemHeader.js","./views/Item/ItemImage":"node_modules/semantic-ui-react/dist/es/views/Item/ItemImage.js","./views/Item/ItemMeta":"node_modules/semantic-ui-react/dist/es/views/Item/ItemMeta.js","./views/Statistic":"node_modules/semantic-ui-react/dist/es/views/Statistic/index.js","./views/Statistic/StatisticGroup":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticGroup.js","./views/Statistic/StatisticLabel":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticLabel.js","./views/Statistic/StatisticValue":"node_modules/semantic-ui-react/dist/es/views/Statistic/StatisticValue.js"}],"src/components/parameters/parameter.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79744,7 +79889,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
 var _mobxReact = require("mobx-react");
 
@@ -79754,84 +79899,118 @@ var _semanticUiReact = require("semantic-ui-react");
 
 var _utils = require("../../utils");
 
-var _this = void 0;
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-var Parameter = function Parameter(props) {
-  console.log('Parameter render');
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-  if (props.data.type === 'boolean') {
-    return /*#__PURE__*/_react.default.createElement(CheckboxParameter, props);
-  } else if (props.data.values) {
-    return /*#__PURE__*/_react.default.createElement(EnumParameter, props);
-  }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-  return /*#__PURE__*/_react.default.createElement(InputParameter, props);
-};
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
-var CheckboxParameter = (0, _mobxReact.observer)(function (_ref) {
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var Parameter = function Parameter(_ref) {
   var name = _ref.name,
       data = _ref.data,
-      onChange = _ref.onChange;
-  var classes = {
+      _onChange = _ref.onChange;
+
+  var _useState = (0, _react.useState)(data.defaultValue || ''),
+      _useState2 = _slicedToArray(_useState, 2),
+      value = _useState2[0],
+      setValue = _useState2[1];
+
+  var childrenProps = {
+    name: name,
+    value: value,
+    data: data,
+    onChange: function onChange(value) {
+      _onChange(name, value);
+
+      setValue(value);
+    }
+  };
+
+  if (data.type === 'boolean') {
+    return /*#__PURE__*/_react.default.createElement(CheckboxParameter, childrenProps);
+  } else if (data.values) {
+    return /*#__PURE__*/_react.default.createElement(EnumParameter, childrenProps);
+  }
+
+  return /*#__PURE__*/_react.default.createElement(InputParameter, childrenProps);
+};
+
+var CheckboxParameter = (0, _mobxReact.observer)(function (_ref2) {
+  var name = _ref2.name,
+      data = _ref2.data,
+      value = _ref2.value,
+      _onChange2 = _ref2.onChange;
+  var classes = (0, _utils.className)({
     'checkbox': true,
     'mandatory': data.isMandatory
-  };
+  });
   return /*#__PURE__*/_react.default.createElement("li", {
-    className: (0, _utils.className)(classes)
+    className: classes
   }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Checkbox, {
     label: name,
-    value: data.value,
+    value: value,
     onChange: function onChange(event) {
-      return _this.onChange(name, event.tartget.value);
+      return _onChange2(event.tartget.value);
     }
   }));
 });
-var EnumParameter = (0, _mobxReact.observer)(function (_ref2) {
-  var name = _ref2.name,
-      data = _ref2.data,
-      onChange = _ref2.onChange;
-  var classes = {
+var EnumParameter = (0, _mobxReact.observer)(function (_ref3) {
+  var name = _ref3.name,
+      data = _ref3.data,
+      value = _ref3.value,
+      onChange = _ref3.onChange;
+  var classes = (0, _utils.className)({
     'enum': true,
     'mandatory': data.isMandatory
-  };
+  });
   return /*#__PURE__*/_react.default.createElement("li", {
-    className: (0, _utils.className)(classes)
+    className: classes
   }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Input, {
     type: "hidden",
-    label: name
+    label: name,
+    value: value
   }), /*#__PURE__*/_react.default.createElement("ul", null, data.values.map(function (value, index) {
     return /*#__PURE__*/_react.default.createElement("li", {
       key: index,
       className: data.value === value ? 'selected' : '',
       onClick: function onClick() {
-        return onChange(name, data.value === value ? '' : value);
+        return onChange(data.value === value ? '' : value);
       }
     }, value);
   })));
 });
-var InputParameter = (0, _mobxReact.observer)(function (_ref3) {
-  var name = _ref3.name,
-      data = _ref3.data,
-      _onChange = _ref3.onChange;
-  var classes = {
+var InputParameter = (0, _mobxReact.observer)(function (_ref4) {
+  var name = _ref4.name,
+      data = _ref4.data,
+      value = _ref4.value,
+      _onChange3 = _ref4.onChange;
+  var classes = (0, _utils.className)({
     'mandatory': data.isMandatory
-  };
+  });
   return /*#__PURE__*/_react.default.createElement("li", {
-    className: (0, _utils.className)(classes)
+    className: classes
   }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Input, {
     label: name,
     type: data.type,
-    value: data.value,
+    value: value,
     onChange: function onChange(event) {
-      return _onChange(name, event.target.value);
+      return _onChange3(event.target.value);
     }
   }));
 });
 var _default = Parameter;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","../../utils":"src/utils.ts"}],"src/components/parameters/eptParameters.jsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","../../utils":"src/utils.ts"}],"src/components/parameters/eptParameters.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79877,7 +80056,6 @@ var EptParameters = function EptParameters(_ref) {
     return ept.setParameter(name, value);
   };
 
-  console.log('Ept Params render');
   return /*#__PURE__*/_react.default.createElement("ul", null, /*#__PURE__*/_react.default.createElement("h5", {
     onClick: function onClick() {
       return setCollapsed(!isCollapsed);
@@ -79900,7 +80078,7 @@ var EptParameters = function EptParameters(_ref) {
 
 var _default = EptParameters;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","./parameter":"src/components/parameters/parameter.jsx","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js"}],"src/components/parameters/parameters.jsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","./parameter":"src/components/parameters/parameter.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js"}],"src/components/parameters/parameters.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79910,19 +80088,18 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _semanticUiReact = require("semantic-ui-react");
-
-var _eptParameters = _interopRequireDefault(require("./eptParameters"));
-
 var _mobxReact = require("mobx-react");
 
 var _useStore = require("../../store/useStore");
+
+var _semanticUiReact = require("semantic-ui-react");
+
+var _eptParameters = _interopRequireDefault(require("./eptParameters"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Parameters = (0, _mobxReact.observer)(function (props) {
   var store = (0, _useStore.useStore)();
-  console.log('Parameters render');
   return /*#__PURE__*/_react.default.createElement("div", {
     className: "parameters"
   }, /*#__PURE__*/_react.default.createElement("h1", null, "Parameters"), /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form, null, Object.values(store.activeEpt.epts).filter(function (ept) {
@@ -79936,7 +80113,7 @@ var Parameters = (0, _mobxReact.observer)(function (props) {
 });
 var _default = Parameters;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","./eptParameters":"src/components/parameters/eptParameters.jsx","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js"}],"src/components/eptProperties/eptProperties.jsx":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","./eptParameters":"src/components/parameters/eptParameters.js"}],"src/components/eptProperties/eptProperties.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -79946,102 +80123,49 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _semanticUiReact = require("semantic-ui-react");
-
-var _utils = require("../../utils");
-
-var _mobx = require("mobx");
-
 var _mobxReact = require("mobx-react");
 
 var _useStore = require("../../store/useStore");
 
-var _store = require("../../store/store");
+var _semanticUiReact = require("semantic-ui-react");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import {eptSetProperties, catalogueEptSave, activeEptReset} from '../../store/actions'
 var EptProperties = (0, _mobxReact.observer)(function (props) {
   var store = (0, _useStore.useStore)();
-  var _store$activeEpt = store.activeEpt,
-      id = _store$activeEpt.id,
-      title = _store$activeEpt.title,
-      description = _store$activeEpt.description;
-
-  var save = function save() {
-    if (!id) {
-      store.activeEpt.id = (0, _utils.generateId)();
-    }
-
-    var met = false;
-    store.catalogue = store.catalogue.map(function (ept) {
-      if (ept.id === id) {
-        met = true;
-        return store.activeEpt;
-      }
-
-      return ept;
-    });
-
-    if (!met) {
-      store.catalogue.push(new _store.Ept(store.activeEpt));
-    }
-  };
-
-  var reset = function reset() {
-    store.activeEpt = new _store.Ept();
-  };
-
+  var activeEpt = store.activeEpt,
+      catalogue = store.catalogue;
   return /*#__PURE__*/_react.default.createElement("div", {
     className: "properties"
   }, /*#__PURE__*/_react.default.createElement("h1", null, "Endpoint Template"), /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form, null, /*#__PURE__*/_react.default.createElement("section", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.Input, {
     label: "Title",
-    value: title,
+    value: activeEpt.title,
     onChange: function onChange(event) {
-      return store.activeEpt.title = event.target.value;
+      return activeEpt.title = event.target.value;
     }
   })), /*#__PURE__*/_react.default.createElement("section", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Form.TextArea, {
     label: "Description",
-    value: description,
+    value: activeEpt.description,
     onChange: function onChange(event) {
-      return store.activeEpt.description = event.target.value;
+      return activeEpt.description = event.target.value;
     }
   })), /*#__PURE__*/_react.default.createElement("section", null, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Button, {
     onClick: function onClick() {
-      return save();
+      return catalogue.save();
     }
   }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Icon, {
     name: "check"
   }), " Save"), /*#__PURE__*/_react.default.createElement(_semanticUiReact.Button, {
     onClick: function onClick() {
-      return reset();
+      return activeEpt.reset();
     }
   }, /*#__PURE__*/_react.default.createElement(_semanticUiReact.Icon, {
     name: "plus"
   }), " New EPT"))));
-}); // const mapStateToProps = state => {
-// 	return {
-// 		activeEpt: state.activeEpt
-// 	}
-// };
-// const mapDispatchToProps = dispatch => {
-// 	return {
-// 		setEptProperties: (id, title, description) => {
-// 			return dispatch(eptSetProperties(id, title, description));
-// 		},
-// 		saveEpt: (ept) => {
-// 			return dispatch(catalogueEptSave(ept));
-// 		},
-// 		resetActiveEpt: () => {
-// 			return dispatch(activeEptReset())
-// 		}
-// 	}
-// }
-// const EptPropertiesConnected = connect(mapStateToProps, mapDispatchToProps)(EptProperties);
-
+});
 var _default = EptProperties;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js","../../utils":"src/utils.ts","mobx":"node_modules/mobx/lib/mobx.module.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js","../../store/store":"src/store/store.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","mobx-react":"node_modules/mobx-react/dist/mobx-react.module.js","../../store/useStore":"src/store/useStore.js","semantic-ui-react":"node_modules/semantic-ui-react/dist/es/index.js"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -80134,9 +80258,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var react_1 = __importDefault(require("react"));
 
-var react_dom_1 = __importDefault(require("react-dom")); // import { createStore } from 'redux'
-// import appReducer from './src/store/reducers'
-
+var react_dom_1 = __importDefault(require("react-dom"));
 
 var settings_1 = require("./src/settings");
 
@@ -80167,7 +80289,7 @@ react_dom_1.default.render(react_1.default.createElement(useStore_1.StoreProvide
   width: settings_1.canvasWidth,
   height: settings_1.canvasHeight
 }, react_1.default.createElement(visualizer_1.default, null)))), document.getElementById('content'));
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","./src/settings":"src/settings.js","./src/store/store":"src/store/store.js","./src/store/useStore":"src/store/useStore.js","./src/components/canvas/canvas":"src/components/canvas/canvas.tsx","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.tsx","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.jsx","./src/components/parameters/parameters":"src/components/parameters/parameters.jsx","./src/components/eptProperties/eptProperties":"src/components/eptProperties/eptProperties.jsx","semantic-ui-css/semantic.min.css":"node_modules/semantic-ui-css/semantic.min.css","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","./src/settings":"src/settings.js","./src/store/store":"src/store/store.js","./src/store/useStore":"src/store/useStore.js","./src/components/canvas/canvas":"src/components/canvas/canvas.js","./src/components/visualizer/visualizer":"src/components/visualizer/visualizer.js","./src/components/catalogue/catalogue":"src/components/catalogue/catalogue.js","./src/components/parameters/parameters":"src/components/parameters/parameters.js","./src/components/eptProperties/eptProperties":"src/components/eptProperties/eptProperties.js","semantic-ui-css/semantic.min.css":"node_modules/semantic-ui-css/semantic.min.css","./styles.scss":"styles.scss"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -80195,7 +80317,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58200" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53484" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
