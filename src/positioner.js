@@ -69,7 +69,7 @@ export class Positioner {
 		}
 
 		for (let ky = 0; ky < 6; ky++) {
-			for (let kx = 0; kx < 300; kx+=27) {
+			for (let kx = 0; kx < 300; kx += 27) {
 				if (
 					this._tryPlacingTo({x: basePosition.x + kx, y: basePosition.y + (eptHeight + 30) * ky})
 					|| this._tryPlacingTo({x: basePosition.x - kx, y: basePosition.y + (eptHeight + 30) * ky})

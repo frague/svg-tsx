@@ -80252,46 +80252,66 @@ var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"index.js":[function(require,module,exports) {
+},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/components/eptBuilder.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _settings = require("../settings");
+
+var _store = _interopRequireDefault(require("../store/store"));
+
+var _useStore = require("../store/useStore");
+
+var _canvas = _interopRequireDefault(require("./canvas"));
+
+var _catalogue = _interopRequireDefault(require("./catalogue"));
+
+var _parameters = _interopRequireDefault(require("./parameters"));
+
+var _visualizer = _interopRequireDefault(require("./visualizer"));
+
+var _eptProperties = _interopRequireDefault(require("./eptProperties"));
+
+require("semantic-ui-css/semantic.min.css");
+
+require("../../styles.less");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var half = _settings.canvasWidth / 2;
+
+var EptBuilder = function EptBuilder() {
+  return /*#__PURE__*/_react.default.createElement(_useStore.StoreProvider, {
+    value: _store.default
+  }, /*#__PURE__*/_react.default.createElement(_eptProperties.default, null), /*#__PURE__*/_react.default.createElement("div", {
+    className: "builder"
+  }, /*#__PURE__*/_react.default.createElement(_catalogue.default, null), /*#__PURE__*/_react.default.createElement(_parameters.default, null), /*#__PURE__*/_react.default.createElement(_canvas.default, {
+    width: _settings.canvasWidth,
+    height: _settings.canvasHeight
+  }, /*#__PURE__*/_react.default.createElement(_visualizer.default, null))));
+};
+
+var _default = EptBuilder;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","../settings":"src/settings.js","../store/store":"src/store/store.js","../store/useStore":"src/store/useStore.js","./canvas":"src/components/canvas.js","./catalogue":"src/components/catalogue.js","./parameters":"src/components/parameters.js","./visualizer":"src/components/visualizer.js","./eptProperties":"src/components/eptProperties.js","semantic-ui-css/semantic.min.css":"node_modules/semantic-ui-css/semantic.min.css","../../styles.less":"styles.less"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireDefault(require("react"));
 
 var _reactDom = _interopRequireDefault(require("react-dom"));
 
-var _settings = require("./src/settings");
-
-var _store = _interopRequireDefault(require("./src/store/store"));
-
-var _useStore = require("./src/store/useStore");
-
-var _canvas = _interopRequireDefault(require("./src/components/canvas"));
-
-var _catalogue = _interopRequireDefault(require("./src/components/catalogue"));
-
-var _parameters = _interopRequireDefault(require("./src/components/parameters"));
-
-var _visualizer = _interopRequireDefault(require("./src/components/visualizer"));
-
-var _eptProperties = _interopRequireDefault(require("./src/components/eptProperties"));
-
-require("semantic-ui-css/semantic.min.css");
-
-require("./styles.less");
+var _eptBuilder = _interopRequireDefault(require("./src/components/eptBuilder"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var half = _settings.canvasWidth / 2;
-
-_reactDom.default.render( /*#__PURE__*/_react.default.createElement(_useStore.StoreProvider, {
-  value: _store.default
-}, /*#__PURE__*/_react.default.createElement(_eptProperties.default, null), /*#__PURE__*/_react.default.createElement("div", {
-  className: "builder"
-}, /*#__PURE__*/_react.default.createElement(_catalogue.default, null), /*#__PURE__*/_react.default.createElement(_parameters.default, null), /*#__PURE__*/_react.default.createElement(_canvas.default, {
-  width: _settings.canvasWidth,
-  height: _settings.canvasHeight
-}, /*#__PURE__*/_react.default.createElement(_visualizer.default, null)))), document.getElementById('content'));
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","./src/settings":"src/settings.js","./src/store/store":"src/store/store.js","./src/store/useStore":"src/store/useStore.js","./src/components/canvas":"src/components/canvas.js","./src/components/catalogue":"src/components/catalogue.js","./src/components/parameters":"src/components/parameters.js","./src/components/visualizer":"src/components/visualizer.js","./src/components/eptProperties":"src/components/eptProperties.js","semantic-ui-css/semantic.min.css":"node_modules/semantic-ui-css/semantic.min.css","./styles.less":"styles.less"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+_reactDom.default.render( /*#__PURE__*/_react.default.createElement(_eptBuilder.default, null), document.getElementById('content'));
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","./src/components/eptBuilder":"src/components/eptBuilder.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
