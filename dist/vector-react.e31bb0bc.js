@@ -33596,7 +33596,7 @@ function findIntersection(source) {
   }).sort();
   return intersection.length ? intersection : null;
 }
-},{}],"data/test.js":[function(require,module,exports) {
+},{}],"src/data/test.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -33768,8 +33768,8 @@ var Positioner = /*#__PURE__*/function () {
       }).length;
     }
   }, {
-    key: "addLink",
-    value: function addLink() {
+    key: "_addLink",
+    value: function _addLink() {
       if (this.starts && this.starts.length) {
         return this.starts[0];
       }
@@ -33800,7 +33800,8 @@ var Positioner = /*#__PURE__*/function () {
     value: function position() {
       var middle = _settings.canvasWidth / 2 - _settings.eptWidth / 2;
       var basePosition;
-      var connectedTo = this.addLink();
+
+      var connectedTo = this._addLink();
 
       if (connectedTo !== undefined && connectedTo.id) {
         basePosition = {
@@ -33848,7 +33849,7 @@ var _settings = require("../settings");
 
 var _utils = require("../utils");
 
-var _test = require("../../data/test");
+var _test = require("../data/test");
 
 var _positioner = require("../positioner");
 
@@ -34383,7 +34384,7 @@ var _default = new EptBuilderStore(); // Schemas will go below
 
 
 exports.default = _default;
-},{"mobx":"node_modules/mobx/lib/mobx.module.js","../settings":"src/settings.js","../utils":"src/utils.js","../../data/test":"data/test.js","../positioner":"src/positioner.js"}],"src/store/useStore.js":[function(require,module,exports) {
+},{"mobx":"node_modules/mobx/lib/mobx.module.js","../settings":"src/settings.js","../utils":"src/utils.js","../data/test":"src/data/test.js","../positioner":"src/positioner.js"}],"src/store/useStore.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -80247,7 +80248,7 @@ module.exports = reloadCSS;
         module.hot.dispose(reloadCSS);
         module.hot.accept(reloadCSS);
       
-},{"./themes/default/assets/images/flags.png":[["flags.2c341efe.png","node_modules/semantic-ui-css/themes/default/assets/images/flags.png"],"node_modules/semantic-ui-css/themes/default/assets/images/flags.png"],"./themes/default/assets/fonts/icons.eot":[["icons.3dcee5d2.eot","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.eot"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.eot"],"./themes/default/assets/fonts/icons.woff2":[["icons.9ebb781b.woff2","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.woff2"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.woff2"],"./themes/default/assets/fonts/icons.woff":[["icons.a37b2a10.woff","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.woff"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.woff"],"./themes/default/assets/fonts/icons.ttf":[["icons.3dea36b7.ttf","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.ttf"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.ttf"],"./themes/default/assets/fonts/icons.svg":[["icons.8e30d2cf.svg","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.svg"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.svg"],"./themes/default/assets/fonts/outline-icons.eot":[["outline-icons.f0713033.eot","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.eot"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.eot"],"./themes/default/assets/fonts/outline-icons.woff2":[["outline-icons.00239e7b.woff2","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.woff2"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.woff2"],"./themes/default/assets/fonts/outline-icons.woff":[["outline-icons.0cef42d2.woff","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.woff"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.woff"],"./themes/default/assets/fonts/outline-icons.ttf":[["outline-icons.45676560.ttf","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.ttf"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.ttf"],"./themes/default/assets/fonts/outline-icons.svg":[["outline-icons.2d51f992.svg","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.svg"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.svg"],"./themes/default/assets/fonts/brand-icons.eot":[["brand-icons.b04c53a6.eot","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.eot"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.eot"],"./themes/default/assets/fonts/brand-icons.woff2":[["brand-icons.7356c27f.woff2","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.woff2"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.woff2"],"./themes/default/assets/fonts/brand-icons.woff":[["brand-icons.0aca27c8.woff","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.woff"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.woff"],"./themes/default/assets/fonts/brand-icons.ttf":[["brand-icons.e7547f6b.ttf","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.ttf"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.ttf"],"./themes/default/assets/fonts/brand-icons.svg":[["brand-icons.b8665107.svg","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.svg"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.svg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"styles.less":[function(require,module,exports) {
+},{"./themes/default/assets/images/flags.png":[["flags.2c341efe.png","node_modules/semantic-ui-css/themes/default/assets/images/flags.png"],"node_modules/semantic-ui-css/themes/default/assets/images/flags.png"],"./themes/default/assets/fonts/icons.eot":[["icons.3dcee5d2.eot","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.eot"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.eot"],"./themes/default/assets/fonts/icons.woff2":[["icons.9ebb781b.woff2","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.woff2"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.woff2"],"./themes/default/assets/fonts/icons.woff":[["icons.a37b2a10.woff","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.woff"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.woff"],"./themes/default/assets/fonts/icons.ttf":[["icons.3dea36b7.ttf","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.ttf"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.ttf"],"./themes/default/assets/fonts/icons.svg":[["icons.8e30d2cf.svg","node_modules/semantic-ui-css/themes/default/assets/fonts/icons.svg"],"node_modules/semantic-ui-css/themes/default/assets/fonts/icons.svg"],"./themes/default/assets/fonts/outline-icons.eot":[["outline-icons.f0713033.eot","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.eot"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.eot"],"./themes/default/assets/fonts/outline-icons.woff2":[["outline-icons.00239e7b.woff2","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.woff2"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.woff2"],"./themes/default/assets/fonts/outline-icons.woff":[["outline-icons.0cef42d2.woff","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.woff"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.woff"],"./themes/default/assets/fonts/outline-icons.ttf":[["outline-icons.45676560.ttf","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.ttf"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.ttf"],"./themes/default/assets/fonts/outline-icons.svg":[["outline-icons.2d51f992.svg","node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.svg"],"node_modules/semantic-ui-css/themes/default/assets/fonts/outline-icons.svg"],"./themes/default/assets/fonts/brand-icons.eot":[["brand-icons.b04c53a6.eot","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.eot"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.eot"],"./themes/default/assets/fonts/brand-icons.woff2":[["brand-icons.7356c27f.woff2","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.woff2"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.woff2"],"./themes/default/assets/fonts/brand-icons.woff":[["brand-icons.0aca27c8.woff","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.woff"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.woff"],"./themes/default/assets/fonts/brand-icons.ttf":[["brand-icons.e7547f6b.ttf","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.ttf"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.ttf"],"./themes/default/assets/fonts/brand-icons.svg":[["brand-icons.b8665107.svg","node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.svg"],"node_modules/semantic-ui-css/themes/default/assets/fonts/brand-icons.svg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/styles.less":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -80280,7 +80281,7 @@ var _eptProperties = _interopRequireDefault(require("./eptProperties"));
 
 require("semantic-ui-css/semantic.min.css");
 
-require("../../styles.less");
+require("../styles.less");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -80299,7 +80300,7 @@ var EptBuilder = function EptBuilder() {
 
 var _default = EptBuilder;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","../settings":"src/settings.js","../store/store":"src/store/store.js","../store/useStore":"src/store/useStore.js","./canvas":"src/components/canvas.js","./catalogue":"src/components/catalogue.js","./parameters":"src/components/parameters.js","./visualizer":"src/components/visualizer.js","./eptProperties":"src/components/eptProperties.js","semantic-ui-css/semantic.min.css":"node_modules/semantic-ui-css/semantic.min.css","../../styles.less":"styles.less"}],"index.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../settings":"src/settings.js","../store/store":"src/store/store.js","../store/useStore":"src/store/useStore.js","./canvas":"src/components/canvas.js","./catalogue":"src/components/catalogue.js","./parameters":"src/components/parameters.js","./visualizer":"src/components/visualizer.js","./eptProperties":"src/components/eptProperties.js","semantic-ui-css/semantic.min.css":"node_modules/semantic-ui-css/semantic.min.css","../styles.less":"src/styles.less"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireDefault(require("react"));

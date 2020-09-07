@@ -1,7 +1,7 @@
 import {observable, computed, action, toJS} from 'mobx';
 import {canvasWidth} from '../settings'
 import {generateId} from '../utils'
-import {primitives} from '../../data/test'
+import {primitives} from '../data/test'
 import {Positioner} from '../positioner'
 
 const applicationPoint = {

@@ -11,7 +11,7 @@ import Visualizer from './visualizer'
 import EptProperties from './eptProperties'
 
 import 'semantic-ui-css/semantic.min.css'
-import '../../styles.less';
+import '../styles.less';
 
 const half = canvasWidth / 2;
 

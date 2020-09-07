@@ -35,7 +35,7 @@ export class Positioner {
 		return Object.values(links).filter((link) => link.from === id).length;
 	}
 	
-	addLink() {
+	_addLink() {
 		if (this.starts && this.starts.length) {
 			return this.starts[0];
 		}
@@ -61,7 +61,7 @@ export class Positioner {
 		let middle = canvasWidth / 2 - eptWidth / 2;
 		let basePosition;
 
-		let connectedTo = this.addLink();
+		let connectedTo = this._addLink();
 		if (connectedTo !== undefined && connectedTo.id) {
 			basePosition = {x: connectedTo.position.x, y: connectedTo.position.y + eptHeight + 30};
 		} else {
